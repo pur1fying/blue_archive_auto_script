@@ -44,6 +44,9 @@ add_library(baas-installer-core STATIC
     src/digest.cpp
     src/dependency_state.cpp
     src/paths.cpp
+    src/install_target.cpp
+    src/deployment_manifest.cpp
+    src/startup.cpp
     src/config.cpp
     src/sources.cpp
     src/git.cpp
@@ -119,6 +122,14 @@ if(BUILD_TESTING)
     target_link_libraries(baas-installer-test-paths PRIVATE baas-installer-core)
     add_test(NAME paths COMMAND baas-installer-test-paths)
 
+    add_executable(baas-installer-test-install-target tests/test_install_target.cpp)
+    target_link_libraries(baas-installer-test-install-target PRIVATE baas-installer-core)
+    add_test(NAME install-target COMMAND baas-installer-test-install-target)
+
+    add_executable(baas-installer-test-startup tests/test_startup.cpp)
+    target_link_libraries(baas-installer-test-startup PRIVATE baas-installer-core)
+    add_test(NAME startup COMMAND baas-installer-test-startup)
+
     add_executable(baas-installer-test-config tests/test_config.cpp)
     target_link_libraries(baas-installer-test-config PRIVATE baas-installer-core)
     add_test(NAME config COMMAND baas-installer-test-config)
@@ -137,6 +148,10 @@ if(BUILD_TESTING)
     add_executable(baas-installer-test-transaction tests/test_transaction.cpp)
     target_link_libraries(baas-installer-test-transaction PRIVATE baas-installer-core)
     add_test(NAME transaction COMMAND baas-installer-test-transaction)
+
+    add_executable(baas-installer-test-deployment-manifest tests/test_deployment_manifest.cpp)
+    target_link_libraries(baas-installer-test-deployment-manifest PRIVATE baas-installer-core)
+    add_test(NAME deployment-manifest COMMAND baas-installer-test-deployment-manifest)
 
     add_executable(baas-installer-test-uv tests/test_uv_environment.cpp)
     target_link_libraries(baas-installer-test-uv PRIVATE baas-installer-core)
@@ -177,5 +192,7 @@ if(BUILD_TESTING)
     find_package(Python3 COMPONENTS Interpreter QUIET)
     if(Python3_Interpreter_FOUND)
         add_test(NAME ocr-managed-marker COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_ocr_managed_marker.py)
+        add_test(NAME setup-path COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_setup_path.py)
+        add_test(NAME glob-setup-path COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_glob_setup_path.py)
     endif()
 endif()

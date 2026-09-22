@@ -1,12 +1,13 @@
 #include "baas_installer/uv_environment.hpp"
 #include "baas_installer/curl_runtime.hpp"
 #include "baas_installer/dependency_state.hpp"
+#include "baas_installer/logging.hpp"
 #include "baas_installer/mirrorchyan.hpp"
 #include "baas_installer/process.hpp"
 #include "baas_installer/sources.hpp"
 
 #include <algorithm>
-#include <array>
+#include <atomic>
 #include <chrono>
 #include <fstream>
 
@@ -19,7 +20,7 @@ namespace fs = std::filesystem;
 namespace baas_installer {
 namespace {
 
-std::string text(const fs::path& path) { return path.generic_string(); }
+std::string text(const fs::path& path) { return path_to_utf8(path); }
 
 std::string uv_archive_name() {
 #ifdef _WIN32
@@ -142,9 +143,31 @@ std::vector<std::string> ranked_sources_for(
     const ProcessObserver& observer, const bool test_executor, const fs::path& ranking_cache) {
     if (candidates.empty()) return {};
     if (!source_probe && test_executor) return candidates;
+    static std::atomic<std::uint64_t> section_sequence{0};
+    const auto kind_name = source_kind_name(kind);
+    const auto section_id = kind_name + "-probe-" +
+                            std::to_string(section_sequence.fetch_add(1, std::memory_order_relaxed));
+    if (observer) {
+        observer("uv", source_probe_section_begin(section_id),
+                 "▶ " + kind_name + " source probe (0/" + std::to_string(candidates.size()) + ")\n");
+    }
+    const auto close_section = [&](const std::size_t available, const std::string& selected,
+                                   const long long latency) {
+        if (!observer) return;
+        std::string summary = "✓ " + kind_name + " source probe complete: " +
+            std::to_string(available) + "/" + std::to_string(candidates.size()) + " available";
+        if (!selected.empty()) {
+            summary += "; selected " + selected;
+            if (latency >= 0) summary += " (" + std::to_string(latency) + " ms)";
+        } else {
+            summary += "; no responsive source, real attempts retained";
+        }
+        observer("uv", source_probe_section_end(section_id), summary + "\n");
+    };
 #ifdef BAAS_INSTALLER_HAS_CURL
     if (!source_probe && !ensure_curl_initialized()) {
         if (observer) observer("uv", "probe", "libcurl global initialization failed; retaining source order\n");
+        close_section(0, {}, -1);
         return candidates;
     }
 #endif
@@ -184,6 +207,7 @@ std::vector<std::string> ranked_sources_for(
                 save_source_ranking(ranking_cache, kind, cached);
                 std::vector<std::string> result{preferred->url};
                 for (const auto& item : cached) if (item.url != preferred->url) result.push_back(item.url);
+                close_section(1, preferred->url, latency);
                 return result;
             }
             ++preferred->failures;
@@ -199,6 +223,10 @@ std::vector<std::string> ranked_sources_for(
     if (!ranking_cache.empty()) save_source_ranking(ranking_cache, kind, ranking);
     std::vector<std::string> result;
     for (const auto& source : ranking) result.push_back(source.url);
+    const auto available = static_cast<std::size_t>(std::count_if(
+        ranking.begin(), ranking.end(), [](const RankedSource& item) { return item.latency_ms >= 0; }));
+    close_section(available, successful == ranking.end() ? std::string{} : successful->url,
+                  successful == ranking.end() ? -1 : successful->latency_ms);
     return result;
 }
 
@@ -231,26 +259,6 @@ ProcessResult run_visible(const std::vector<std::string>& arguments,
         if (observer) observer("uv", backend, chunk);
     };
     return executor ? executor(spec) : run_terminal_process(spec);
-}
-
-bool clear_uv_download_caches(const InstallPaths& paths, const UvEnvironment& environment,
-                              std::string& error) {
-    const std::array directories{
-        environment.cache_dir,
-        paths.toolkit_dir / "uv" / "python-cache",
-        paths.toolkit_dir / "uv" / "xdg" / "cache",
-        paths.tmp_dir / "uv",
-    };
-    for (const auto& directory : directories) {
-        std::error_code remove_error;
-        fs::remove_all(directory, remove_error);
-        if (remove_error) {
-            error = "dependency synchronization succeeded but UV cache cleanup failed for '" +
-                    directory.generic_string() + "': " + remove_error.message();
-            return false;
-        }
-    }
-    return true;
 }
 
 fs::path uv_cache_cleanup_marker(const InstallPaths& paths) {
@@ -286,8 +294,15 @@ bool remove_uv_cache_cleanup_marker(const InstallPaths& paths, std::string& erro
 }
 
 bool complete_uv_cache_cleanup(const InstallPaths& paths, const UvEnvironment& environment,
-                               std::string& error) {
-    if (!clear_uv_download_caches(paths, environment, error)) return false;
+                               const ProcessObserver& observer,
+                               const UvProcessExecutor& executor, std::string& error) {
+    const auto result = run_visible(
+        {path_to_utf8(environment.executable), "cache", "clean"}, environment.variables,
+        paths.root, "uv", observer, executor);
+    if (result.exit_code != 0) {
+        error = "UV-owned cache cleanup failed; no cache directory was removed directly";
+        return false;
+    }
     return remove_uv_cache_cleanup_marker(paths, error);
 }
 
@@ -348,9 +363,9 @@ std::vector<UvCommand> managed_uv_commands(
     const auto compiled = requirements.parent_path() / ".baas-installer-requirements.txt";
     return {
         {{"python", "install", config.python_version}},
-        {{"venv", "--relocatable", "--python", config.python_version, environment.venv_dir.generic_string()}},
-        {{"pip", "compile", requirements.generic_string(), "--output-file", compiled.generic_string()}},
-        {{"pip", "sync", "--link-mode", "copy", compiled.generic_string()}},
+        {{"venv", "--relocatable", "--python", config.python_version, path_to_utf8(environment.venv_dir)}},
+        {{"pip", "compile", path_to_utf8(requirements), "--output-file", path_to_utf8(compiled)}},
+        {{"pip", "sync", "--link-mode", "copy", path_to_utf8(compiled)}},
     };
 }
 
@@ -372,26 +387,44 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
     const auto ranking_cache = paths.state_dir / "source-ranking-v1.json";
     sources = ranked_sources_for(SourceKind::Uv, sources, source_probe, observer,
                                  static_cast<bool>(terminal_executor), ranking_cache);
+    std::size_t attempt = 0;
     for (const auto& source : sources) {
+        ++attempt;
         if (run_visible({"curl", "--fail", "--location", "--connect-timeout", "5", "--retry", "2", "--output",
-                         archive.string(), source}, environment.variables, paths.root, "curl", observer,
+                         path_to_utf8(archive), source}, environment.variables, paths.root, "curl", observer,
                         terminal_executor).exit_code != 0) {
             record_runtime_source_result(ranking_cache, SourceKind::Uv, uv_candidates, source, false);
             continue;
         }
-        std::error_code ignored; fs::remove_all(paths.uv_dir, ignored); fs::create_directories(paths.uv_dir);
+        std::error_code ignored;
+        const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
+        const auto extraction = paths.tmp_dir / "uv" /
+            ("extract-" + std::to_string(nonce) + "-" + std::to_string(attempt));
+        if (fs::exists(extraction) || !fs::create_directories(extraction, ignored) || ignored) {
+            record_runtime_source_result(ranking_cache, SourceKind::Uv, uv_candidates, source, false);
+            continue;
+        }
         // Windows bsdtar accepts ZIP archives but not every GNU tar option.
         // Keep the archive's top-level directory and locate uv recursively.
-        if (run_visible({"tar", "-xf", archive.string(), "-C", paths.uv_dir.string()}, environment.variables,
+        if (run_visible({"tar", "-xf", path_to_utf8(archive), "-C", path_to_utf8(extraction)}, environment.variables,
                         paths.root, "tar", observer, terminal_executor).exit_code != 0) continue;
-        for (const auto& item : fs::recursive_directory_iterator(paths.uv_dir)) {
+        for (const auto& item : fs::recursive_directory_iterator(extraction)) {
             if (item.path().filename() != environment.executable.filename()) continue;
-            fs::copy_file(item.path(), environment.executable, fs::copy_options::overwrite_existing, ignored);
-            fs::permissions(environment.executable, fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec, fs::perm_options::add, ignored);
-            if (!fs::exists(environment.executable)) continue;
-            if (run_visible({environment.executable.string(), "--version"}, environment.variables, paths.root,
+            fs::create_directories(paths.uv_dir, ignored);
+            if (ignored) continue;
+            const auto candidate = paths.uv_dir /
+                (environment.executable.stem().string() + ".candidate-" +
+                 std::to_string(nonce) + environment.executable.extension().string());
+            ignored.clear();
+            fs::copy_file(item.path(), candidate, fs::copy_options::none, ignored);
+            if (ignored) continue;
+            fs::permissions(candidate, fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec, fs::perm_options::add, ignored);
+            if (!fs::exists(candidate)) continue;
+            if (run_visible({path_to_utf8(candidate), "--version"}, environment.variables, paths.root,
                             "uv", observer, terminal_executor).exit_code == 0) {
-                fs::remove(archive, ignored);
+                ignored.clear();
+                fs::rename(candidate, environment.executable, ignored);
+                if (ignored) continue;
                 record_runtime_source_result(ranking_cache, SourceKind::Uv, uv_candidates, source, true);
                 return true;
             }
@@ -399,9 +432,6 @@ bool ensure_portable_uv(const InstallPaths& paths, const InstallerConfig& config
             break;
         }
     }
-    std::error_code ignored;
-    fs::remove_all(paths.uv_dir, ignored);
-    fs::remove(archive, ignored);
     error = "could not download or unpack portable uv from every configured source";
     return false;
 }
@@ -417,11 +447,15 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
     const auto dependency_state = inspect_dependency_state(paths, config, requirements, compiled);
     if (fs::exists(uv_cache_cleanup_marker(paths))) {
         if (dependency_state.cache_hit) {
-            if (!complete_uv_cache_cleanup(paths, environment, error)) return false;
-            if (observer) observer("uv", "cache", "Pending UV cache cleanup completed\n");
-        } else {
-            if (!remove_uv_cache_cleanup_marker(paths, error)) return false;
-            if (observer) observer("uv", "cache", "Stale UV cache cleanup marker cleared; retry cache retained\n");
+            std::string cleanup_error;
+            if (complete_uv_cache_cleanup(paths, environment, observer, terminal_executor,
+                                          cleanup_error)) {
+                if (observer) observer("uv", "cache", "Pending UV-owned cache cleanup completed\n");
+            } else if (observer) {
+                observer("uv", "cache", cleanup_error + "; cleanup remains pending\n");
+            }
+        } else if (observer) {
+            observer("uv", "cache", "Pending cleanup deferred until dependency synchronization succeeds\n");
         }
     }
     if (dependency_state.cache_hit) {
@@ -440,7 +474,7 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
     }
 
     const auto run_uv = [&](const std::vector<std::string>& command, const std::map<std::string, std::string>& variables) {
-        std::vector<std::string> arguments{environment.executable.string()};
+        std::vector<std::string> arguments{path_to_utf8(environment.executable)};
         arguments.insert(arguments.end(), command.begin(), command.end());
         return run_visible(arguments, variables, paths.root, "uv", observer, terminal_executor).exit_code == 0;
     };
@@ -482,7 +516,7 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
                                            fs::is_regular_file(virtualenv_python(paths)) &&
                                            marker_value == "python=" + config.python_version + "\n";
         if (!reusable_environment) {
-            if (!run_uv({"venv", "--relocatable", "--python", config.python_version, environment.venv_dir.generic_string()},
+            if (!run_uv({"venv", "--relocatable", "--python", config.python_version, path_to_utf8(environment.venv_dir)},
                         environment.variables)) {
                 error = "uv could not create the relocatable virtual environment";
                 return false;
@@ -499,8 +533,8 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
         auto variables = environment.variables;
         variables["UV_INDEX"] = index;
         variables["UV_DEFAULT_INDEX"] = index;
-        if (environment.managed) variables["VIRTUAL_ENV"] = environment.venv_dir.generic_string();
-        if (!run_uv({"pip", "compile", requirements.generic_string(), "--output-file", compiled.generic_string()}, variables)) {
+        if (environment.managed) variables["VIRTUAL_ENV"] = path_to_utf8(environment.venv_dir);
+        if (!run_uv({"pip", "compile", path_to_utf8(requirements), "--output-file", path_to_utf8(compiled)}, variables)) {
             record_runtime_source_result(paths.state_dir / "source-ranking-v1.json", SourceKind::Pypi,
                                          pypi_candidates, index, false);
             continue;
@@ -510,7 +544,7 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
             sync.push_back("--python");
             sync.push_back(config.runtime_path);
         }
-        sync.push_back(compiled.generic_string());
+        sync.push_back(path_to_utf8(compiled));
         if (!run_uv(sync, variables)) {
             record_runtime_source_result(paths.state_dir / "source-ranking-v1.json", SourceKind::Pypi,
                                          pypi_candidates, index, false);
@@ -541,8 +575,13 @@ bool sync_portable_uv(const InstallPaths& paths, const InstallerConfig& config, 
                 exception.what();
         return false;
     }
-    if (!complete_uv_cache_cleanup(paths, environment, error)) return false;
-    if (observer) observer("uv", "cache", "Disposable UV caches cleared\n");
+    std::string cleanup_error;
+    if (complete_uv_cache_cleanup(paths, environment, observer, terminal_executor,
+                                  cleanup_error)) {
+        if (observer) observer("uv", "cache", "UV-owned package cache cleared\n");
+    } else if (observer) {
+        observer("uv", "cache", cleanup_error + "; installation remains usable and cleanup will retry\n");
+    }
     return true;
 }
 

@@ -1,6 +1,9 @@
 #include "baas_installer/tui.hpp"
 
 #include <cmath>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <thread>
 
@@ -59,8 +62,11 @@ int main() {
         chinese.snapshot().tasks.at("main").label != "主仓库") {
         std::cerr << "task labels must follow the selected system language\n"; return 1;
     }
-    if (baas_installer::task_marker(baas_installer::TaskStatus::Running) != " ") {
-        std::cerr << "running tasks must not use an animated spinner or glyph\n"; return 1;
+    if (baas_installer::task_marker(baas_installer::TaskStatus::Running, 0) != "⠋" ||
+        baas_installer::task_marker(baas_installer::TaskStatus::Running, 1) != "⠙" ||
+        baas_installer::task_marker(baas_installer::TaskStatus::Running, 10) != "⠋" ||
+        baas_installer::task_marker(baas_installer::TaskStatus::Succeeded, 4) != "✓") {
+        std::cerr << "task markers must animate only the running state and wrap frames\n"; return 1;
     }
 
     auto english_screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
@@ -111,6 +117,62 @@ int main() {
         return 1;
     }
 
+    auto target_screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto target_view = baas_installer::render_install_target_view(
+        baas_installer::Language::English,
+        ftxui::text("C:/Users/example/Downloads/BAAS"),
+        "unsafe target refused", 100, 40);
+    ftxui::Render(target_screen, target_view);
+    const auto target_rendered = screen_text(target_screen);
+#ifdef _WIN32
+    const std::string expected_absolute_sample = R"(Absolute example: D:\Games\BAAS)";
+#else
+    const std::string expected_absolute_sample = "Absolute example: /home/user/BAAS";
+#endif
+    const auto target_has = [&](const std::string& value) {
+        return target_rendered.find(value) != std::string::npos;
+    };
+    if (target_screen.at(0, 0) == " " || target_screen.at(99, 39) == " " ||
+        !target_has("Choose a dedicated installation directory") ||
+        !target_has("Relative example: BAAS") ||
+        !target_has(expected_absolute_sample) ||
+        !target_has("C:/Users/example/Downloads/BAAS") ||
+        target_has("unsafetargetrefused")) {
+        std::cerr << "installation-target TUI missing: title="
+                  << target_has("Choose a dedicated installation directory")
+                  << " relative=" << target_has("Relative example: BAAS")
+                  << " absolute=" << target_has(expected_absolute_sample)
+                  << " controls=" << target_has("C:/Users/example/Downloads/BAAS")
+                  << " inline_error=" << target_has("unsafetargetrefused")
+                  << " relative_text='"
+                  << baas_installer::message(baas_installer::Language::English,
+                                             baas_installer::MessageId::InstallDirectoryRelativeSample)
+                  << "' absolute_text='"
+                  << baas_installer::message(baas_installer::Language::English,
+                                             baas_installer::MessageId::InstallDirectoryAbsoluteSample)
+                  << "'\n";
+        return 1;
+    }
+    auto target_error_screen = ftxui::Screen::Create(
+        ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto target_error_view = baas_installer::render_install_target_error_modal(
+        std::move(target_view), baas_installer::Language::English,
+        "unsafe target refused", ftxui::text("confirm control"), 100, 40);
+    ftxui::Render(target_error_screen, target_error_view);
+    const auto target_error_rendered = screen_text(target_error_screen);
+    if (target_error_rendered.find("Invalid installation directory") == std::string::npos ||
+        target_error_rendered.find("unsafe target refused") == std::string::npos ||
+        target_error_rendered.find("confirm control") == std::string::npos) {
+        std::cerr << "installation-target validation error was not presented in a modal\n";
+        return 1;
+    }
+    if (baas_installer::message(baas_installer::Language::SimplifiedChinese,
+                                baas_installer::MessageId::InstallDirectoryTitle) !=
+        "选择专用安装目录") {
+        std::cerr << "installation-directory prompt is not bilingual\n";
+        return 1;
+    }
+
     english.begin_install();
     std::thread main_progress([&] {
         english.update_task("main", baas_installer::TaskStatus::Running, "Downloading", 0.25);
@@ -149,16 +211,116 @@ int main() {
 
     auto installation_screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
     auto installation_view = baas_installer::render_installation_view(
-        english.snapshot(), baas_installer::Language::English, ftxui::text("footer"), 100, 40);
+        english.snapshot(), baas_installer::Language::English, ftxui::text("footer"), 100, 40, 1);
     ftxui::Render(installation_screen, installation_view);
     const auto installation_rendered = screen_text(installation_screen);
     if (installation_screen.at(0, 0) == " " || installation_screen.at(99, 0) == " " ||
         installation_screen.at(0, 39) == " " || installation_screen.at(99, 39) == " " ||
+        installation_rendered.find("⠙") == std::string::npos ||
         installation_rendered.find("history-02") == std::string::npos ||
         installation_rendered.find("history-18") == std::string::npos ||
         installation_rendered.find("history-01") != std::string::npos ||
         installation_rendered.find("history-19") != std::string::npos) {
         std::cerr << "installation renderer did not fill the viewport or derive log capacity from its height\n";
+        return 1;
+    }
+
+    const auto section_sink = std::filesystem::temp_directory_path() /
+        ("baas-installer-section-" + std::to_string(
+            std::chrono::steady_clock::now().time_since_epoch().count()) + ".log");
+    auto section_events = std::make_shared<baas_installer::EventLog>();
+    section_events->set_sink(section_sink);
+    baas_installer::InstallerViewModel section_model(
+        false, baas_installer::Language::English, section_events);
+    section_model.append_process_chunk(
+        "uv", baas_installer::source_probe_section_begin("uv-probe-1"), "UV source probe (0/2)\n");
+    section_model.append_process_chunk("uv", "probe", "source-a failed\n");
+    section_model.append_process_chunk(
+        "ocr", baas_installer::source_probe_section_begin("ocr-probe-1"),
+        "OCR Git source probe (0/1)\n");
+    section_model.append_process_chunk("ocr", "probe", "ocr-source responded in 20 ms\n");
+    section_model.append_process_chunk(
+        "uv", baas_installer::source_probe_section_end("uv-probe-1"),
+        "UV source probe complete: 1/2 available; selected source-b (30 ms)\n");
+    const auto one_closed = section_model.snapshot().log_lines;
+    if (contains(one_closed, "source-a failed") ||
+        !contains(one_closed, "UV source probe complete") ||
+        !contains(one_closed, "ocr-source responded")) {
+        std::cerr << "closing one source-probe section corrupted another active section\n";
+        return 1;
+    }
+    section_model.append_process_chunk(
+        "ocr", baas_installer::source_probe_section_end("ocr-probe-1"),
+        "OCR Git source probe complete: 1/1 available; selected ocr-source (20 ms)\n");
+    const auto all_closed = section_model.snapshot().log_lines;
+    if (contains(all_closed, "source-a failed") || contains(all_closed, "ocr-source responded") ||
+        !contains(all_closed, "UV source probe complete") ||
+        !contains(all_closed, "OCR Git source probe complete")) {
+        std::cerr << "completed source-probe sections did not collapse independently\n";
+        return 1;
+    }
+    section_model.append_process_chunk(
+        "uv", baas_installer::source_probe_section_begin("uv-probe-2"), "UV source probe (0/1)\n");
+    section_model.append_process_chunk("uv", "probe", "Testing second source 10%\r");
+    const auto second_open = section_model.snapshot().log_lines;
+    if (!contains(second_open, "UV source probe complete: 1/2 available") ||
+        !contains(second_open, "UV source probe (0/1)") ||
+        !contains(second_open, "Testing second source 10%")) {
+        std::cerr << "a new probe progress repaint overwrote an earlier collapsed section summary\n";
+        return 1;
+    }
+    section_model.append_process_chunk(
+        "uv", baas_installer::source_probe_section_end("uv-probe-2"),
+        "UV source probe complete: 1/1 available; selected second source (15 ms)\n");
+    std::ifstream section_file(section_sink, std::ios::binary);
+    const std::string persisted_sections{
+        std::istreambuf_iterator<char>(section_file), std::istreambuf_iterator<char>()};
+    if (persisted_sections.find("source-a failed") == std::string::npos ||
+        persisted_sections.find("ocr-source responded") == std::string::npos) {
+        std::cerr << "collapsing TUI source probes discarded detailed disk logs\n";
+        return 1;
+    }
+    std::error_code section_cleanup_error;
+    std::filesystem::remove(section_sink, section_cleanup_error);
+
+    auto mirror_failure_screen = ftxui::Screen::Create(
+        ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto mirror_failure_view = baas_installer::render_mirror_failure_modal(
+        ftxui::text("installation background"), baas_installer::Language::English,
+        "MirrorChyan rejected the supplied CDK", ftxui::text("recovery controls"), 100, 40);
+    ftxui::Render(mirror_failure_screen, mirror_failure_view);
+    const auto mirror_failure_rendered = screen_text(mirror_failure_screen);
+    if (mirror_failure_rendered.find("MirrorChyan installation failed") == std::string::npos ||
+        mirror_failure_rendered.find("MirrorChyan rejected the supplied CDK") == std::string::npos ||
+        mirror_failure_rendered.find("recovery controls") == std::string::npos) {
+        std::cerr << "MirrorChyan failure modal did not expose its actionable reason\n";
+        return 1;
+    }
+
+    ftxui::Elements opaque_background;
+    for (int row = 0; row < 40; ++row) opaque_background.push_back(ftxui::text(std::string(100, 'X')));
+    auto opaque_modal_screen = ftxui::Screen::Create(
+        ftxui::Dimension::Fixed(100), ftxui::Dimension::Fixed(40));
+    auto opaque_modal = baas_installer::render_mirror_failure_modal(
+        ftxui::vbox(std::move(opaque_background)), baas_installer::Language::English,
+        "CDK invalid", ftxui::text("controls"), 100, 40);
+    ftxui::Render(opaque_modal_screen, opaque_modal);
+    bool modal_title_is_opaque = false;
+    for (int row = 0; row < opaque_modal_screen.dimy(); ++row) {
+        std::string line;
+        for (int column = 0; column < opaque_modal_screen.dimx(); ++column) {
+            line += opaque_modal_screen.at(column, row);
+        }
+        const auto title = line.find("MirrorChyan installation failed");
+        if (title == std::string::npos) continue;
+        const auto left_border = line.rfind("│", title);
+        const auto right_border = line.find("│", title + std::string("MirrorChyan installation failed").size());
+        modal_title_is_opaque = left_border != std::string::npos && right_border != std::string::npos &&
+            line.substr(left_border, right_border - left_border).find('X') == std::string::npos;
+        break;
+    }
+    if (!modal_title_is_opaque) {
+        std::cerr << "MirrorChyan failure modal allowed the installation screen to bleed through\n";
         return 1;
     }
 
@@ -188,6 +350,32 @@ int main() {
         std::cerr << "failure screen must retain actionable error\n"; return 1;
     }
 
+    const baas_installer::InstallAttemptResult mirror_attempt{
+        .success = false,
+        .failure_kind = baas_installer::InstallFailureKind::MirrorChyan,
+        .error = "CDK invalid",
+    };
+    if (mirror_attempt.success ||
+        mirror_attempt.failure_kind != baas_installer::InstallFailureKind::MirrorChyan) {
+        std::cerr << "MirrorChyan failures must be distinguishable from general failures\n";
+        return 1;
+    }
+    const auto reenter = baas_installer::mirror_failure_recovery(
+        baas_installer::MirrorRecoveryAction::ReenterCdk);
+    const auto settings = baas_installer::mirror_failure_recovery(
+        baas_installer::MirrorRecoveryAction::BackToSettings);
+    if (!reenter.use_mirror || !reenter.focus_cdk || !reenter.cdk.empty() ||
+        !settings.use_mirror || settings.focus_cdk || !settings.cdk.empty()) {
+        std::cerr << "MirrorChyan recovery did not clear CDK or choose the requested setup focus\n";
+        return 1;
+    }
+    failed.return_to_setup();
+    const auto returned = failed.snapshot();
+    if (returned.screen != baas_installer::InstallerScreen::Setup || !returned.error.empty()) {
+        std::cerr << "MirrorChyan recovery did not restore a clean setup screen\n";
+        return 1;
+    }
+
     if (!baas_installer::configure_utf8_terminal()) {
         std::cerr << "terminal UTF-8/VT initialization failed\n"; return 1;
     }
@@ -195,7 +383,7 @@ int main() {
     const int unattended_exit = baas_installer::run_unattended("", [&](const std::string&, auto& model, const auto&) {
         unattended_called = true;
         model.update_task("main", baas_installer::TaskStatus::Succeeded, "done", 1.0);
-        return std::pair{true, std::string{}};
+        return baas_installer::InstallAttemptResult{.success = true};
     });
     if (!unattended_called || unattended_exit != 0) {
         std::cerr << "unattended verification must execute the install without a terminal loop\n"; return 1;

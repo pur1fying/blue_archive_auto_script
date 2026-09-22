@@ -137,6 +137,14 @@ std::string format_log_event(const LogEvent& event) {
            severity_name(event.severity) + "] " + event.text;
 }
 
+std::string source_probe_section_begin(const std::string_view section_id) {
+    return "probe-section-begin:" + std::string(section_id);
+}
+
+std::string source_probe_section_end(const std::string_view section_id) {
+    return "probe-section-end:" + std::string(section_id);
+}
+
 void EventLog::add_secret(std::string secret) {
     std::scoped_lock lock(mutex_);
     redactor_.add_secret(std::move(secret));
@@ -153,7 +161,9 @@ void EventLog::publish(LogEvent event) {
     bool replaced = false;
     if (event.replace_last) {
         const auto existing = std::find_if(events_.rbegin(), events_.rend(), [&](const LogEvent& candidate) {
-            return candidate.task == event.task && candidate.backend == event.backend;
+            return candidate.task == event.task && candidate.backend == event.backend &&
+                   candidate.section_id == event.section_id &&
+                   candidate.section_action == LogSectionAction::None;
         });
         if (existing != events_.rend()) {
             *existing = event;

@@ -28,7 +28,10 @@ int main() {
     for (const auto language : {Language::English, Language::SimplifiedChinese}) {
         for (const auto id : {MessageId::Welcome, MessageId::AppSubtitle, MessageId::TaskMain, MessageId::TaskOcr,
                               MessageId::StateChecking, MessageId::StateDownloading,
-                              MessageId::ActionRetry, MessageId::ActionExit, MessageId::LaunchFailed}) {
+                              MessageId::ActionRetry, MessageId::ActionExit, MessageId::LaunchFailed,
+                              MessageId::ActionBack, MessageId::StateValidatingCdk,
+                              MessageId::CdkRequired, MessageId::ActionConfirm,
+                              MessageId::InstallDirectoryInvalidTitle}) {
             if (baas_installer::message(language, id).empty()) {
                 std::cerr << "message catalog contains an empty installer string\n";
                 return 1;

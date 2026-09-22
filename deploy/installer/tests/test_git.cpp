@@ -1,6 +1,10 @@
 #include "baas_installer/git.hpp"
+#include "baas_installer/logging.hpp"
 #include "baas_installer/process.hpp"
+#include "baas_installer/paths.hpp"
+#include "baas_installer/transaction.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <atomic>
 #include <cctype>
@@ -88,13 +92,41 @@ int main() {
     }
 
     const auto first_head = baas_installer::repository_head(live);
+    const auto nested_live = seed / "nested-install";
+    const auto nested_staging = root / "nested-staging";
+    fs::create_directories(nested_live);
+    if (!baas_installer::repository_head(nested_live).empty()) {
+        std::cerr << "an install directory inherited Git identity from its parent repository\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+    const auto seed_head_before_nested_install = output({"git", "-C", seed.string(), "rev-parse", "HEAD"});
+    auto nested = baas_installer::prepare_git_repository(
+        {remote.string()}, nested_live, nested_staging, "refs/heads/master", {}, {},
+        baas_installer::SourceKind::MainGit,
+        [&](const std::string& source, const std::string&, std::chrono::milliseconds) {
+            return baas_installer::GitRemoteHead{source, first_head, 1, true};
+        });
+    if (!nested.success || nested.mode != baas_installer::RepositoryMode::Full ||
+        output({"git", "-C", seed.string(), "rev-parse", "HEAD"}) != seed_head_before_nested_install) {
+        std::cerr << "a nested install directory was not isolated from its parent Git repository\n";
+        fs::remove_all(root, ignored);
+        return 1;
+    }
     // Treat the primary fixture as a previously installer-managed depth-one
     // checkout. The separate deep fixture verifies one-time normalization.
     std::ofstream(live / ".git" / "shallow", std::ios::trunc) << first_head << '\n';
     const auto ranking_cache = root / ".baas-installer" / "source-ranking-v1.json";
+    fs::create_directories(ranking_cache.parent_path());
+    std::ofstream(ranking_cache.parent_path() / "installer.lock") << "owned-state\n";
     std::atomic<int> active_probes{0};
     std::atomic<int> maximum_probes{0};
     std::atomic<int> probe_calls{0};
+    std::vector<std::pair<std::string, std::string>> probe_events;
+    const baas_installer::ProcessObserver probe_observer = [&](std::string_view, std::string_view backend,
+                                                                std::string_view chunk) {
+        probe_events.emplace_back(backend, chunk);
+    };
     const auto parallel_probe = [&](const std::string& source, const std::string&,
                                     const std::chrono::milliseconds timeout) {
         ++probe_calls;
@@ -107,10 +139,18 @@ int main() {
                                              timeout == std::chrono::seconds(10)};
     };
     auto measured = baas_installer::prepare_git_repository(
-        {"slow-a", "fast", "slow-b"}, live, staging, "refs/heads/master", {}, ranking_cache,
+        {"slow-a", "fast", "slow-b"}, live, staging, "refs/heads/master", probe_observer, ranking_cache,
         baas_installer::SourceKind::MainGit, parallel_probe);
+    const auto has_probe_event = [&](const std::string_view backend_prefix, const std::string_view text) {
+        return std::any_of(probe_events.begin(), probe_events.end(), [&](const auto& event) {
+            return event.first.starts_with(backend_prefix) && event.second.find(text) != std::string::npos;
+        });
+    };
     if (!measured.success || measured.mode != baas_installer::RepositoryMode::Unchanged ||
-        measured.source != "fast" || probe_calls != 3 || maximum_probes <= 1) {
+        measured.source != "fast" || probe_calls != 3 || maximum_probes <= 1 ||
+        !has_probe_event("probe-section-begin:", "main_git source probe") ||
+        !has_probe_event("probe", "Testing source fast") ||
+        !has_probe_event("probe-section-end:", "selected fast (10 ms)")) {
         std::cerr << "uncached Git SHA probes must run concurrently and select the fastest valid response\n";
         fs::remove_all(root, ignored);
         return 1;
@@ -177,7 +217,10 @@ int main() {
         return 1;
     }
 
+    std::ofstream(seed / "added-by-update.txt") << "new tracked file";
     if (!write_commit(seed, "two", "second") ||
+        !command({"git", "-C", seed.string(), "add", "added-by-update.txt"}) ||
+        !command({"git", "-C", seed.string(), "commit", "--amend", "--no-edit"}) ||
         !command({"git", "-C", seed.string(), "push", "origin", "master"})) {
         std::cerr << "could not advance local Git remote\n";
         fs::remove_all(root, ignored);
@@ -199,6 +242,46 @@ int main() {
     if (!baas_installer::apply_git_update(incremental, live, apply_error) ||
         baas_installer::repository_head(live) != incremental.commit || !fs::is_directory(live / ".git")) {
         std::cerr << "incremental Git apply failed: " << apply_error << '\n';
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+    const auto tracked = baas_installer::repository_tracked_files(
+        live, incremental.backend, apply_error);
+    if (!apply_error.empty() ||
+        tracked != std::vector<fs::path>{fs::path("added-by-update.txt"), fs::path("payload.txt")}) {
+        std::cerr << "post-reset tracked files were not available for ownership refresh: "
+                  << apply_error << '\n';
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+#ifdef BAAS_INSTALLER_TEST_HAS_LIBGIT2
+    const auto libgit2_tracked = baas_installer::repository_tracked_files(
+        live, baas_installer::GitBackend::Libgit2, apply_error);
+    if (!apply_error.empty() || libgit2_tracked != tracked) {
+        std::cerr << "libgit2 did not report the post-reset tracked ownership set: "
+                  << apply_error << '\n';
+        fs::remove_all(root, ignored);
+        return 1;
+    }
+#endif
+    const auto live_paths = baas_installer::InstallPaths::from_root(live, "BAAS-Installer.exe");
+    {
+        baas_installer::InstallTransaction transaction(live_paths);
+        if (!baas_installer::refresh_git_ownership_manifest(
+                transaction, live, incremental.backend,
+                baas_installer::DeploymentTree::Main, apply_error) ||
+            !transaction.commit().empty()) {
+            std::cerr << "incremental Git ownership refresh failed: " << apply_error << '\n';
+            fs::remove_all(root, ignored);
+            return 1;
+        }
+    }
+    const auto refreshed_manifest = baas_installer::load_deployment_manifest(
+        live_paths, baas_installer::DeploymentTree::Main);
+    if (!refreshed_manifest.valid ||
+        !refreshed_manifest.files.contains("added-by-update.txt") ||
+        !refreshed_manifest.files.contains("payload.txt")) {
+        std::cerr << "incremental Git reset did not refresh its ownership manifest\n";
         fs::remove_all(root, ignored);
         return 1;
     }
@@ -234,6 +317,21 @@ int main() {
         output({"git", "-C", full_staging.string(), "rev-list", "--count", "HEAD"}) != "1") {
         std::cerr << "corrupt repository must prepare a full shallow staged repository\n";
         fs::remove_all(root, ignored);
+        return 1;
+    }
+
+    const auto occupied_staging = root / "occupied-staging";
+    fs::create_directories(occupied_staging);
+    std::ofstream(occupied_staging / "unknown-user-file.txt") << "preserve";
+    const auto occupied_clone = baas_installer::prepare_git_repository(
+        {remote.string()}, root / "missing-live", occupied_staging,
+        "refs/heads/master", {}, {}, baas_installer::SourceKind::MainGit,
+        [&](const std::string& source, const std::string&, const std::chrono::milliseconds) {
+            return baas_installer::GitRemoteHead{source, first_head, 1, true};
+        });
+    if (occupied_clone.success ||
+        !fs::is_regular_file(occupied_staging / "unknown-user-file.txt")) {
+        std::cerr << "Git clone cleared a pre-existing staging directory without ownership proof\n";
         return 1;
     }
 

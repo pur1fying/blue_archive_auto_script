@@ -19,6 +19,7 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
     InstallTransaction transaction(paths);
     try {
         save_config_atomic(config, paths);
+        save_setup_location_pointer_atomic(paths);
     } catch (const std::exception& error) {
         return {false, error.what()};
     }
@@ -29,14 +30,19 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
     const auto main_result = main.get();
     const auto ocr_result = ocr.get();
     if (!main_result.success || !ocr_result.success) {
-        const auto& error = !main_result.success ? main_result.error : ocr_result.error;
+        const auto& failed = !main_result.success ? main_result : ocr_result;
+        const auto& error = failed.error;
         emit(services, "deployment", "preparation failed; no live files changed");
-        return {false, error.empty() ? "repository preparation failed" : error};
+        return {false, error.empty() ? "repository preparation failed" : error, failed.backend};
     }
+    std::string active_backend;
+    bool mirror_applied = false;
     try {
         emit(services, "main", "ready; waiting for parallel task");
         std::string error;
         if (main_result.mode != RepositoryMode::Unchanged) {
+            active_backend = main_result.backend;
+            mirror_applied = mirror_applied || main_result.backend == "mirrorchyan";
             emit(services, "deployment", "deploying main repository");
             if (!main_result.apply || !main_result.apply(transaction, error)) {
                 throw std::runtime_error(error.empty() ? "main repository apply failed" : error);
@@ -45,6 +51,8 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
             emit(services, "main", "already current");
         }
         if (ocr_result.mode != RepositoryMode::Unchanged) {
+            active_backend = ocr_result.backend;
+            mirror_applied = mirror_applied || ocr_result.backend == "mirrorchyan";
             emit(services, "deployment", "deploying OCR repository");
             if (!ocr_result.apply || !ocr_result.apply(transaction, error)) {
                 throw std::runtime_error(error.empty() ? "OCR repository apply failed" : error);
@@ -82,7 +90,7 @@ WorkflowResult install_or_update(InstallerConfig& config, const InstallPaths& pa
             message += restore_error.what();
         }
         emit(services, "deployment", "rolled back");
-        return {false, message};
+        return {false, message, mirror_applied ? "mirrorchyan" : active_backend};
     }
     } catch (const std::exception& error) {
         return {false, error.what()};

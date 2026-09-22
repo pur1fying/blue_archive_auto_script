@@ -9,6 +9,7 @@
 namespace baas_installer {
 
 enum class LogSeverity { Debug, Info, Warning, Error };
+enum class LogSectionAction { None, Begin, End };
 
 struct DecodedLine {
     std::string text;
@@ -45,10 +46,14 @@ struct LogEvent {
     LogSeverity severity{LogSeverity::Info};
     std::string text;
     bool replace_last{};
+    std::string section_id;
+    LogSectionAction section_action{LogSectionAction::None};
 };
 
 std::string severity_name(LogSeverity severity);
 std::string format_log_event(const LogEvent& event);
+std::string source_probe_section_begin(std::string_view section_id);
+std::string source_probe_section_end(std::string_view section_id);
 
 class EventLog {
 public:
