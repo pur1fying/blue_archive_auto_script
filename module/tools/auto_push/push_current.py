@@ -45,6 +45,71 @@ _ENTER_BTN_OCR_OFFSET = (-396, -7, 60, 33)  # 按钮左侧的关卡号标签（�
 
 
 
+class _InputHealer:
+    """uiautomator 注入自愈：会话陈旧导致 INJECT_EVENTS 权限失效时，
+    重启服务并重试。通过实例属性遮罩 click/swipe/u2_swipe 实现，仅引擎
+    运行期间生效，退出还原。"""
+
+    _METHODS = ("click", "swipe", "u2_swipe")
+
+    def __init__(self, baas):
+        self._baas = baas
+        self._saved = {}
+
+    @staticmethod
+    def _is_injection_error(e):
+        text = str(e)
+        return ("INJECT_EVENTS" in text or "SecurityException" in text
+                or "-32001" in text)
+
+    def _heal(self):
+        baas = self._baas
+        logger = baas.logger
+        logger.warning("[自愈] 注入权限失效（INJECT_EVENTS），重启 uiautomator 服务...")
+        try:
+            baas.u2.connection.reset_uiautomator()
+        except Exception as e:
+            logger.warning("[自愈] reset_uiautomator 失败（%s），改用 BAAS 启动流程。" % e)
+            baas.wait_uiautomator_start()
+        time.sleep(2)
+
+    def _wrap(self, name):
+        baas = self._baas
+        original = getattr(baas, name, None)
+        if original is None:
+            return  # 对象上不存在该方法（如测试桩），跳过
+        self._saved[name] = original
+        healer = self
+
+        def healed(*args, **kwargs):
+            for attempt in range(3):
+                try:
+                    return original(*args, **kwargs)
+                except Exception as e:
+                    if attempt >= 2 or not healer._is_injection_error(e):
+                        raise
+                    healer._heal()
+
+        setattr(baas, name, healed)
+
+    def run(self, fn):
+        baas = self._baas
+        if getattr(baas, "_input_healer_active", False):
+            return fn(baas)  # 已有自愈在生效（嵌套调用），不重复包装
+        baas._input_healer_active = True
+        try:
+            for name in self._METHODS:
+                self._wrap(name)
+            return fn(baas)
+        finally:
+            for name in self._saved:
+                try:
+                    delattr(baas, name)
+                except AttributeError:
+                    pass
+            baas._input_healer_active = False
+
+
 def _story_screen_ends():
     ends = ["main_story_plot-not-open", "main_story_plot-index"]
     for fam in _STORY_FAMILIES:
@@ -116,7 +181,7 @@ def swipe_story_list(baas, x=None):
     baas.swipe(x, _SWIPE_Y_FROM, x, _SWIPE_Y_TO, duration, post_sleep_time=1)
 
 
-def push_current_story(baas):
+def _push_current_story_impl(baas):
     """从当前画面开始推剧情。返回 True=结束（推完/无可推），False=识别失败。"""
     logger = baas.logger
     logger.info("-- Push plots from current screen (tool hall) --")
@@ -506,7 +571,7 @@ def _button_near(baas, x, y, radius=60):
     return None
 
 
-def push_current_stage(baas):
+def _push_current_stage_impl(baas):
     """推当前页面关卡：无前置、不限图种，蓝色按钮通用循环。
 
     扫描右半屏所有蓝色可点按钮逐个去点：点开是战斗前弹窗（普通/困难/
@@ -573,38 +638,62 @@ def push_current_stage(baas):
         except picture.FunctionCallTimeout:
             pass
 
+    def _try_stage_button(pos):
+        """点击并判定，返回 'fought' / 'cleared'。"""
+        baas.click(int(pos[0]), int(pos[1]), wait_over=True)
+        try:
+            k = _cd(baas, None, None, list(_POPUP_TAKEOVER_KINDS), None, True)
+        except picture.FunctionCallTimeout:
+            return "cleared"  # 点了没弹窗 = 按钮无效
+        return "fought" if _handle_popup(k) is True else "cleared"
+
+    def _explore_rows(max_rows=12):
+        """扫空后的行级探索（用户标定）：一次只拽一行，点最上面的按钮；
+        已通关就说明下面还有按钮，继续拽下一行探索；开打则回主循环。
+        返回 "fought" / "end"。"""
+        for _ in range(max_rows):
+            baas.swipe(907, 500, 907, 385, 0.4, post_sleep_time=1)  # 约一行高度
+            time.sleep(0.5)
+            cands = sorted(_buttons_all(baas), key=lambda t: (t[1], t[0]))
+            if not cands:
+                logger.info("[行探索] 没有更多按钮：没有未通关了。")
+                return "end"
+            pos = cands[0]
+            logger.info("[行探索] 点击最上方按钮 @ %s" % (pos,))
+            if _try_stage_button(pos) == "fought":
+                return "fought"
+        logger.info("[行探索] 连续 %d 行均已通关：没有更多关卡了。" % max_rows)
+        return "end"
+
     def _exhaust_bottom(x, y):
         """终止判定（用户标定）：
-        底部关卡已通关后，同位置找蓝色按钮收尾：
+        底部关卡已通关后，同位置找按钮收尾：
           不存在 → True（活动通关自动跳挑战，没有更多关卡）；
-          存在 → 点它试通关；已通关 → 上拽一页再点一次；
-          仍已通关 → True（没有更多关卡）。False = 还有真关卡，主循环继续。
+          存在 → 点它试通关；已通关 → 上拽一页（列表前进）；
+          上拽后屏幕上还有按钮 → 点最上面的试通关；仍已通关 → True。
+        返回 False = 打了真关卡，主循环继续。
         """
         pos = _button_near(baas, x, y)
         if not pos:
             logger.info("[终止] 底部按钮已消失（活动通关自动跳转挑战）：没有更多关卡。")
             return True
-        for attempt in (1, 2):
-            logger.info("[终止] 同位置仍有按钮 @ %s，点击尝试（第 %d 次）。" % (pos, attempt))
-            baas.click(int(pos[0]), int(pos[1]), wait_over=True)
-            cleared = True
-            try:
-                k = _cd(baas, None, None, list(_POPUP_TAKEOVER_KINDS), None, True)
-                cleared = _handle_popup(k) is not True
-            except picture.FunctionCallTimeout:
-                cleared = True  # 点了没弹窗 = 按钮已无效
-            if not cleared:
-                return False
-            if attempt == 2:
-                logger.info("[终止] 两次均为已通关：没有更多关卡了。")
-                return True
-            logger.info("[终止] 已通关，往上拽一页再试一次。")
-            baas.swipe(907, 200, 907, 520, 0.5, post_sleep_time=1)
-            time.sleep(1)
-            pos = _button_near(baas, x, y)
-            if not pos:
-                logger.info("[终止] 上拽后没有按钮：没有更多关卡了。")
-                return True
+
+        logger.info("[终止] 同位置仍有按钮 @ %s，点击尝试（第 1 次）。" % (pos,))
+        if _try_stage_button(pos) == "fought":
+            return False
+        logger.info("[终止] 已通关，往上拽一页（列表前进）再试一次。")
+        baas.swipe(907, 520, 907, 200, 0.5, post_sleep_time=1)
+        time.sleep(1)
+        # 列表已滚动，老位置必然是空的：改为全屏找按钮，点最上面的
+        cands = sorted(_buttons_all(baas), key=lambda t: (t[1], t[0]))
+        if not cands:
+            logger.info("[终止] 上拽后没有任何按钮：没有更多关卡了。")
+            return True
+        pos = cands[0]
+        logger.info("[终止] 上拽后仍有按钮 @ %s，点击尝试（第 2 次）。" % (pos,))
+        if _try_stage_button(pos) == "fought":
+            return False
+        logger.info("[终止] 两次均为已通关：没有更多关卡了。")
         return True
 
     def _wait_back_to_page():
@@ -689,6 +778,7 @@ def push_current_stage(baas):
 
     def _fight_popup(kind, task_data_name=None, task_data=None):
         """战斗前弹窗分发：普通/困难/委托/活动/外传开打，已通关关闭跳过。"""
+        time.sleep(1)  # 等弹窗动画结束再判定，防误读"已通关"
         if kind == "activity_task-info":
             from module.activities import activity_utils
             if activity_utils.check_sweep_availability(baas, "activity_task-info") == "sss":
@@ -723,9 +813,10 @@ def push_current_stage(baas):
         # normal_task_task-info / normal_task_SUB
         if task_data_name:
             _set_mode()
-            fight_needed = need_fight(baas, task_data_name, True)
+            judge = lambda: need_fight(baas, task_data_name, True)
         else:
-            fight_needed = color.check_sweep_availability(baas, True) in ("no-pass", "pass")
+            judge = lambda: color.check_sweep_availability(baas, True) in ("no-pass", "pass")
+        fight_needed = judge()
         if not fight_needed:
             logger.warning("%s 已通关，跳过。" % (task_data_name or "关卡"))
             return False
@@ -901,23 +992,25 @@ def push_current_stage(baas):
             _settle()
             continue
         idle += 1
-        if idle >= 3:
-            if pushed_any:
-                logger.info("-- No more startable stages. Done. --")
-                return True
+        if idle == 1:
+            # 通关后游戏会自行刷新置顶，画面可能仍在过渡：先等 2 秒重扫。
+            logger.info("[扫描] 本页未命中，等待 2 秒重扫（画面可能在刷新置顶）。")
+            time.sleep(2)
+            continue
+        # 重扫仍空：行级探索——一次拽一行，点最上面的按钮逐个试
+        # （用户标定：已通关就说明下面还有按钮，继续探索）。
+        res = _explore_rows()
+        if res == "fought":
+            pushed_any = True
+            _wait_back_to_page()
+            page_queue = []  # 战斗后置顶变化，强制重扫
+            continue
+        if pushed_any:
+            logger.info("-- No more startable stages. Done. --")
+        else:
             logger.error("当前页面没有找到任何可点的战斗按钮。")
             _save_debug_shot(baas, "请把游戏停在选关页/活动图等有入场按钮的页面后重试。")
-            return False
-        # 与其他推图一致：先往下拽找未通关卡；再反方向兜底一遍。
-        # 翻页后位置键失效（同一纵深可能是新按钮），清除之；关卡号键保留。
-        # 位置键（b:/f:/y:）随翻页失效；关卡号键保留防重复推
-        done = {k for k in done if k[0] not in "bfy"}
-        if idle == 1:
-            logger.info("[扫描] 本页无新按钮，往下拽一页继续找未通关卡。")
-            baas.swipe(907, 200, 907, 520, 0.5, post_sleep_time=1)
-        else:
-            logger.info("[扫描] 反向往上拽一页，做最后确认。")
-            baas.swipe(907, 520, 907, 200, 0.5, post_sleep_time=1)
+        return bool(pushed_any)
     return False
 # ---------------------------------------------------------------- 活动剧情分支
 
@@ -1063,6 +1156,16 @@ def _to_episode_info(baas, fam, pos):
 def _back_to_menu(baas, fam):
     # 从选话/完成页回菜单：mini/group 左上 (56,40)，主线 (60,36)
     baas.click(56, 40 if fam != "main_story" else 60, wait_over=True)
+
+
+def push_current_story(baas):
+    """公开入口：包一层输入自愈（INJECT_EVENTS 失效 → 重启服务 → 重试）。"""
+    return _InputHealer(baas).run(_push_current_story_impl)
+
+
+def push_current_stage(baas):
+    """公开入口：同上。"""
+    return _InputHealer(baas).run(_push_current_stage_impl)
 
 
 def _save_debug_shot(baas, hint="请把游戏停在剧情选章/选话页后重试。"):
