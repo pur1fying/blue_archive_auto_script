@@ -3555,7 +3555,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "JP_2025_06_25",
+        "CN": "ThePromiseOfTheSummerSky",
         "Global": "PlayBallAimforaGrandSlamHomeRun",
         "JP": "HighlanderRailroadExplosionIncident"
     },
