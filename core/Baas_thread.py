@@ -15,6 +15,7 @@ import psutil
 import requests
 
 import module.explore_tasks.explore_task
+import module.purchase_ap
 from core import position, picture, utils
 from core.config.config_set import ConfigSet
 from core.device import emulator_manager
@@ -28,6 +29,44 @@ from core.exception import RequestHumanTakeOver, FunctionCallTimeout, PackageInc
 from core.notification import notify, toast
 from core.pushkit import push
 from core.scheduler import Scheduler
+
+def _plugin_available(tool_id: str) -> bool:
+    """插件接入判活：非启用/删除的插件不参与任何执行。"""
+    try:
+        from module.tools.registry import tool_available
+
+        return tool_available(tool_id)
+    except Exception:
+        return True
+
+
+def _plugin_deleted(tool_id: str) -> bool:
+    try:
+        from module.tools.registry import is_tool_deleted
+
+        return is_tool_deleted(tool_id)
+    except Exception:
+        return False
+
+
+def _plugin_for_activity(activity: str):
+    """调度函数名 → 归属插件 id（走 manifest.scheduler 声明，非插件事件返回 None）。"""
+    try:
+        from module.tools.registry import get_registry
+
+        for t in get_registry().list_all_tools():
+            mf = getattr(t, "manifest", None)
+            spec = mf.scheduler_spec() if mf is not None else None
+            if spec is not None and str(activity) == str(spec.func_name):
+                return t.id
+    except Exception:
+        pass
+    return None
+
+
+if not _plugin_deleted("hoard_ap"):
+    import module.hoard_ap.cafe_claim
+    import module.hoard_ap.executor
 
 func_dict = {
     'group': module.group.implement,
@@ -65,8 +104,15 @@ func_dict = {
     'friend': module.friend.implement,
     'joint_firing_drill': module.joint_firing_drill.implement,
     'pass': module.collect_pass_reward.implement,
-    'collect_daily_free_power': module.collect_daily_free_power.implement
+    'collect_daily_free_power': module.collect_daily_free_power.implement,
+    'purchase_ap': module.purchase_ap.implement,
 }
+
+# 插件级调度注册：删除的插件重启后不导入不注册（调度事件自动跳过）；
+# 非启用的插件保持注册，派发时由 solve 活守卫拦截（停用/启用即时生效）。
+if not _plugin_deleted("hoard_ap"):
+    func_dict['cafe_reward_claim'] = module.hoard_ap.cafe_claim.implement
+    func_dict['hoard_ap'] = module.hoard_ap.executor.implement
 
 
 class Baas_thread:
@@ -200,7 +246,7 @@ class Baas_thread:
         )
         self.resolution = (width, height)
         self.ratio = width / 1280
-        self.logger.info(f"Screen Size Ratio synced: {self.ratio}")
+        self.logger.debug(f"Screen Size Ratio synced: {self.ratio}")
 
     def update_screenshot_array(self):
         self.latest_img_array = self.get_screenshot_array()
@@ -310,7 +356,7 @@ class Baas_thread:
             raise Exception("Emulator start failed")
 
     def init_device(self) -> bool:
-        self.logger.info("--------------Init Device----------------")
+        self.logger.debug("--------------Init Device----------------")
         try:
             self.start_emulator()
         except Exception as e:
@@ -340,7 +386,7 @@ class Baas_thread:
                 # dynamic init Global server ocr language
                 self.ocr.init_baas_model(self)
                 self.ocr.test_models([self.ocr_language], self.logger)
-            self.logger.info("--------Device Init Finished----------")
+            self.logger.debug("--------Device Init Finished----------")
             return True
         except Exception as e:
             self.logger.error(e.__str__())
@@ -348,7 +394,7 @@ class Baas_thread:
             return False
 
     def get_ocr_language(self):
-        self.logger.info("Get OCR Language.")
+        self.logger.debug("Get OCR Language.")
         self.ocr_language = "None"
         if self.is_android_device:
             self._get_android_device_ocr_language()
@@ -357,7 +403,7 @@ class Baas_thread:
                 self.ocr_language = "ja-jp"
             elif self.server == "Global":
                 self._get_host_ocr_language()
-        self.logger.info("Ocr Language : " + self.ocr_language)
+        self.logger.debug("Ocr Language : " + self.ocr_language)
 
     def _get_host_ocr_language(self):
         path = os.path.join(os.getenv('LOCALAPPDATA'), '..', 'LocalLow', 'Nexon Games', 'Blue Archive', 'DeviceOption')
@@ -409,11 +455,11 @@ class Baas_thread:
                 raise Exception("Global Server Invalid Language : " + game_lan + ".")
 
     def check_atx(self):
-        self.logger.info("--------------Check ATX install ----------------")
+        self.logger.debug("--------------Check ATX install ----------------")
         _d = self.u2._wait_for_device()
         if not _d:
             raise RuntimeError("USB device %s is offline " + self.serial)
-        self.logger.info("Device [ " + self.serial + " ] is online.")
+        self.logger.debug("Device [ " + self.serial + " ] is online.")
 
         version_url = self.u2.path2url("/version")
         try:
@@ -423,7 +469,7 @@ class Baas_thread:
         except (requests.RequestException, EnvironmentError):
             self.set_up_atx_agent()
         self.wait_uiautomator_start()
-        self.logger.info("Uiautomator2 service started.")
+        self.logger.debug("Uiautomator2 service started.")
 
     def set_up_atx_agent(self):
         init = BAAS_U2_Initer(self.u2._adb_device, self.logger)
@@ -530,6 +576,15 @@ class Baas_thread:
         """
             execute the task by call the corresponding function in func_dict
         """
+        if activity not in func_dict:
+            # 事件对应的插件已删除（func_dict 未注册该函数）：跳过，不报错
+            self.logger.info("Skip task %s: plugin not available (deleted)" % activity)
+            return True
+        owner = _plugin_for_activity(activity)
+        if owner is not None and not _plugin_available(owner):
+            # 非启用插件：派发时活守卫拦截（停用/启用即时生效，无需重启）
+            self.logger.info("Skip task %s: plugin %s disabled" % (activity, owner))
+            return True
         for i in range(0, 3):
             if i != 0:
                 self.logger.info("Retry Task " + activity + " " + str(i))
@@ -1025,14 +1080,14 @@ class Baas_thread:
                     else:
                         self.logger.warning(f"Failed to resize window client area to 1280x720, final size: {final_resolution}.")
 
-        self.logger.info("Screen Size  " + str(self.resolution))
+        self.logger.debug("Screen Size  " + str(self.resolution))
         self.check_screen_ratio(self.resolution[0], self.resolution[1])
         if self.resolution[0] != 1280:
             self.logger.warning("Screen Size is not 1280x720, we recommend you to use 1280x720.")
         if self.ocr_img_pass_method == 0:
             self.ocr.create_shared_memory(self, self.resolution[0] * self.resolution[1] * 3)
         self.ratio = self.resolution[0] / 1280
-        self.logger.info("Screen Size Ratio: " + str(self.ratio))
+        self.logger.debug("Screen Size Ratio: " + str(self.ratio))
 
     def handle_resolution_dynamic_change(self):
         _new = self.connection.app_process_window.get_resolution()
