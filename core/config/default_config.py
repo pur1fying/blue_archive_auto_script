@@ -3556,7 +3556,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "ThePromiseOfTheSummerSky",
-        "Global": "PlayBallAimforaGrandSlamHomeRun",
+        "Global": "AFlowerBloomsAmongtheHundred",
         "JP": "HighlanderRailroadExplosionIncident"
     },
     "dailyGameActivity": {
