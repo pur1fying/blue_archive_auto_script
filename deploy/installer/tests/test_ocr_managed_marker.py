@@ -22,7 +22,15 @@ core_exception = types.ModuleType("core.exception")
 core_exception.OcrInternalError = RuntimeError
 sys.modules["core.exception"] = core_exception
 dulwich = types.ModuleType("dulwich")
-dulwich.porcelain = types.SimpleNamespace()
+remote_calls = []
+
+
+def forbidden_remote(*args, **kwargs):
+    remote_calls.append((args, kwargs))
+    raise AssertionError("installer-managed OCR attempted a remote request")
+
+
+dulwich.porcelain = types.SimpleNamespace(ls_remote=forbidden_remote)
 sys.modules["dulwich"] = dulwich
 dulwich_repo = types.ModuleType("dulwich.repo")
 dulwich_repo.Repo = FakeRepo
@@ -59,5 +67,9 @@ try:
     assert not module.should_skip_installer_managed_update()
     FakeRepo.expected_head = b"a" * 40
     assert module.should_skip_installer_managed_update()
+    messages = []
+    module.check_git(types.SimpleNamespace(info=messages.append))
+    assert not remote_calls
+    assert any("skipping legacy network update" in message for message in messages)
 finally:
     shutil.rmtree(root, ignore_errors=True)

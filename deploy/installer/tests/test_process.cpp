@@ -70,6 +70,27 @@ int main(int argc, char* argv[]) {
         return 9;
     }
 
+    const auto setup = std::filesystem::absolute("launcher/setup.toml");
+    const auto wayland = baas_installer::desktop_launch_environment(
+        {{"BASE", "kept"}}, setup,
+        {{"XDG_SESSION_TYPE", "wayland"}, {"WAYLAND_DISPLAY", "wayland-0"}, {"DISPLAY", ":0"}});
+    const auto x11 = baas_installer::desktop_launch_environment(
+        {}, setup, {{"XDG_SESSION_TYPE", "x11"}, {"DISPLAY", ":0"}});
+    const auto explicit_platform = baas_installer::desktop_launch_environment(
+        {}, setup,
+        {{"XDG_SESSION_TYPE", "wayland"}, {"WAYLAND_DISPLAY", "wayland-0"},
+         {"QT_QPA_PLATFORM", "xcb"}});
+    const auto compositor_without_xdg = baas_installer::desktop_launch_environment(
+        {}, setup, {{"WAYLAND_DISPLAY", "wayland-1"}});
+    if (wayland.at("QT_QPA_PLATFORM") != "wayland" || wayland.at("BASE") != "kept" ||
+        wayland.at("BAAS_SETUP_TOML") != setup.string() ||
+        x11.contains("QT_QPA_PLATFORM") ||
+        explicit_platform.at("QT_QPA_PLATFORM") != "xcb" ||
+        compositor_without_xdg.at("QT_QPA_PLATFORM") != "wayland") {
+        std::cerr << "desktop launch environment did not preserve compositor compatibility\n";
+        return 1;
+    }
+
     const auto log = std::filesystem::temp_directory_path() / "baas-installer-process-test.log";
     std::error_code ignored;
     std::filesystem::remove(log, ignored);

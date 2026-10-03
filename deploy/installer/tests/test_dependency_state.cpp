@@ -76,6 +76,8 @@ int main() {
 #else
     fs::create_directories(venv_python(paths).parent_path());
     fs::create_symlink(fs::path(old_managed_home()) / "python3.9", venv_python(paths));
+    const auto unrelated_link_temporary = fs::path(venv_python(paths).string() + ".new");
+    write(unrelated_link_temporary, "user-owned-neighbor\n");
 #endif
     const auto managed_home = paths.toolkit_dir / "uv" / "cpython" / fs::path(managed_home_suffix());
     fs::create_directories(managed_home);
@@ -88,8 +90,15 @@ int main() {
     write(paths.venv_dir / "pyvenv.cfg", "home = " + old_managed_home() + "\nversion_info = 3.9.0\n");
     auto obsolete = first;
     obsolete.input_sha256 = std::string(64, '0');
+    const auto unrelated_backup = baas_installer::dependency_stamp_path(paths).string() + ".bak";
+    write(unrelated_backup, "user-owned-backup\n");
     baas_installer::save_dependency_stamp_atomic(obsolete, paths);
     baas_installer::save_dependency_stamp_atomic(first, paths);
+    if (std::ifstream backup(unrelated_backup); std::string{std::istreambuf_iterator<char>(backup), {}} !=
+                                               "user-owned-backup\n") {
+        std::cerr << "dependency state replacement deleted an unrelated backup file\n";
+        return 1;
+    }
 
     std::string repair_error;
     if (!baas_installer::repair_managed_venv_after_move(paths, config, repair_error)) {
@@ -108,6 +117,11 @@ int main() {
     if (repaired_link.string().find(paths.toolkit_dir.string()) == std::string::npos ||
         repaired_link.string().find(old_managed_home()) != std::string::npos) {
         std::cerr << "managed virtualenv interpreter symlink retained its old root\n";
+        return 1;
+    }
+    if (std::ifstream temporary(unrelated_link_temporary);
+        std::string{std::istreambuf_iterator<char>(temporary), {}} != "user-owned-neighbor\n") {
+        std::cerr << "virtualenv symlink repair deleted an unrelated temporary neighbor\n";
         return 1;
     }
 #endif
