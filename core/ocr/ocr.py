@@ -4,6 +4,7 @@ import os.path
 
 from core.exception import OcrInternalError
 from core.ocr.baas_ocr_client import Client
+from core.ocr.baas_ocr_client.server_installer import SERVER_BIN_DIR
 
 
 class Baas_ocr:
@@ -71,8 +72,7 @@ class Baas_ocr:
 
     def get_region_raw_res(self, img, region, language='CN', ratio=1.0, candidates=""):
         img = self.get_area_img(img, region, ratio)
-        res = self.ocr(language, img, candidates, 1)
-        return res
+        return self.ocr(language, img, candidates, 1)
 
     @staticmethod
     def is_chinese_char(char):
@@ -180,7 +180,7 @@ class Baas_ocr:
         logger.info("Test Ocr.")
         for lang in language:
             path = os.path.join(
-                Client.BaasOcrClient.server_folder_path,
+                SERVER_BIN_DIR,
                 "resource",
                 "ocr_models",
                 "test_images",
@@ -247,7 +247,7 @@ class Baas_ocr:
             shared_memory_name
         )
         if response.status_code == 200:
-            return response.text
+            return json.loads(response.text)
         else:
             logger.error("Ocr Error: " + response.text)
             raise OcrInternalError("Ocr Error: " + response.text)
