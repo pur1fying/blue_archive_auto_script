@@ -28,6 +28,18 @@ def push(logger: Logger, config: Config, error: str = None):
             push_feishu(logger, config.push_feishu, data)
         if config.push_wecom != '':
             push_wecom(logger, config.push_wecom, data)
+        if (
+            config.push_telegram_bot_token != ''
+            and config.push_telegram_chat_id != ''
+        ):
+            push_telegram(
+                logger,
+                config.push_telegram_bot_token,
+                config.push_telegram_chat_id,
+                data,
+                config.push_telegram_proxy,
+                config.push_telegram_api
+        )
 
 
 def push_json(logger: Logger, url: str, data: dict):
@@ -98,3 +110,56 @@ def push_wecom(logger: Logger, webhook_url: str, data: dict):
             logger.error(f"[ WeCom ] push HTTP error: {resp.status_code}")
     except Exception as e:
         logger.error(f"[ WeCom ] push exception: {type(e).__name__}; webhook=**")
+
+def push_telegram(
+    logger: Logger,
+    bot_token: str,
+    chat_id: str,
+    data: dict,
+    proxy: str = '',
+    api: str = ''
+):
+    telegram_api = api.rstrip('/') if api else 'https://api.telegram.org'
+    url = f'{telegram_api}/bot{bot_token}/sendMessage'
+
+    telegram_data = {
+        'chat_id': chat_id,
+        'text': f"{data['title']}\n{data['desp']}"
+    }
+
+    proxies = None
+
+    if proxy:
+        proxies = {
+            'http': proxy,
+            'https': proxy
+        }
+
+    try:
+        resp = requests.post(
+            url,
+            json=telegram_data,
+            proxies=proxies
+        )
+
+        if resp.status_code == 200:
+            result = resp.json()
+
+            if result.get('ok'):
+                logger.info("[ Telegram ] push success")
+            else:
+                logger.error(
+                    f"[ Telegram ] push failed: "
+                    f"{result.get('description', 'unknown error')}"
+                )
+        else:
+            logger.error(
+                f"[ Telegram ] push HTTP error: "
+                f"{resp.status_code}"
+            )
+
+    except Exception as e:
+        logger.error(
+            f"[ Telegram ] push exception: "
+            f"{type(e).__name__}"
+        )
