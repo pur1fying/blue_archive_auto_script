@@ -3555,7 +3555,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "ThePromiseOfTheSummerSky",
+        "CN": "iveAlive",
         "Global": "AFlowerBloomsAmongtheHundred",
         "JP": "HighlanderRailroadExplosionIncident"
     },
