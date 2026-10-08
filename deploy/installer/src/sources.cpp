@@ -1,11 +1,17 @@
 #include "baas_installer/sources.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <future>
 #include <mutex>
 
 #include <nlohmann/json.hpp>
+
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
 
 namespace baas_installer {
 
@@ -180,6 +186,12 @@ std::vector<RankedSource> load_source_ranking(
 void save_source_ranking(
     const std::filesystem::path& path, const SourceKind kind, const std::vector<RankedSource>& ranking) {
     std::scoped_lock lock(ranking_cache_mutex);
+    const auto state_dir = path.parent_path();
+    if (path.filename() != "source-ranking-v1.json" ||
+        state_dir.filename() != ".baas-installer" ||
+        !std::filesystem::is_regular_file(state_dir / "installer.lock")) {
+        return;
+    }
     std::filesystem::create_directories(path.parent_path());
     auto cache = read_cache(path);
     nlohmann::json values = nlohmann::json::array();
@@ -189,18 +201,19 @@ void save_source_ranking(
     }
     cache["categories"][source_kind_name(kind)] = {
         {"candidates", sorted_urls(ranking)}, {"ranking", std::move(values)}};
-    auto temporary = path;
-    temporary += ".new";
+    const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto temporary = state_dir /
+        ("source-ranking-v1." + std::to_string(nonce) + ".tmp");
     std::ofstream output(temporary, std::ios::trunc);
     output << cache.dump(2) << '\n';
     output.close();
+#ifdef _WIN32
+    (void)MoveFileExW(temporary.wstring().c_str(), path.wstring().c_str(),
+                      MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+#else
     std::error_code error;
     std::filesystem::rename(temporary, path, error);
-    if (error) {
-        std::filesystem::remove(path, error);
-        error.clear();
-        std::filesystem::rename(temporary, path, error);
-    }
+#endif
 }
 
 void record_source_failure(std::vector<RankedSource>& ranking, const std::string& url) {

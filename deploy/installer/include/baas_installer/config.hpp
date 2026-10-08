@@ -8,6 +8,7 @@
 namespace baas_installer {
 
 struct InstallerConfig {
+    std::string baas_root_path{"."};
     std::string mirrorc_cdk;
     std::string main_sha;
     std::string ocr_sha;
@@ -27,5 +28,11 @@ InstallerConfig parse_config(const std::string& content);
 std::string render_config(const InstallerConfig& config);
 InstallerConfig load_config(const InstallPaths& paths);
 void save_config_atomic(const InstallerConfig& config, const InstallPaths& paths);
+void save_setup_location_pointer_atomic(const InstallPaths& paths);
+void begin_install_session_config(InstallerConfig& config, const InstallPaths& paths,
+                                  const std::string& validated_cdk = {});
+void commit_successful_mirror_cdk(InstallerConfig& config, const InstallPaths& paths,
+                                  const std::string& verified_cdk);
+void clear_mirror_cdk(InstallerConfig& config, const InstallPaths& paths);
 
 }  // namespace baas_installer

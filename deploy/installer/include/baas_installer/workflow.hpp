@@ -28,7 +28,11 @@ struct WorkflowServices {
     std::function<void(const std::string&, const std::string&)> progress;
 };
 
-struct WorkflowResult { bool success{}; std::string error; };
+struct WorkflowResult {
+    bool success{};
+    std::string error;
+    std::string failure_backend;
+};
 
 // Downloads are prepared concurrently.  Nothing is placed in the live tree
 // until both preparation functions succeed; main is committed before OCR.
