@@ -117,7 +117,8 @@ def push_telegram(
     chat_id: str,
     data: dict,
     proxy: str = '',
-    api: str = ''
+    api: str = '',
+    timeout: int = 30
 ):
     telegram_api = api.rstrip('/') if api else 'https://api.telegram.org'
     url = f'{telegram_api}/bot{bot_token}/sendMessage'
@@ -139,26 +140,30 @@ def push_telegram(
         resp = requests.post(
             url,
             json=telegram_data,
-            proxies=proxies
+            proxies=proxies,
+            timeout=timeout
         )
 
-        if resp.status_code == 200:
+        try:
             result = resp.json()
+        except ValueError:
+            # e.g. proxy returns an HTML error page with HTTP 200
+            logger.error(
+                f"[ Telegram ] push HTTP error: {resp.status_code}, "
+                f"response is not JSON, check proxy or API address"
+            )
+            return
 
-            if result.get('ok'):
-                logger.info("[ Telegram ] push success")
-            else:
-                logger.error(
-                    f"[ Telegram ] push failed: "
-                    f"{result.get('description', 'unknown error')}"
-                )
+        if result.get('ok'):
+            logger.info("[ Telegram ] push success")
         else:
             logger.error(
-                f"[ Telegram ] push HTTP error: "
-                f"{resp.status_code}"
+                f"[ Telegram ] push failed: "
+                f"{result.get('description', f'HTTP {resp.status_code}')}"
             )
 
     except Exception as e:
+        # do not log the url: it contains the bot token
         logger.error(
             f"[ Telegram ] push exception: "
             f"{type(e).__name__}"
