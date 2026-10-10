@@ -104,6 +104,14 @@ class Logger:
         """
         self.__out__(message, 1)
 
+    def debug(self, message: str) -> None:
+        """
+        :param message: log message
+
+        Debug log：只写入内部缓冲，不输出到控制台/GUI 日志框。
+        """
+        self.logs += f"DEBUG | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {message}"
+
     def warning(self, message: str) -> None:
         """
         :param message: log message

@@ -1,0 +1,22 @@
+{
+  "id": "my_tool",
+  "name": "我的工具",
+  "version": "1.0.0",
+  "summary": "一句话说明这个工具做什么（显示在大厅卡片上）",
+  "icon": "APPLICATION",
+  "category": "general",
+  "order": 150,
+  "kind": "local",
+  "entry": "module.tools.my_tool.tool:Tool",
+  "ui": "",
+  "config_prefix": "tool_my_tool_",
+  "config_defaults": {
+    "tool_my_tool_enabled": true,
+    "tool_my_tool_max_count": {"type": "int", "min": 1, "max": 10, "default": 3, "label": "数量上限"},
+    "tool_my_tool_note": "示例文本",
+    "tool_my_tool_mode": ["标准", "极速", "稳定"],
+    "tool_my_tool_level": {"type": "enum", "options": ["低", "中", "高"], "default": "中", "label": "强度等级"}
+  },
+  "enabled_by_default": true,
+  "show_in_lobby": true
+}
