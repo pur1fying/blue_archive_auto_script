@@ -9,7 +9,7 @@ from core.exception import RequestHumanTakeOver
 # reference : [ https://github.com/LmeSzinc/AzurLaneAutoScript/blob/master/module/device/connection.py ]
 class Connection:
 
-    def __init__(self, Baas_instance):
+    def __init__(self, Baas_instance, skip_package_detection=False):
         self.Baas_thread = Baas_instance
         self.logger = Baas_instance.get_logger()
         self.config_set = Baas_instance.get_config()
@@ -24,10 +24,10 @@ class Connection:
             self._is_android_device = False
             self._init_app_process()
         else:
-            self._init_android_device()
+            self._init_android_device(skip_package_detection)
             self._is_android_device = True
 
-    def _init_android_device(self):
+    def _init_android_device(self, skip_package_detection=False):
         self.activity = None
         self.package = None
         self.adbIP = self.config.adbIP
@@ -46,7 +46,8 @@ class Connection:
         self.check_serial()
         self.detect_device()
         self.adb_connect()
-        self.detect_package()
+        if not skip_package_detection:
+            self.detect_package()
         self.check_mumu_keep_alive()
 
     def _init_app_process(self):
