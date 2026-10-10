@@ -49,6 +49,10 @@ class Config:
     push_serverchan: str
     push_feishu: str
     push_wecom: str
+    push_telegram_bot_token: str
+    push_telegram_chat_id: str
+    push_telegram_proxy: str
+    push_telegram_api: str
     cafe_reward_affection_pat_round: int
     cafe_reward_lowest_affection_first: bool
     cafe_reward_invite1_criterion: str
