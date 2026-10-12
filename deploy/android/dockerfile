@@ -1,0 +1,61 @@
+FROM mcr.microsoft.com/devcontainers/python:3.9
+
+# Switch to root user to install packages
+USER root
+
+# Change apt source to Aliyun mirror
+RUN curl -sSL https://linuxmirrors.cn/main.sh -o /tmp/main.sh && \
+    bash /tmp/main.sh \
+      --source mirrors.aliyun.com \
+      --protocol http \
+      --use-intranet-source false \
+      --install-epel true \
+      --backup true \
+      --upgrade-software false \
+      --clean-cache false \
+      --ignore-backup-tips && \
+    rm -f /tmp/main.sh
+
+# Install system dependencies for OpenCV and other packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    libegl1 \
+    patchelf \
+    ant \
+    autoconf \
+    automake \
+    ccache \
+    cmake \
+    g++ \
+    gcc \
+    git \
+    lbzip2 \
+    libffi-dev \
+    libltdl-dev \
+    libtool \
+    libssl-dev \
+    make \
+    patch \
+    pkg-config \
+    sudo \
+    unzip \
+    wget \
+    zip \
+    adb \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install OpenJDK 17
+ENV JAVA_HOME=/opt/java/openjdk-17
+RUN mkdir -p ${JAVA_HOME} && \
+    curl -L "https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jdk/hotspot/normal/adoptium" | \
+    tar -xz --strip-components=1 -C ${JAVA_HOME}
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+# Preinstall build backends often needed by PEP517 sdists during p4a builds
+RUN python -m pip install --no-cache-dir --upgrade pip && \
+    python -m pip install --no-cache-dir scikit-build-core
+
+# Switch back to the default user
+USER vscode

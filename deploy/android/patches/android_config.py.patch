@@ -1,0 +1,45 @@
+# Patch for: pyside6-android-deploy
+# This patch fixes a bug caused by unexpected gc.
+
+diff --git a/.venv/lib/python3.9/site-packages/PySide6/scripts/deploy_lib/android/android_config.py b/.venv/lib/python3.9/site-packages/PySide6/scripts/deploy_lib/android/android_config.py
+--- a/.venv/lib/python3.9/site-packages/PySide6/scripts/deploy_lib/android/android_config.py
++++ b/.venv/lib/python3.9/site-packages/PySide6/scripts/deploy_lib/android/android_config.py
+@@ -43,9 +43,10 @@
+         if android_data.wheel_shiboken:
+             self.wheel_shiboken = android_data.wheel_shiboken
+         else:
+             wheel_shiboken_temp = self.get_value("android", "wheel_shiboken")
+             if not wheel_shiboken_temp:
+                 raise RuntimeError("[DEPLOY] Unable to find shiboken6 Android wheel")
+             self.wheel_shiboken = Path(wheel_shiboken_temp).resolve()
+ 
++        self._wheel_pyside_archive = zipfile.ZipFile(self.wheel_pyside)
+         self.ndk_path = None
+         if android_data.ndk_path:
+             # from cli
+             self.ndk_path = android_data.ndk_path
+         else:
+@@ -109,8 +110,10 @@
+         self._mode = self.get_value("buildozer", "mode")
+ 
+-        self.qt_libs_path: zipfile.Path = find_qtlibs_in_wheel(wheel_pyside=self.wheel_pyside)
++        qt_libs_path_temp = find_qtlibs_in_wheel(wheel_pyside=self.wheel_pyside)
++        self.qt_libs_path: zipfile.Path = zipfile.Path(self._wheel_pyside_archive,
++                                                       qt_libs_path_temp.at)
+         logging.info(f"[DEPLOY] Qt libs path inside wheel: {str(self.qt_libs_path)}")
+ 
+         if self.get_value("qt", "modules"):
+             self.modules = self.get_value("qt", "modules").split(",")
+         else:
+@@ -300,8 +303,8 @@
+         if not llvm_readobj.exists():
+             raise FileNotFoundError(f"[DEPLOY] {llvm_readobj} does not exist."
+                                     "Finding Qt dependencies failed")
+ 
+-        archive = zipfile.ZipFile(self.wheel_pyside)
++        archive = self._wheel_pyside_archive
+         lib_path_suffix = Path(str(self.qt_libs_path)).relative_to(self.wheel_pyside)
+ 
+         with tempfile.TemporaryDirectory() as tmpdir:
+             archive.extractall(tmpdir)
+             qt_libs_tmpdir = Path(tmpdir) / lib_path_suffix

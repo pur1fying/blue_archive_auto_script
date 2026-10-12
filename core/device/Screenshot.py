@@ -56,6 +56,10 @@ class Screenshot:
         self.last_screenshot_time = time.time()
         return image
 
+    def set_display_id(self, display_id):
+        if hasattr(self.screenshot_instance, 'set_display_id'):
+            self.screenshot_instance.set_display_id(display_id)
+
     def set_screenshot_interval(self, interval):
         if interval < 0.3:
             self.logger.warning("screenshot_interval must be greater than 0.3")

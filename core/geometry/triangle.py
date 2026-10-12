@@ -61,33 +61,5 @@ class Triangle:
         x_min_list[idx] = min(x_min_list[idx], min(v0[0], v1[0]))
         x_max_list[idx] = max(x_max_list[idx], max(v0[0], v1[0]))
 
-if __name__ == "__main__":
-    triangle = Triangle([(0, 0), (100, 100), (100, -100)])
-
-    x_min_list, x_max_list = triangle.x_bounds()
-
-    print("y坐标 | 最小x | 最大x")
-    print("-------------------")
-    for i in range(len(x_min_list)):
-        y = i + int(triangle.v0[1])
-        min_x = x_min_list[i]
-        max_x = x_max_list[i]
-
-
-        print(f"{y:4d} | {min_x:6.2f} | {max_x:6.2f}")
-
-    # # draw pixels with opencv
-    # import cv2
-    # import numpy as np
-    # img = np.zeros((1280, 720, 3), dtype=np.uint8)
-    # for y in range(len(x_min_list)):
-    #     min_x = x_min_list[y]
-    #     max_x = x_max_list[y]
-    #     if min_x == float('inf') or max_x == float('-inf'):
-    #         continue
-    #     for x in range(int(min_x), int(max_x) + 1):
-    #         img[y, x] = [255, 255, 255]  # white pixel
-    #
-    # cv2.imshow("Triangle Pixels", img)
-    # cv2.waitKey(0)
-
+    def pixels(self):
+        return self.v0[1], self.x_bounds()
