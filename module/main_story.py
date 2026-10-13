@@ -22,7 +22,7 @@ def implement(self):
 
 def episode_stage(episode):
     """
-        JP server added stage 2 : issue #475
+        JP and Global servers use a second main-story stage.
         We need to enter correct stage before pushing episode.
     """
     if episode in range(0, 10):
@@ -204,7 +204,10 @@ def to_episode(self, num, stage):
 
 def search_episode(self, possible_list):
     self.logger.info("Search Episode " + str(possible_list))
-    regions = [[0, 293, 910, 362], [0, 506, 812, 588]]
+    regions = [
+        [0, 293, 910, 362],
+        [0, 506, 812, 588],
+    ]
     appeared_episodes = []
     position = []
     for i in range(0, len(possible_list)):
@@ -374,7 +377,7 @@ def check_state_and_get_stage_data(self):
 
 
 def to_stage(self, stage):
-    if self.server not in ["JP"]:
+    if self.server not in ["JP", "Global"]:
         return
 
     all_stage = [1, 2]

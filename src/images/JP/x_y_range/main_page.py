@@ -16,19 +16,9 @@ x_y_range = {
 
     'purchase-pyroxenes-menu': (106, 10, 237, 38),
 
-    'purchase-pyroxenes-general-selected': (41, 237, 154, 264),
+    'purchase-pyroxenes-general-selected-1': (41, 237, 154, 264),
+    'purchase-pyroxenes-general-selected-2': (41, 304, 154, 331),
     'purchase-pyroxenes-daily-selected': (854, 90, 924, 109),
-
-    'purchase-pyroxenes-limited-selected': (337, 167, 429, 195),
-
-    'purchase-pyroxenes-pyroxenes-selected-1': (600, 167, 677, 195),
-    'purchase-pyroxenes-pyroxenes-selected-2': (408, 167, 482, 195),
-    # guide icon only appears in JP pc server currently
-    'purchase-pyroxenes-guide-selected-2': (408, 167, 482, 195),
-
-    'purchase-pyroxenes-package-selected-1': (841, 167, 954, 195),
-    'purchase-pyroxenes-package-selected-2': (776, 167, 888, 195),
-    'purchase-pyroxenes-package-selected-3': (330, 167, 437, 195),
 
     'purchase-pyroxenes-daily-free-purchasable': (363, 412, 406, 434),
     'purchase-pyroxenes-daily-free-non-purchasable': (363, 412, 406, 434),

@@ -384,6 +384,10 @@ DEFAULT_CONFIG = """
     "push_serverchan":"",
     "push_feishu": "",
     "push_wecom": "",
+    "push_telegram_bot_token": "",
+    "push_telegram_chat_id": "",
+    "push_telegram_proxy": "",
+    "push_telegram_api": "",
     "cafe_reward_affection_pat_round": 4,
     "cafe_reward_lowest_affection_first": true,
     "cafe_reward_invite1_criterion" : "starred",
@@ -616,7 +620,7 @@ STATIC_DEFAULT_CONFIG = '''
     "main_story_final_episode_num": 6,
     "main_story_available_episodes": {
         "CN": [1, 2, 3, 4, 5, 6, 7, 8],
-        "Global": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "Global": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         "JP": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     },
     "max_region": {
@@ -3555,8 +3559,8 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "FromOpera0068WithLove",
-        "Global": "PlayBallAimforaGrandSlamHomeRun",
+        "CN": "iveAlive",
+        "Global": "AFlowerBloomsAmongtheHundred",
         "JP": "HighlanderRailroadExplosionIncident"
     },
     "dailyGameActivity": {
