@@ -557,27 +557,37 @@ def _collect_stage_candidates(baas, done, find_labeled, find_blue, find_framed,
 
 
 def _buttons_all(baas):
-    """汇总当前画面所有入场按钮坐标（蓝/白框/模板，免 OCR）。"""
-    cands = list(_find_framed_buttons(baas)) + list(_find_blue_buttons(baas))
-    cands += [(x, y) for (x, y, _l) in _find_labeled_buttons(baas, with_label=False)]
-    return cands
+    """合并三类来源的入场按钮，返回自上而下的点击坐标 [(x, y, label)]。
+
+    模板来源坐标是匹配点左上角，统一换算成按钮中心；同一按钮被多来源
+    命中时按位置去重。关卡号 OCR 仅用于查格子数据，不参与去重。
+    """
+    labeled = _find_labeled_buttons(baas, with_label=True)
+    cands = [(x + 34, y + 21, lbl) for (x, y, lbl) in labeled]
+    cands += [(cx, cy, "") for (cx, cy) in _find_framed_buttons(baas)]
+    cands += [(cx, cy, "") for (cx, cy) in _find_blue_buttons(baas)]
+    cands.sort(key=lambda t: (t[1], t[0]))
+    out = []
+    for c in cands:
+        if out and abs(c[0] - out[-1][0]) < 80 and abs(c[1] - out[-1][1]) < 30:
+            continue
+        out.append(c)
+    return out
 
 
-def _button_near(baas, x, y, radius=60):
-    """同位置（±radius）是否还存在入场按钮，存在则返回其坐标。"""
-    for (cx, cy) in _buttons_all(baas):
-        if abs(cx - x) < radius and abs(cy - y) < radius:
-            return (cx, cy)
-    return None
+def push_current_stage(baas):
+    """公开入口：包一层输入自愈（INJECT_EVENTS 失效 → 重启服务 → 重试）。"""
+    return _InputHealer(baas).run(_push_current_stage_impl)
 
 
 def _push_current_stage_impl(baas):
-    """推当前页面关卡：无前置、不限图种，蓝色按钮通用循环。
+    """推当前页面关卡（用户标定的极简循环，不读任何推图清单）：
 
-    扫描右半屏所有蓝色可点按钮逐个去点：点开是战斗前弹窗（普通/困难/
-    活动/外传/委托）就开打，是剧情页就关掉跳过；已通关的自动跳过。用户
-    已手动点过入场、停在弹窗（黄色"开始任务"画面）时直接接管开打。所有
-    识别步骤有界超时，连续失败存调试截图快速退出。不读取任何推图清单。
+    1. 扫描屏幕上的入场按钮，点最上面的一个；
+    2. 弹窗判定：未通关 → 开战 → 清结算 → 回到 1（游戏会把未通关置顶）；
+    3. 已通关 → 往下拽一行，点同一位置的下一个，逐行往下试；
+    4. 坐标到屏幕底部尽头：点已通关 → 上拽（列表前进）→ 同一最下位置
+       仍已通关 → 走到头了，结束。
     """
     from module.explore_tasks.explore_task import (
         extract_first_team,
@@ -595,15 +605,13 @@ def _push_current_stage_impl(baas):
     logger.info("-- Push stages from current screen (tool hall) --")
 
     region_data_cache = {}
-    done = set()
     failed = 0
     idle = 0
-    navigated = False
+    rows = 0
+    buttons_seen = False
     pushed_any = False
     popup_rounds = 0
     sortie_rounds = 0
-    page_queue = []
-    bottom_strategy = False
 
     def _cd(*args, **kw):
         kw.setdefault("time_out", _STAGE_TIMEOUT)
@@ -628,153 +636,24 @@ def _push_current_stage_impl(baas):
         rgb_possibles.pop(mode)
         _cd(baas, mode, rgb_possibles, skip_first_screenshot=True)
 
-    def _settle():
-        """清结算/遗留弹窗，回到可扫描画面（活动/外传页没有普通页特征，
-        弹窗清完即有界超时返回，属正常）。"""
-        try:
-            img = dict(_TO_HARD_IMG_REACTIONS)
-            img.update(picture.GAME_ONE_TIME_POP_UPS[baas.server])
-            _cd(baas, ["event_normal", "event_hard"], _TO_HARD_RGB_REACTIONS, None, img, True)
-        except picture.FunctionCallTimeout:
-            pass
-
-    def _try_stage_button(pos):
-        """点击并判定，返回 'fought' / 'cleared'。"""
-        baas.click(int(pos[0]), int(pos[1]), wait_over=True)
-        try:
-            k = _cd(baas, None, None, list(_POPUP_TAKEOVER_KINDS), None, True)
-        except picture.FunctionCallTimeout:
-            return "cleared"  # 点了没弹窗 = 按钮无效
-        return "fought" if _handle_popup(k) is True else "cleared"
-
-    def _explore_rows(max_rows=12):
-        """扫空后的行级探索（用户标定）：一次只拽一行，点最上面的按钮；
-        已通关就说明下面还有按钮，继续拽下一行探索；开打则回主循环。
-        返回 "fought" / "end"。"""
-        for _ in range(max_rows):
-            baas.swipe(907, 500, 907, 385, 0.4, post_sleep_time=1)  # 约一行高度
-            time.sleep(0.5)
-            cands = sorted(_buttons_all(baas), key=lambda t: (t[1], t[0]))
-            if not cands:
-                logger.info("[行探索] 没有更多按钮：没有未通关了。")
-                return "end"
-            pos = cands[0]
-            logger.info("[行探索] 点击最上方按钮 @ %s" % (pos,))
-            if _try_stage_button(pos) == "fought":
-                return "fought"
-        logger.info("[行探索] 连续 %d 行均已通关：没有更多关卡了。" % max_rows)
-        return "end"
-
-    def _exhaust_bottom(x, y):
-        """终止判定（用户标定）：
-        底部关卡已通关后，同位置找按钮收尾：
-          不存在 → True（活动通关自动跳挑战，没有更多关卡）；
-          存在 → 点它试通关；已通关 → 上拽一页（列表前进）；
-          上拽后屏幕上还有按钮 → 点最上面的试通关；仍已通关 → True。
-        返回 False = 打了真关卡，主循环继续。
-        """
-        pos = _button_near(baas, x, y)
-        if not pos:
-            logger.info("[终止] 底部按钮已消失（活动通关自动跳转挑战）：没有更多关卡。")
-            return True
-
-        logger.info("[终止] 同位置仍有按钮 @ %s，点击尝试（第 1 次）。" % (pos,))
-        if _try_stage_button(pos) == "fought":
-            return False
-        logger.info("[终止] 已通关，往上拽一页（列表前进）再试一次。")
-        baas.swipe(907, 520, 907, 200, 0.5, post_sleep_time=1)
-        time.sleep(1)
-        # 列表已滚动，老位置必然是空的：改为全屏找按钮，点最上面的
-        cands = sorted(_buttons_all(baas), key=lambda t: (t[1], t[0]))
-        if not cands:
-            logger.info("[终止] 上拽后没有任何按钮：没有更多关卡了。")
-            return True
-        pos = cands[0]
-        logger.info("[终止] 上拽后仍有按钮 @ %s，点击尝试（第 2 次）。" % (pos,))
-        if _try_stage_button(pos) == "fought":
-            return False
-        logger.info("[终止] 两次均为已通关：没有更多关卡了。")
-        return True
-
-    def _wait_back_to_page():
-        """战斗后等待：以结算画面信号为锚等战斗结束，再清结算链。
-
-        - 锚点信号（fight-confirm/fight-success/prize 等 8 个）一出现立即
-          接管，最长等 300 秒。
-        - 结算链逐屏清（每轮 4 秒有界，共 40 轮）；按钮出现后隔 1.2 秒二次
-          确认仍存在才算回到页面（结算动画残影会变，真实页面不变）。
-        """
-        logger.info("[战斗后] 等待战斗结束（以结算画面信号为锚，最长 300 秒）...")
-        anchors = ["normal_task_fight-confirm", "normal_task_fight-success-confirm",
-                   "activity_fight-success-confirm", "normal_task_task-finish",
-                   "normal_task_prize-confirm", "normal_task_fight-complete-confirm",
-                   "normal_task_reward-acquired-confirm", "normal_task_fail-confirm"]
-        try:
-            img = dict(_TO_HARD_IMG_REACTIONS)
-            img.update(picture.GAME_ONE_TIME_POP_UPS[baas.server])
-            anchor = _cd(baas, None, None, anchors, img, True, time_out=300,
-                         check_pkg_interval=120)
-            logger.info("[战斗后] 结算信号出现：%s，立即接管。" % anchor)
-        except picture.FunctionCallTimeout:
-            logger.warning("[战斗后] 300 秒未见结算信号，尝试继续扫描。")
-        for _ in range(40):
-            if not baas.flag_run:
-                return
-            try:
-                img = dict(_TO_HARD_IMG_REACTIONS)
-                img.update(picture.GAME_ONE_TIME_POP_UPS[baas.server])
-                _cd(baas, ["event_normal", "event_hard"], _TO_HARD_RGB_REACTIONS,
-                    None, img, True, time_out=4)
-                return  # 回到普通/困难选关页：按钮一定在
-            except picture.FunctionCallTimeout:
-                pass
-            # 活动/外传页没有普通页特征：看入场按钮是否已经重新出现
-            if (_find_labeled_buttons(baas, with_label=False) or _find_blue_buttons(baas)
-                    or _find_framed_buttons(baas)):
-                time.sleep(1.2)  # 二次确认：残影会变，真实页面不变
-                if (_find_labeled_buttons(baas, with_label=False) or _find_blue_buttons(baas)
-                        or _find_framed_buttons(baas)):
-                    return
-
-    def _employ_and_fight(task_data):
-        """编队（无数据 = 保持当前队伍）并开战。"""
-        team = extract_first_team(task_data) if task_data and task_data.get("start") else {"start": []}
-        # 每次新鲜转换：employ_units 会弹出 keep_current 标记，不能复用旧字典
-        team_config = convert_team_config(baas)
-        method = baas.config.choose_team_method
-        if not any(team_config.get(a) for a in ("burst", "pierce", "mystic", "shock", "default")):
-            # 一支预设都没配：直接按当前队伍打（order），跳过上游
-            # "Insufficient presets" 的 ERROR/WARNING 误报
-            method = "order"
-        if not employ_units(baas, method, team or {"start": []}, team_config):
-            return False
-        auto_fight(baas)
-        return True
-
-    def _event_attribute():
-        """当期活动数据里取一个任务属性（仅影响编队属性池选择）。"""
-        try:
-            activity = getattr(baas, "current_game_activity", None)
-            if activity:
-                sd = json.load(open("src/explore_task_data/activities/%s.json" % activity,
-                                    encoding="utf-8"))
-                mission = sd.get("mission") or []
-                if mission:
-                    return mission[0]
-        except Exception:
-            pass
-        return "burst"
-
     def _close_info_bounded():
-        """关掉关卡详情弹窗（已通关跳过等未开战路径）。
+        """关掉关卡详情弹窗，并确认它真的关了。
 
-        点 X 后短暂停留即返回：活动/外传页永远等不到普通页特征，等待纯属
-        空耗（实测每跳过一关白等 6-7 秒）。补点一次防动画未结束。
+        旧弹窗残影是"已通关误判"的根源：下一个按钮点下去，模板匹配到
+        的其实是上一关还在淡出的弹窗，判的是上一关的状态。所以点 X 后
+        验证模板消失，没消失就再点，最多 6 轮。
         """
-        baas.click(1128, 130, wait_over=True)
-        time.sleep(0.8)
-        baas.click(1128, 130, wait_over=True)
-        time.sleep(0.5)
+        for _ in range(6):
+            baas.click(1128, 130, wait_over=True)
+            time.sleep(0.5)
+            baas.update_screenshot_array()
+            still = (image.get_image_all_appear_position(
+                        baas, "activity_task-info", (0, 0, 1280, 720), 0.8)
+                     or image.get_image_all_appear_position(
+                        baas, "normal_task_task-info", (0, 0, 1280, 720), 0.8))
+            if not still:
+                return
+        logger.warning("[关窗] 详情弹窗仍未关闭，继续。")
 
     def _fight_popup(kind, task_data_name=None, task_data=None):
         """战斗前弹窗分发：普通/困难/委托/活动/外传开打，已通关关闭跳过。"""
@@ -850,168 +729,264 @@ def _push_current_stage_impl(baas):
         except picture.FunctionCallTimeout:
             return None
 
+    def _wait_back_to_page():
+        """战斗后等待：以结算画面信号为锚等战斗结束，再清结算链。
+
+        - 锚点信号（fight-confirm/fight-success/prize 等 8 个）一出现立即
+          接管，最长等 300 秒。
+        - 结算链逐屏清（每轮 4 秒有界，共 40 轮）；按钮出现后隔 1.2 秒二次
+          确认仍存在才算回到页面（结算动画残影会变，真实页面不变）。
+        """
+        logger.info("[战斗后] 等待战斗结束（以结算画面信号为锚，最长 300 秒）...")
+        anchors = ["normal_task_fight-confirm", "normal_task_fight-success-confirm",
+                   "activity_fight-success-confirm", "normal_task_task-finish",
+                   "normal_task_prize-confirm", "normal_task_fight-complete-confirm",
+                   "normal_task_reward-acquired-confirm", "normal_task_fail-confirm"]
+        try:
+            img = dict(_TO_HARD_IMG_REACTIONS)
+            img.update(picture.GAME_ONE_TIME_POP_UPS[baas.server])
+            anchor = _cd(baas, None, None, anchors, img, True, time_out=300,
+                         check_pkg_interval=120)
+            logger.info("[战斗后] 结算信号出现：%s，立即接管。" % anchor)
+        except picture.FunctionCallTimeout:
+            logger.warning("[战斗后] 300 秒未见结算信号，尝试继续扫描。")
+        for _ in range(40):
+            if not baas.flag_run:
+                return
+            try:
+                img = dict(_TO_HARD_IMG_REACTIONS)
+                img.update(picture.GAME_ONE_TIME_POP_UPS[baas.server])
+                _cd(baas, ["event_normal", "event_hard"], _TO_HARD_RGB_REACTIONS,
+                    None, img, True, time_out=4)
+                return  # 回到普通/困难选关页：按钮一定在
+            except picture.FunctionCallTimeout:
+                pass
+            # 活动/外传页没有普通页特征：看入场按钮是否已经重新出现
+            if (_find_labeled_buttons(baas, with_label=False) or _find_blue_buttons(baas)
+                    or _find_framed_buttons(baas)):
+                time.sleep(1.2)  # 二次确认：残影会变，真实页面不变
+                if (_find_labeled_buttons(baas, with_label=False) or _find_blue_buttons(baas)
+                        or _find_framed_buttons(baas)):
+                    return
+
+    def _employ_and_fight(task_data):
+        """编队（无数据 = 保持当前队伍）并开战。"""
+        team = extract_first_team(task_data) if task_data and task_data.get("start") else {"start": []}
+        # 每次新鲜转换：employ_units 会弹出 keep_current 标记，不能复用旧字典
+        team_config = convert_team_config(baas)
+        method = baas.config.choose_team_method
+        if not any(team_config.get(a) for a in ("burst", "pierce", "mystic", "shock", "default")):
+            # 一支预设都没配：直接按当前队伍打（order），跳过上游
+            # "Insufficient presets" 的 ERROR/WARNING 误报
+            method = "order"
+        if not employ_units(baas, method, team or {"start": []}, team_config):
+            return False
+        auto_fight(baas)
+        return True
+
+    def _event_attribute():
+        """当期活动数据里取一个任务属性（仅影响编队属性池选择）。"""
+        try:
+            activity = getattr(baas, "current_game_activity", None)
+            if activity:
+                sd = json.load(open("src/explore_task_data/activities/%s.json" % activity,
+                                    encoding="utf-8"))
+                mission = sd.get("mission") or []
+                if mission:
+                    return mission[0]
+        except Exception:
+            pass
+        return "burst"
+
+
     while baas.flag_run:
-        # ── 扫描 1/3：入场按钮（每页只做一次全量扫描，候选入队逐个消费）──
-        if not page_queue:
-            logger.info("[扫描1/3 入场] 扫描中...")
-            page_queue = _collect_stage_candidates(
-                baas, done, _find_labeled_buttons, _find_blue_buttons,
-                _find_framed_buttons, _region_data)
-        if page_queue:
-            idle = 0
-            navigated = True
-            pushed_before = pushed_any
-            kind, bx, by, key, label, region, mission, tdn, td = page_queue.pop(0)
-            done.add(key)
-            task_name = label if label else                 {"labeled": "关卡", "framed": "白框入场按钮", "blue": "蓝色按钮"}[kind] \
-                + "(y=%d)" % by
-            logger.info("[扫描1/3 入场] 处理 %s @ (%d, %d)" % (task_name, bx, by))
-            try:
-                if kind == "labeled" and color.rgb_in_range(
-                        baas, 1150, by, 40, 50, 70, 80, 85, 95):
-                    logger.info("%s 未解锁，跳过。" % task_name)
-                    continue
-                if kind == "labeled":
-                    baas.click(bx + 34, by + 21, wait_over=True)  # 模板(69x42)中心
-                    kind_opened = _cd(baas, None, None, list(_POPUP_KINDS),
-                                      {"normal_task_select-area": (1114, by),
-                                       "normal_task_challenge-menu": (640, 490)}, True)
-                else:
-                    baas.click(bx, by, wait_over=True)
-                    ends = list(_POPUP_TAKEOVER_KINDS)
-                    if kind == "blue":
-                        ends.append("main_story_episode-info")
-                    kind_opened = _cd(baas, None, None, ends, None, True)
-                failed = 0
-                fought = False
-                skipped = False
-
-                if kind_opened == "main_story_episode-info":
-                    logger.info("剧情选话页，跳过（剧情请用「推当前页面剧情」）。")
-                    baas.click(56, 40, wait_over=True)
-                elif kind_opened == _TAKEOVER_FORMATION:
-                    # 直通出击画面：点黄色"出击"开战
-                    ys = _find_yellow_buttons(baas)
-                    if ys:
-                        logger.info("点击黄色出击按钮 @ (%d, %d)" % (ys[0][0], ys[0][1]))
-                        baas.click(ys[0][0], ys[0][1], wait_over=True)
-                    else:
-                        baas.click(1157, 651, wait_over=True)
-                    auto_fight(baas)
-                    fought = True
-                elif _handle_popup(kind_opened, tdn, td) is True:
-                    fought = True
-                else:
-                    skipped = True
-            except picture.FunctionCallTimeout:
-                failed += 1
-                logger.warning("%s 处理超时（第 %d 次）。" % (task_name, failed))
-                if failed >= 3:
-                    _save_debug_shot(baas, "连续多次处理关卡失败，已存调试截图并停止。")
-                    return False
-            if fought:
-                pushed_any = True
-                _wait_back_to_page()
-                page_queue = []  # 战斗后游戏把未通关置顶：按钮位置全变，强制重扫
-                continue
-            # 终止判定（用户标定）：点到屏幕底部范畴的按钮且已通关时，
-            # 同位置找蓝色按钮收尾（详见 _exhaust_bottom）
-            if skipped and by >= _STAGE_BOTTOM_Y:
-                if _exhaust_bottom(bx, by):
-                    return True
-                page_queue = []
-            continue
-
-        # ── 扫描 2/3：开始任务（战斗前弹窗，用户可能已手点入场）──
-        logger.info("[扫描2/3] 未发现入场按钮，扫描「开始任务」弹窗...")
+        # 0) 用户已手动点过入场：接管战斗前弹窗 / 出击画面
         kind = _popup_kind(2.5)
+        if kind is None:
+            kind = _formation_detected(2.0)
         if kind:
-            navigated = True
-            pushed_before = pushed_any
-            popup_rounds += 1
-            if popup_rounds > 40:
-                logger.error("弹窗处理次数异常，停止。")
-                _save_debug_shot(baas, "弹窗处理异常，已存调试截图。")
-                return False
-            logger.info("[扫描2/3] 接管「开始任务」弹窗：%s" % kind)
-            fought = False
-            try:
-                if _handle_popup(kind) is True:
-                    fought = True
-                    pushed_any = True
-            except picture.FunctionCallTimeout:
-                failed += 1
-                logger.warning("弹窗战斗超时（第 %d 次）。" % failed)
-                if failed >= 3:
-                    _save_debug_shot(baas, "连续多次处理关卡失败，已存调试截图并停止。")
+            if kind == _TAKEOVER_FORMATION:
+                sortie_rounds += 1
+                if sortie_rounds > 20:
+                    logger.error("出击处理次数异常，停止。")
+                    _save_debug_shot(baas, "出击处理异常，已存调试截图。")
                     return False
-            if fought:
-                _wait_back_to_page()
-                page_queue = []  # 战斗后游戏把未通关置顶：按钮位置全变，强制重扫
-            continue
-
-        # ── 扫描 3/3：出击（右下角黄色按钮 / 出击画面模板）──
-        logger.info("[扫描2/3] 未发现「开始任务」，扫描「出击」...")
-        yellows = [y for y in _find_yellow_buttons(baas)
-                   if ("y:%d" % (y[1] // 10)) not in done]
-        formation_hit = None
-        if not yellows:
-            formation_hit = _formation_detected(2.0)
-        if yellows or formation_hit:
-            navigated = True
-            pushed_before = pushed_any
-            sortie_rounds += 1
-            if sortie_rounds > 40:
-                logger.error("出击处理次数异常，停止。")
-                _save_debug_shot(baas, "出击处理异常，已存调试截图。")
-                return False
-            logger.info("[扫描3/3 出击] 命中，点击出击开战。")
-            try:
-                if yellows:
-                    done.add("y:%d" % (yellows[0][1] // 10))
-                    baas.click(yellows[0][0], yellows[0][1], wait_over=True)
+                logger.info("[接管] 出击画面，点击出击开战。")
+                ys = _find_yellow_buttons(baas)
+                if ys:
+                    baas.click(ys[0][0], ys[0][1], wait_over=True)
+                else:
+                    baas.click(1157, 651, wait_over=True)
                 auto_fight(baas)
                 pushed_any = True
-                failed = 0
-            except picture.FunctionCallTimeout:
-                failed += 1
-                logger.warning("出击开战超时（第 %d 次）。" % failed)
-                if failed >= 3:
-                    _save_debug_shot(baas, "连续多次开战失败，已存调试截图并停止。")
+                _wait_back_to_page()
+            else:
+                popup_rounds += 1
+                if popup_rounds > 20:
+                    logger.error("弹窗处理次数异常，停止。")
+                    _save_debug_shot(baas, "弹窗处理异常，已存调试截图。")
                     return False
-            _wait_back_to_page()
-            page_queue = []  # 战斗后游戏把未通关置顶：按钮位置全变，强制重扫
+                logger.info("[接管] 战斗前弹窗：%s" % kind)
+                if _fight_popup(kind) is True:
+                    pushed_any = True
+                    _wait_back_to_page()
+                else:
+                    _close_info_bounded()
             continue
 
-        # ── 三项都没扫到 ──
-        logger.info("[扫描] 入场/开始任务/出击 三项均未命中。")
-        if not navigated:
-            navigated = True
-            pushed_before = pushed_any
-            logger.info("尝试清屏导航后重扫。")
-            _settle()
+        # 1) 扫描：点最上面的按钮
+        cands = _buttons_all(baas)
+        if not cands:
+            idle += 1
+            if idle == 1:
+                logger.info("[扫描] 未命中，等 2 秒重扫（画面可能在刷新置顶）。")
+                time.sleep(2)
+                continue
+            if not buttons_seen and not pushed_any:
+                # 从始至终没见过任何入场按钮：这页面不对，直接停（用户标定：
+                # 完全识别不到入场、窗口也点不开时就没必要再探索了）。
+                logger.error("当前页面没有识别到任何入场按钮。")
+                _save_debug_shot(baas, "请把游戏停在选关页/活动图等有入场按钮的页面后重试。")
+                return False
+            if idle == 2:
+                logger.info("[扫描] 仍无按钮：点空白处关掉可能残留的说明窗。")
+                baas.click(640, 360, wait_over=True)
+                time.sleep(1)
+                continue
+            if not (buttons_seen or pushed_any):
+                logger.error("当前页面没有识别到任何入场按钮。")
+                _save_debug_shot(baas, "请把游戏停在选关页/活动图等有入场按钮的页面后重试。")
+                return False
+            if rows >= 12:
+                if pushed_any:
+                    logger.info("-- No more startable stages. Done. --")
+                    return True
+                logger.error("当前页面没有找到任何可点的战斗按钮。")
+                _save_debug_shot(baas, "请把游戏停在选关页/活动图等有入场按钮的页面后重试。")
+                return False
+            rows += 1
+            logger.info("[行探索] 往下拽一行继续找（第 %d 行）。" % rows)
+            baas.swipe(907, 500, 907, 385, 0.4, post_sleep_time=1)
             continue
-        idle += 1
-        if idle == 1:
-            # 通关后游戏会自行刷新置顶，画面可能仍在过渡：先等 2 秒重扫。
-            logger.info("[扫描] 本页未命中，等待 2 秒重扫（画面可能在刷新置顶）。")
-            time.sleep(2)
+        idle = 0
+        buttons_seen = True
+
+        # 2) 点最上面的按钮并判定
+        bx, by, label = cands[0]
+        logger.info("[扫描] 点击 %s @ (%d, %d)" % (label or "按钮", bx, by))
+        baas.click(bx, by, wait_over=True)
+        try:
+            kind = _cd(baas, None, None,
+                       list(_POPUP_TAKEOVER_KINDS) + ["main_story_episode-info"],
+                       None, True)
+        except picture.FunctionCallTimeout:
+            failed += 1
+            logger.warning("%s 点击无反应（第 %d 次）。" % (label or "按钮", failed))
+            if failed >= 3:
+                _save_debug_shot(baas, "连续多次点击按钮失败，已存调试截图并停止。")
+                return False
             continue
-        # 重扫仍空：行级探索——一次拽一行，点最上面的按钮逐个试
-        # （用户标定：已通关就说明下面还有按钮，继续探索）。
-        res = _explore_rows()
-        if res == "fought":
+        failed = 0
+
+        if kind == "main_story_episode-info":
+            logger.info("剧情选话页，跳过（剧情请用「推当前页面剧情」）。")
+            baas.click(56, 40, wait_over=True)
+            continue
+        if kind == _TAKEOVER_FORMATION:
+            ys = _find_yellow_buttons(baas)
+            if ys:
+                logger.info("点击黄色出击按钮 @ (%d, %d)" % (ys[0][0], ys[0][1]))
+                baas.click(ys[0][0], ys[0][1], wait_over=True)
+            else:
+                baas.click(1157, 651, wait_over=True)
+            auto_fight(baas)
             pushed_any = True
             _wait_back_to_page()
-            page_queue = []  # 战斗后置顶变化，强制重扫
             continue
-        if pushed_any:
-            logger.info("-- No more startable stages. Done. --")
+
+        # 3) 弹窗判定：未通关开战；已通关 → 逐行往下试
+        region, mission = _parse_label(label)
+        task_data = task_data_name = None
+        if region and mission:
+            items = {k: v for k, v in _region_data(region).items()
+                     if k.startswith("%d-%d" % (region, mission))}
+            if items:
+                task_data_name, task_data = next(iter(items.items()))
+        if _handle_popup(kind, task_data_name, task_data) is True:
+            pushed_any = True
+            _wait_back_to_page()
+            continue
+
+        logger.info("[已通关] 往下拽一行，试下一个。")
+
+        def _row_try(pos):
+            """点击并判定，返回 'fought' / 'cleared'。"""
+            baas.click(int(pos[0]), int(pos[1]), wait_over=True)
+            try:
+                kind = _cd(baas, None, None, list(_POPUP_TAKEOVER_KINDS), None, True)
+            except picture.FunctionCallTimeout:
+                return "cleared"  # 点了没弹窗 = 按钮无效
+            return "fought" if _handle_popup(kind) is True else "cleared"
+
+        py = by          # 上一次点击的坐标：保证坐标一路往下
+        empty = 0        # 连续拽了但没有按钮的次数
+        ended = False
+        for row in range(18):
+            baas.swipe(907, 500, 907, 385, 0.4, post_sleep_time=1)
+            time.sleep(0.8)  # 等列表滚动停稳再扫
+            cands = _buttons_all(baas)
+            if not cands:
+                empty += 1
+                if empty >= 3:
+                    logger.info("[终止] 连续拽行都没有按钮：走到头了。")
+                    ended = True
+                    break
+                continue
+            empty = 0
+            nx, ny, nl = max(cands, key=lambda t: (t[1], t[0]))  # 最下面 = 坐标往下
+            if ny <= py + 20:
+                continue  # 这一屏没有更靠下的新行，继续拽
+            logger.info("[行探索] 坐标往下 @ (%d, %d)" % (nx, ny))
+            if ny >= 560:
+                # 屏幕底部尽头：点了已通关 → 上拽 → 同一最下位置仍已通关 → 走到头
+                if _row_try((nx, ny)) == "fought":
+                    pushed_any = True
+                    _wait_back_to_page()
+                    break
+                baas.swipe(907, 500, 907, 385, 0.4, post_sleep_time=1)
+                time.sleep(0.8)
+                below = [c for c in _buttons_all(baas) if c[1] >= 560]
+                if not below:
+                    logger.info("[终止] 底部尽头没有新按钮：走到头了。")
+                    ended = True
+                    break
+                nx2, ny2, _nl = max(below, key=lambda t: (t[1], t[0]))
+                if _row_try((nx2, ny2)) == "fought":
+                    pushed_any = True
+                    _wait_back_to_page()
+                    break
+                logger.info("[终止] 底部尽头仍已通关：走到头了。")
+                ended = True
+                break
+            if _row_try((nx, ny)) == "fought":
+                pushed_any = True
+                _wait_back_to_page()
+                break
+            py = ny  # 已通关：坐标继续往下
         else:
+            logger.info("[行探索] 行数用尽：走到头了。")
+            ended = True
+        if ended:
+            if pushed_any:
+                logger.info("-- No more startable stages. Done. --")
+                return True
             logger.error("当前页面没有找到任何可点的战斗按钮。")
             _save_debug_shot(baas, "请把游戏停在选关页/活动图等有入场按钮的页面后重试。")
-        return bool(pushed_any)
+            return False
+        # 行探索中开战了：回到循环顶部重扫（游戏已把未通关置顶）
     return False
+
+
 # ---------------------------------------------------------------- 活动剧情分支
 
 def _switch_to_story_tab(baas):
@@ -1077,52 +1052,113 @@ def _push_activity_stories(baas):
 
 # ---------------------------------------------------------------- 通用兜底分支
 
-def _generic_blue_loop(baas, btns):
-    """无活动数据环境的兜底：逐个点击右半屏蓝按钮并播完。
+def _story_window_kind(baas, timeout=5.0):
+    """点击剧情行后分类弹出的窗口规格（用户要求：先识别再行动）。
 
-    按位置去重防止重播已推过的话；列表不再出新按钮时翻一页，连续两轮
-    无新按钮即结束。
+    返回 'info'（常规剧情窗口，可推）/ 'notice'（解锁"通知"弹窗，未解锁
+    行）/ 'none'（什么都没弹）。通知弹窗的识别特征：蓝色确认按钮块位于
+    (640, 502) 附近（用户截图标定）。
+    """
+    deadline = time.time() + timeout
+    while time.time() < deadline and baas.flag_run:
+        baas.update_screenshot_array()
+        for tpl in ("activity_task-info", "main_story_episode-info",
+                    "normal_task_task-info"):
+            if image.get_image_all_appear_position(baas, tpl, (0, 0, 1280, 720), 0.8):
+                return "info"
+        if (color.rgb_in_range(baas, 640, 502, 40, 195, 150, 240, 185, 255)
+                and color.rgb_in_range(baas, 640, 490, 40, 195, 150, 240, 185, 255)):
+            return "notice"
+        time.sleep(getattr(baas, "screenshot_interval", 0.3) or 0.3)
+    return "none"
+
+
+def _generic_blue_loop(baas, btns):
+    """无活动数据环境的兜底：点剧情列表最下方的蓝色按钮，逐话往下推。
+
+    剧情模式没有"已完成"判定（弹窗不区分首通/重播），点最上面会反复
+    重播已通关的话。列表里最下面的蓝色按钮就是当前解锁的最后一话（更
+    下面是未解锁的锁行，深色按钮不进蓝色扫描）。点开若没有剧情窗口
+    （点了未解锁的行，弹"通关上文解锁"提示），关掉提示并往上点一行。
+    领奖清屏参考推关卡引擎：全量反应表逐个点，直到回到剧情列表。
+    结束条件：清屏后连续两轮扫不到蓝色按钮，或连续 3 次点不开剧情窗口。
     """
     logger = baas.logger
-    played = []
     idle = 0
+    no_info_streak = 0
+    up_move = None   # 点了未解锁行后，要往上点的目标
+    last_list = []   # 最近一次扫描的按钮列表（自上而下）
+    bottom_plays = 0
 
-    def pick(cands):
-        for (cx, cy, _w, _h) in cands:
-            if all(abs(cx - px) > 25 or abs(cy - py) > 25 for px, py in played):
-                return (cx, cy)
-        return None
-
-    target = pick(btns)
-    while baas.flag_run:
-        if target is None:
-            swipe_story_list(baas, btns[0][0] if btns else None)
-            btns = find_blue_action_buttons(baas)
-            target = pick(btns)
-            if target is None:
-                idle += 1
-                if idle >= 2:
-                    logger.info("-- No new startable buttons. Done. --")
-                    return True
+    def _settle():
+        """领奖善后：全量反应表逐个点，直到回到剧情列表（2 轮 × 4 秒）。"""
+        for _ in range(2):
+            try:
+                img = dict(_TO_HARD_IMG_REACTIONS)
+                img.update(picture.GAME_ONE_TIME_POP_UPS[baas.server])
+                picture.co_detect(baas, None, None, _story_screen_ends(), img, True,
+                                  time_out=4)
+                return
+            except picture.FunctionCallTimeout:
                 continue
+
+    while baas.flag_run:
+        btns = sorted(find_blue_action_buttons(baas), key=lambda t: (t[1], t[0]))
+        last_list = btns
+        if up_move is not None:
+            target, up_move = up_move, None
+        elif btns:
+            target = btns[-1]  # 最下面 = 当前解锁的最后一话
+        else:
+            target = None
+        if target is None:
+            idle += 1
+            if idle >= 2:
+                logger.info("-- No new startable buttons. Done. --")
+                return True
+            swipe_story_list(baas)
+            continue
         idle = 0
-        logger.info("Click startable button at (%d, %d)." % target)
-        played.append(target)
+        at_bottom = target[1] >= 560
+        logger.info("Click startable button at (%d, %d)." % (target[0], target[1]))
         baas.click(int(target[0]), int(target[1]), wait_over=True)
-        try:
-            picture.co_detect(baas, None, None,
-                              ["activity_task-info", "main_story_episode-info",
-                               "normal_task_task-info"],
-                              None, True, time_out=_STORY_TIMEOUT)
-        except picture.FunctionCallTimeout:
-            logger.warning("Button click did not open an info page.")
-        try:
-            from module.activities import activity_utils
-            activity_utils.start_story(baas)
-        except picture.FunctionCallTimeout:
-            logger.warning("Playback ended unexpectedly.")
-        btns = find_blue_action_buttons(baas)
-        target = pick(btns)
+        res = _story_window_kind(baas)
+        if res == "info":
+            # 常规剧情窗口：可推
+            try:
+                from module.activities import activity_utils
+                activity_utils.start_story(baas)
+            except picture.FunctionCallTimeout:
+                logger.warning("Playback ended unexpectedly.")
+            no_info_streak = 0
+            # 领奖善后（参考推关卡引擎的领奖链）：start_story 在
+            # reward_acquired 处原样返回，不清屏的话奖励界面会挡住后续。
+            _settle()
+            if at_bottom:
+                # 底部的剧情推完故事就完了：最多再容忍一次（两话可能都挤在
+                # 底部边缘），之后停止，防止完结跳页签后误点其他页。
+                bottom_plays += 1
+                if bottom_plays >= 2:
+                    logger.info("[终止] 底部剧情已推完，停止。")
+                    return True
+            continue
+        # 非常规窗口（解锁"通知"弹窗 / 什么都没弹）：点空白处关掉
+        no_info_streak += 1
+        if at_bottom and bottom_plays >= 1:
+            # 底部尽头按钮已通关/未解锁：故事推完（用户标定）
+            logger.info("[终止] 底部尽头按钮已通关/未解锁：故事推完。")
+            return True
+        if no_info_streak >= 3:
+            logger.info("-- 按钮打不开剧情窗口，停止。 --")
+            return True
+        logger.info("非常规窗口（%s）：点空白处关掉，往上点一行。" % res)
+        baas.click(640, 360, wait_over=True)
+        time.sleep(0.6)
+        above = [b for b in last_list if b[1] < target[1] - 20]
+        up_move = above[-1] if above else None
+        if up_move is None:
+            logger.info("-- 上面没有可点的行：走到头了。 --")
+            return True
     return False
 
 

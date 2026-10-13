@@ -31,14 +31,25 @@ def filter_events(
     if not events:
         return events
 
-    # config 降级：宿主未传时从 config_dir 读 config.json，
-    # 否则 is_enabled 拿不到真值 → 插件拦截全部失效
+    # 调度器传入的是 ConfigSet；优先使用真实 profile 目录，避免
+    # event.json 与 config.json / hoard_ap_state.json 脱节。
+    effective_config_dir = config_dir
+    try:
+        effective_config_dir = (
+            getattr(config, "config_dir", None)
+            or getattr(config, "config_path", None)
+            or config_dir
+        )
+    except Exception:
+        pass
+
+    # config 降级：宿主未传时从真实 profile 目录读取 config.json。
     if config is None:
         try:
             import json as _json
             import os as _os
 
-            cfg_path = _os.path.join(config_dir or ".", "config.json")
+            cfg_path = _os.path.join(effective_config_dir or ".", "config.json")
             if _os.path.isfile(cfg_path):
                 with open(cfg_path, "r", encoding="utf-8") as f:
                     config = _json.load(f)
@@ -61,7 +72,7 @@ def filter_events(
                 enabled = bool(hoard.is_enabled(config))
         except Exception:
             enabled = True
-        out = filter_events_for_hoard(out, config_dir, enabled)
+        out = filter_events_for_hoard(out, effective_config_dir, enabled)
     except Exception as e:
         # 拦截器自身故障：保持原队列，但必须被看见（调度线程没有界面可报）。
         logger.warning("hoard filter FAILED, events pass through unfiltered: %r", e)

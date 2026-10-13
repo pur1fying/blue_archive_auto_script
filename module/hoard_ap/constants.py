@@ -88,9 +88,9 @@ HOARD_OWNED_FUNCS = frozenset(
         # 悬赏通缉(rewarded_task)不耗体力 → 不接管，原调度照跑
         # 其它可能误领体力/奖励的
         "collect_reward",
-        # 注意：cafe_reward 不进本表。
-        # 队列层放行，让邀请/摸头仍可跑；小时领奖由 cafe_reward 内 guard + should_skip_cafe_collect 拦截。
-        # no1_cafe_invite / no2_cafe_invite 与体力无关，始终放行。
+        "cafe_reward",
+        # cafe_reward 由囤体计划统一接管，避免原任务提前领取咖啡体力。
+        # no1_cafe_invite / no2_cafe_invite 与体力无关，仍始终放行。
         # restart（凌晨四点重启）绝不进本表——日界重启是铁律，囤体不得压制。
     }
 )

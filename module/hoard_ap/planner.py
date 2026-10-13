@@ -2553,9 +2553,6 @@ def _build_diligent_plan(sim: _Sim, cfg: HoardConfig, now: datetime, spend_at: d
             claim_mail_at = spend_at - timedelta(minutes=20)
     else:
         claim_mail_at = spend_0350
-    claim_mail_at = datetime(spend_at.year, spend_at.month, spend_at.day, 3, 50, 0)
-    if claim_mail_at >= spend_at:
-        claim_mail_at = spend_at - timedelta(minutes=20)
     day_reset_main = server_day_start(main_at) + timedelta(days=1)
     day_reset_spend = server_day_start(spend_at)
 
