@@ -19,7 +19,7 @@ inputs:
   force:
     description: Whether git-sync should force push.
     required: false
-    default: "true"
+    default: "false"
 
 runs:
   using: composite

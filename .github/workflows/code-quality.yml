@@ -39,5 +39,5 @@ jobs:
       - name: Install service test dependencies
         run: python -m pip install -e ".[service,test]"
 
-      - name: Run service tests
-        run: python -m pytest tests/service -q
+      - name: Run service and synchronization tests
+        run: python -m pytest tests/service tests/core tests/module tests/ci -q

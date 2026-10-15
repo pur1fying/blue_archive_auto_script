@@ -43,7 +43,7 @@ jobs:
             -F "client_payload[upstream_ref]=${GITHUB_REF_NAME}"
 
   sync-upstream:
-    name: Rebase fork onto upstream
+    name: Append upstream changes to fork
     if: >-
       github.repository == 'Kiramei/baas-dev' &&
       (github.event_name == 'repository_dispatch' ||
@@ -52,7 +52,7 @@ jobs:
     permissions:
       contents: write
     concurrency:
-      group: sync-upstream-master-rebase
+      group: sync-upstream-master-append
       cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
@@ -69,7 +69,7 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Rebase and update master with a lease
+      - name: Import upstream changes and advance master
         env:
           GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT || github.token }}
           HAS_WORKFLOW_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT != '' }}
@@ -85,46 +85,44 @@ jobs:
           fork_sha="$(git rev-parse refs/remotes/origin/master)"
           upstream_sha="$(git rev-parse refs/remotes/upstream/master)"
 
-          if git merge-base --is-ancestor "${upstream_sha}" "${fork_sha}"; then
-            echo "Fork master already contains upstream master. Nothing to do."
-            exit 0
-          fi
-
-          if [ -n "$(git rev-list --merges "${upstream_sha}..${fork_sha}")" ]; then
-            echo "::error::Fork-only history contains merge commits. Rebuild it as linear commits before automatic synchronization; no remote refs were changed."
+          git checkout --detach "${fork_sha}"
+          if ! python .github/scripts/sync_upstream.py refs/remotes/upstream/master; then
+            echo "::error::Upstream import failed. Resolve the conflicting changes locally; no remote refs were changed."
             exit 1
           fi
 
-          git checkout --detach "${fork_sha}"
-          if ! git rebase --no-rebase-merges --no-update-refs "${upstream_sha}"; then
-            git rebase --abort || true
-            echo "::error::Upstream rebase failed. Resolve it locally and push the verified result; no remote refs were changed."
+          if [ "$(git rev-parse HEAD)" = "${fork_sha}" ]; then
+            echo "Fork master already has the latest imported upstream changes. Nothing to do."
+            exit 0
+          fi
+
+          if ! git merge-base --is-ancestor "${fork_sha}" HEAD; then
+            echo "::error::Upstream import would rewrite master. No remote refs were changed."
             exit 1
           fi
 
           if [ "${HAS_WORKFLOW_TOKEN}" != "true" ] && ! git diff --quiet "${fork_sha}" HEAD -- .github/workflows; then
-            echo "::error::The rebase changes workflow files. Configure UPSTREAM_TO_KIRAMEI_DEV_PAT with repository write and workflow permissions; no remote refs were changed."
+            echo "::error::The import changes workflow files. Configure UPSTREAM_TO_KIRAMEI_DEV_PAT with repository write and workflow permissions; no remote refs were changed."
             exit 1
           fi
 
           python -m pip install -e ".[service,test]"
-          python -m pytest tests/service -q
+          python -m pytest tests/service tests/core tests/module tests/ci -q
 
           auth_header="$(printf 'x-access-token:%s' "${GH_TOKEN}" | base64 -w0)"
           echo "::add-mask::${auth_header}"
           if ! git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
-            push origin HEAD:refs/heads/master \
-            "--force-with-lease=refs/heads/master:${fork_sha}"; then
-            echo "::error::Push rejected. Master may have changed since it was fetched, or the token/branch rules may not allow rewriting it. No unguarded force push was attempted."
+            push origin HEAD:refs/heads/master; then
+            echo "::error::Push rejected. Master may have changed since it was fetched, or the token/branch rules may not allow updating it. No history was rewritten."
             exit 1
           fi
 
-          echo "Rebased master onto ${upstream_sha}."
+          echo "Appended upstream changes through ${upstream_sha}."
 
   sync-cnb:
     name: Sync to CNB
     needs: sync-upstream
-    # Explicitly run after a successful rebase: GITHUB_TOKEN pushes do not trigger workflows.
+    # Explicitly run after successful synchronization: GITHUB_TOKEN pushes do not trigger workflows.
     if: >-
       !cancelled() &&
       (github.event_name == 'push' ||
