@@ -356,13 +356,21 @@ def test_update_next_tick_rejects_invalid_time_format_and_range(config_dir, time
     "time_text",
     [
         "0001-01-01 00:00:00",
-        "1969-12-31 23:59:59",
         "9999-12-31 23:59:59",
     ],
 )
 def test_update_next_tick_rejects_platform_undisplayable_time(
     config_dir, time_text
 ):
+    try:
+        timestamp = int(datetime.strptime(
+            time_text, "%Y-%m-%d %H:%M:%S").timestamp())
+        displayed = datetime.fromtimestamp(timestamp).strftime(
+            "%Y-%m-%d %H:%M:%S")
+    except (OSError, OverflowError, ValueError):
+        displayed = None
+    if displayed == time_text:
+        pytest.skip("This platform can display the boundary date")
     before = (config_dir / "event.json").read_bytes()
 
     with pytest.raises(InvalidTime) as raised:
@@ -370,6 +378,22 @@ def test_update_next_tick_rejects_platform_undisplayable_time(
 
     assert raised.value.code is SchedulerErrorCode.INVALID_TIME
     assert (config_dir / "event.json").read_bytes() == before
+
+
+def test_update_next_tick_accepts_platform_displayable_pre_epoch_time(config_dir):
+    time_text = "1969-12-31 23:59:59"
+    try:
+        expected_timestamp = int(datetime.strptime(
+            time_text, "%Y-%m-%d %H:%M:%S").timestamp())
+        datetime.fromtimestamp(expected_timestamp)
+    except (OSError, OverflowError, ValueError):
+        pytest.skip("This platform cannot display pre-epoch local times")
+
+    SchedulerGraphStore(config_dir).update_next_tick("a", time_text)
+
+    records = _read_events(config_dir)
+    assert records[0]["next_tick"] == expected_timestamp
+    assert records[1]["next_tick"] == 1_700_000_000
 
 
 def test_update_enabled_only_changes_requested_event(config_dir):

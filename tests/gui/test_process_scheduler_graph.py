@@ -42,8 +42,12 @@ class _ConfigItem(QObject):
     valueChanged = pyqtSignal(object)
 
 
-class _GuiConfig:
+class _GuiConfig(QObject):
+    themeChanged = pyqtSignal(object)
+
     def __init__(self):
+        super().__init__()
+        self.theme = Theme.LIGHT
         self.schedulerSortMode = _ConfigItem()
         self._values = {
             self.schedulerSortMode: "priority",
