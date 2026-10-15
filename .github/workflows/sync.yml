@@ -43,7 +43,7 @@ jobs:
             -F "client_payload[upstream_ref]=${GITHUB_REF_NAME}"
 
   sync-upstream:
-    name: Append upstream changes to fork
+    name: Merge upstream into fork
     if: >-
       github.repository == 'Kiramei/baas-dev' &&
       (github.event_name == 'repository_dispatch' ||
@@ -52,7 +52,7 @@ jobs:
     permissions:
       contents: write
     concurrency:
-      group: sync-upstream-master-append
+      group: sync-upstream-master-merge
       cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
@@ -69,7 +69,7 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Import upstream changes and advance master
+      - name: Merge upstream commits and advance master
         env:
           GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT || github.token }}
           HAS_WORKFLOW_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT != '' }}
@@ -87,22 +87,27 @@ jobs:
 
           git checkout --detach "${fork_sha}"
           if ! python .github/scripts/sync_upstream.py refs/remotes/upstream/master; then
-            echo "::error::Upstream import failed. Resolve the conflicting changes locally; no remote refs were changed."
+            echo "::error::Upstream merge failed. Resolve the conflicting changes locally; no remote refs were changed."
             exit 1
           fi
 
           if [ "$(git rev-parse HEAD)" = "${fork_sha}" ]; then
-            echo "Fork master already has the latest imported upstream changes. Nothing to do."
+            echo "Fork master already contains upstream master. Nothing to do."
             exit 0
           fi
 
           if ! git merge-base --is-ancestor "${fork_sha}" HEAD; then
-            echo "::error::Upstream import would rewrite master. No remote refs were changed."
+            echo "::error::Upstream merge would rewrite master. No remote refs were changed."
+            exit 1
+          fi
+
+          if ! git merge-base --is-ancestor "${upstream_sha}" HEAD; then
+            echo "::error::The original upstream commit is missing from the merge result. No remote refs were changed."
             exit 1
           fi
 
           if [ "${HAS_WORKFLOW_TOKEN}" != "true" ] && ! git diff --quiet "${fork_sha}" HEAD -- .github/workflows; then
-            echo "::error::The import changes workflow files. Configure UPSTREAM_TO_KIRAMEI_DEV_PAT with repository write and workflow permissions; no remote refs were changed."
+            echo "::error::The merge changes workflow files. Configure UPSTREAM_TO_KIRAMEI_DEV_PAT with repository write and workflow permissions; no remote refs were changed."
             exit 1
           fi
 
@@ -117,7 +122,7 @@ jobs:
             exit 1
           fi
 
-          echo "Appended upstream changes through ${upstream_sha}."
+          echo "Merged original upstream commit ${upstream_sha}."
 
   sync-cnb:
     name: Sync to CNB

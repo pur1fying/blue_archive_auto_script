@@ -1,38 +1,38 @@
 # Upstream synchronization
 
-The fork appends upstream changes to `master`. Synchronization does not rebase,
-rewrite published commits, or create merge commits. GitHub and CNB updates use
-ordinary pushes, so a concurrent update or divergent mirror is rejected.
+The fork merges upstream `master` into its own `master`. Original upstream commit
+objects, hashes, and ancestry are preserved, alongside the fork's own commits.
+When the histories have diverged, synchronization creates a normal merge commit.
+When a fast-forward is possible, no extra merge commit is needed.
 
-`.github/upstream-sync.json` records the last imported upstream commit. This is
-the authoritative synchronization position: imported commits have new IDs, so
-GitHub's ancestry-based ahead/behind counts do not describe the imported content.
+GitHub and CNB updates use ordinary pushes. Synchronization never rebases the
+published fork or force-pushes either repository. A concurrent update or divergent
+mirror is rejected.
 
-For each new commit on upstream's first-parent history, the synchronizer performs
-a three-way content merge using the previous upstream snapshot as its base. It
-preserves fork changes and creates one single-parent import commit, including an
-updated checkpoint. Upstream merge commits contribute their complete first-parent
-diff; their merge topology is not copied into the fork.
+The workflow fetches both repositories, checks out the current fork snapshot, and
+runs `.github/scripts/sync_upstream.py`. The helper uses Git's normal merge
+operation. It does not copy changes into replacement upstream commits or use a
+separate synchronization checkpoint. Git ancestry and GitHub's ahead/behind
+counts describe synchronization progress directly.
 
-The script prepares the entire batch before advancing the local checkout. A
-conflict, invalid checkpoint, rewritten upstream history, or dirty checkout stops
-the import. The workflow tests the resulting snapshot before pushing. Failed
-tests and rejected ordinary pushes leave the remote branch unchanged.
-
-## Current checkpoint
-
-The initial checkpoint is upstream `1139aec53ae32337ddd5f82f0ad07133123cc42c`
-(PR #598). Its installer removal was already applied to the fork in `5438e89a`.
-The checkpoint records that verified equivalence without replaying older fork
-commits that previously added the now-removed OCR installer handoff.
+If upstream is already an ancestor of the fork, synchronization is a no-op.
+Otherwise, the workflow verifies that both the previous fork commit and the exact
+upstream commit remain ancestors of the result. Tests must pass before pushing.
+Conflicts are aborted; failed merges, failed tests, and rejected pushes leave the
+remote branch unchanged.
 
 ## Resolving a conflict
 
-Inspect the failed import in an isolated checkout. Apply and review the upstream
-changes against the fork's current content, then update the checkpoint only after
-all changes through that upstream commit have been accounted for. Commit the
-resolution, run the synchronization and backend tests, and push normally. Do not
-advance the checkpoint merely to silence a failed synchronization.
+Create an isolated branch from the current fork `master`, fetch upstream, and
+merge its latest `master`. Review and resolve conflicts while preserving the
+intended fork behavior, then run the backend and synchronization tests. Commit
+the merge and push normally. Do not replace the merge with copied patches if the
+upstream commit hashes are to remain part of the fork's history.
 
 Upstream contributions should continue to use focused branches based directly on
-upstream, with only the intended feature commits.
+upstream, with only the intended feature commits. This keeps fork synchronization
+merge commits out of unrelated upstream pull requests.
+
+Earlier content-copy synchronization commits remain in published history. The
+transition merge connects the original upstream history without rewriting those
+existing commits; subsequent synchronizations preserve original hashes directly.

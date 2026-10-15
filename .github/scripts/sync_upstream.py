@@ -1,41 +1,31 @@
 #!/usr/bin/env python3
-"""Import upstream changes as ordinary, single-parent commits.
+"""Merge original upstream commits without rewriting either repository's history.
 
-The state records the upstream tree already reconciled with this fork.  Each
-subsequent upstream first-parent commit supplies one three-way delta.  Git only
-updates HEAD and the checkout after the complete import has succeeded.
+An upstream fast-forward keeps its exact commit ID. Diverged branches receive an
+ordinary merge commit whose second parent is the original upstream commit.
+Conflicts are aborted for manual resolution; this helper never pushes anything.
 """
 
 from __future__ import annotations
 
 import argparse
-import json
-import os
 from pathlib import Path
 import subprocess
 import sys
-import tempfile
-
-
-STATE_PATH = ".github/upstream-sync.json"
-REPOSITORY = "pur1fying/blue_archive_auto_script"
-BRANCH = "master"
 
 
 class SyncError(Exception):
     """A synchronization that cannot be completed without manual intervention."""
 
 
-def git(root, *args, input=None, env=None, check=True):
+def git(root, *args, check=True):
     result = subprocess.run(
         ["git", "-C", str(root), *args],
-        input=input,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
         encoding="utf-8",
         errors="replace",
-        env=env,
     )
     if check and result.returncode:
         details = result.stderr.strip() or result.stdout.strip()
@@ -47,118 +37,70 @@ def resolve_commit(root, ref):
     return git(root, "rev-parse", "--verify", "--end-of-options", f"{ref}^{{commit}}").stdout.strip()
 
 
-def read_state(root, head):
-    result = git(root, "show", f"{head}:{STATE_PATH}", check=False)
-    if result.returncode:
-        raise SyncError(f"Missing committed sync state: {STATE_PATH}")
-    try:
-        state = json.loads(result.stdout)
-    except (ValueError, TypeError) as error:
-        raise SyncError(f"Invalid sync state in {STATE_PATH}: {error}") from error
-    if (
-        not isinstance(state, dict)
-        or type(state.get("schema_version")) is not int
-        or state.get("schema_version") != 1
-        or state.get("repository") != REPOSITORY
-        or state.get("branch") != BRANCH
+def git_path(root, name):
+    path = Path(git(root, "rev-parse", "--git-path", name).stdout.strip())
+    return path if path.is_absolute() else Path(root) / path
+
+
+def require_idle_checkout(root):
+    # An existing conflict must never cause us to abort somebody else's merge.
+    for marker in (
+        "MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD", "rebase-merge",
+        "rebase-apply", "sequencer", "BISECT_START",
     ):
-        raise SyncError(f"Unsupported sync state in {STATE_PATH}")
-    last = state.get("last_synced_commit")
-    if not isinstance(last, str) or not last or resolve_commit(root, last) != last:
-        raise SyncError("last_synced_commit must be a full upstream commit ID")
-    return last
-
-
-def check_state_path_available(root, commit):
-    """The metadata belongs to the fork; never overwrite an upstream path."""
-    if git(root, "ls-tree", commit, "--", STATE_PATH).stdout.strip():
-        raise SyncError(f"Upstream commit {commit} uses reserved sync state path {STATE_PATH}")
-    parent = git(root, "ls-tree", commit, "--", ".github").stdout.strip()
-    if parent and parent.split()[1] != "tree":
-        raise SyncError(f"Upstream commit {commit} prevents use of {STATE_PATH}")
-
-
-def state_contents(upstream):
-    return json.dumps(
-        {
-            "schema_version": 1,
-            "repository": REPOSITORY,
-            "branch": BRANCH,
-            "last_synced_commit": upstream,
-        },
-        indent=2,
-    ) + "\n"
+        if git_path(root, marker).exists():
+            raise SyncError(f"Refusing to sync while a Git operation is in progress ({marker})")
+    if git(root, "status", "--porcelain", "--untracked-files=all").stdout:
+        raise SyncError("Refusing to sync a dirty working tree (including untracked files)")
 
 
 def import_upstream(root, target_ref):
-    if git(root, "status", "--porcelain", "--untracked-files=all").stdout:
-        raise SyncError("Refusing to sync a dirty working tree (including untracked files)")
-    original_head = resolve_commit(root, "HEAD")
-    original_ref = git(root, "symbolic-ref", "--quiet", "HEAD", check=False).stdout.strip()
+    require_idle_checkout(root)
     target = resolve_commit(root, target_ref)
-    last = read_state(root, original_head)
-    ancestry = git(root, "merge-base", "--is-ancestor", last, target, check=False)
-    if ancestry.returncode == 1:
-        raise SyncError("Upstream history was rewritten or moved behind last_synced_commit")
-    if ancestry.returncode:
-        raise SyncError(f"Cannot validate upstream ancestry: {ancestry.stderr.strip()}")
-
-    first_parents = git(root, "rev-list", "--first-parent", target).stdout.splitlines()
-    if last not in first_parents:
-        raise SyncError("last_synced_commit is not on the upstream first-parent chain")
-    pending = list(reversed(first_parents[:first_parents.index(last)]))
-    for commit in [last, *pending]:
-        check_state_path_available(root, commit)
-    if not pending:
+    original_head = resolve_commit(root, "HEAD")
+    ancestry = git(root, "merge-base", "--is-ancestor", target, original_head, check=False)
+    if ancestry.returncode == 0:
         print(f"Already synchronized with upstream {target}")
         return 0
+    if ancestry.returncode != 1:
+        raise SyncError(f"Cannot validate upstream ancestry: {ancestry.stderr.strip()}")
 
-    candidate = original_head
-    with tempfile.TemporaryDirectory(prefix="baas-upstream-sync-") as temporary:
-        index_env = dict(os.environ, GIT_INDEX_FILE=str(Path(temporary) / "index"))
-        for upstream in pending:
-            subject = git(root, "show", "-s", "--format=%s", upstream).stdout.strip()
-            merged = git(
-                root,
-                "merge-tree",
-                "--write-tree",
-                f"--merge-base={last}",
-                candidate,
-                upstream,
-                check=False,
-            )
-            if merged.returncode:
-                diagnostics = "\n".join(
-                    part.strip() for part in (merged.stdout, merged.stderr) if part.strip()
-                )
-                kind = "conflicts" if merged.returncode == 1 else "failed"
+    # Resolve once so a moving ref cannot change what gets merged. --ff overrides
+    # merge.ff=only/false, while --commit also overrides configured --no-commit.
+    merged = git(
+        root,
+        "-c", "merge.autoStash=false",
+        "merge", "--ff", "--commit", "--no-edit",
+        "-m", f"Merge upstream master ({target[:12]})", target,
+        check=False,
+    )
+    if merged.returncode:
+        conflicts = git(root, "diff", "--name-only", "--diff-filter=U", check=False).stdout.strip()
+        diagnostics = "\n".join(
+            part.strip() for part in (merged.stdout, merged.stderr) if part.strip()
+        )
+        if conflicts:
+            diagnostics += f"\nConflicting paths:\n{conflicts}"
+        # The idle check guarantees this is our merge. Never reset HEAD or abort
+        # an unrelated operation to hide a failure.
+        if git_path(root, "MERGE_HEAD").exists():
+            aborted = git(root, "merge", "--abort", check=False)
+            if aborted.returncode:
                 raise SyncError(
-                    f"Upstream commit {upstream} ({subject}) {kind}:\n{diagnostics}\n"
-                    "HEAD and the working tree have not been changed."
+                    f"Upstream merge of {target} failed:\n{diagnostics}\n"
+                    f"Automatic abort failed: {aborted.stderr.strip()}"
                 )
-            merged_tree = merged.stdout.splitlines()[0]
-            # A separate index builds trees without touching the checkout or its index.
-            git(root, "read-tree", merged_tree, env=index_env)
-            blob = git(root, "hash-object", "-w", "--stdin", input=state_contents(upstream)).stdout.strip()
-            git(root, "update-index", "--add", "--cacheinfo", f"100644,{blob},{STATE_PATH}", env=index_env)
-            tree = git(root, "write-tree", env=index_env).stdout.strip()
-            message = (
-                f"sync(upstream): {subject}\n\n"
-                f"Upstream-Commit: {upstream}\n"
-                f"Upstream-Repository: https://github.com/{REPOSITORY}\n"
+        if resolve_commit(root, "HEAD") != original_head:
+            raise SyncError(
+                f"Upstream merge of {target} failed:\n{diagnostics}\n"
+                "HEAD changed; inspect the repository before retrying."
             )
-            candidate = git(root, "commit-tree", tree, "-p", candidate, input=message).stdout.strip()
-            print(f"Prepared {upstream[:12]} as {candidate[:12]}: {subject}")
-            last = upstream
-
-    current_ref = git(root, "symbolic-ref", "--quiet", "HEAD", check=False).stdout.strip()
-    if resolve_commit(root, "HEAD") != original_head or current_ref != original_ref:
-        raise SyncError("HEAD changed during synchronization; refusing to update it")
-    if git(root, "status", "--porcelain", "--untracked-files=all").stdout:
-        raise SyncError("Working tree changed during synchronization; refusing to update it")
-    git(root, "-c", "merge.autoStash=false", "merge", "--ff-only", candidate)
-    print(f"Imported {len(pending)} upstream commits without rewriting history")
-    return len(pending)
+        raise SyncError(
+            f"Upstream merge of {target} failed:\n{diagnostics}\n"
+            "HEAD and the working tree have not been changed."
+        )
+    print(f"Merged original upstream commit {target}; history and commit IDs are preserved")
+    return 1
 
 
 def main(argv=None):
