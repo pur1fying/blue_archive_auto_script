@@ -63,15 +63,19 @@ def config_dir(tmp_path):
 def test_dependency_manifests_pin_nodegraphqt_exactly():
     root = Path(__file__).resolve().parents[2]
     pin = "NodeGraphQt == 0.6.44"
-    requirements = [
-        line.strip()
-        for line in (root / "requirements.txt").read_text(encoding="utf-8").splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    ]
+    for filename in ("requirements.txt", "requirements-linux.txt"):
+        requirements = [
+            line.strip()
+            for line in (root / filename).read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+        assert [
+            item for item in requirements
+            if item.lower().startswith("nodegraphqt")
+        ] == [pin], filename
     pyproject = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
     dependencies = pyproject["project"]["dependencies"]
 
-    assert [item for item in requirements if item.lower().startswith("nodegraphqt")] == [pin]
     assert [item for item in dependencies if item.lower().startswith("nodegraphqt")] == [pin]
 
 
