@@ -86,6 +86,9 @@ class ConfigGui(QConfig):
     themeColor = ColorConfigItem("QFluentWidgets", "ThemeColor", '#0078d4')
     micaEnableChanged = pyqtSignal(bool)
     micaEnabled = ConfigItem("MainWindow", "MicaEnabled", isWin11(), BoolValidator())
+    minimizeToTray = ConfigItem(
+        "MainWindow", "MinimizeToTray", False, BoolValidator()
+    )
     dpiScale = OptionsConfigItem(
         "MainWindow", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True)
     language = OptionsConfigItem(
