@@ -5,9 +5,10 @@ from module.clear_special_task_power import get_task_count
 from core.utils import purchase_ticket_times_to_int
 
 def implement(self):
-    count = get_task_count(self, "rewarded_task", 3)
-    if not count:
+    count = get_task_count(self, "rewarded_task", 0)
+    if count is False:
         return True
+    count = count + [0] * max(0, 3 - len(count))
 
     self.to_main_page()
     buy_ticket_times = purchase_ticket_times_to_int(self.config.purchase_rewarded_task_ticket_times, 12)
