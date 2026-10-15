@@ -7,7 +7,6 @@ x_y_range = {
     'cafe-reward-status': (550, 132, 720, 174),
     'invitation-ticket': (410, 78, 441, 111),
     'invitation-ticket-invalid': (480, 309, 780, 355),
-    'quick-home': (1215, 5, 1255, 42),
     'invitation-ticket-order-name': (702, 138, 750, 165),
     'invitation-ticket-order-academy': (702, 138, 750, 165),
     'invitation-ticket-order-affection': (664, 138, 790, 165),

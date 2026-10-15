@@ -640,7 +640,6 @@ class Baas_thread:
             'normal_task_task-operating-round-over-notice': (888, 163),
             'momo_talk_momotalk-peach': (1123, 122),
             'cafe_students-arrived': (922, 189),
-            'cafe_quick-home': (1236, 31),
             'pass_menu': (1247, 40),
             'pass_mission-menu': (1247, 40),
             'group_sign-up-reward': (920, 159),
