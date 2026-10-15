@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QScrollArea,
+    QTabWidget,
     QSizePolicy,
     QStyle,
     QStyleOption,
@@ -33,6 +34,11 @@ from PyQt5.QtWidgets import (
 from gui.components.expand.tool_style import (
     TipLabel,
     apply_full_theme_refresh,
+    make_icon_button,
+    themed_note_bg,
+    themed_note_border,
+    themed_text,
+    themed_workspace_tabs_css,
 )
 
 
@@ -63,25 +69,25 @@ class _Sec(QFrame):
 
         head = QFrame(self)
         head.setObjectName("autoPushHead")
-        # 标题 + 说明同一行（与其他插件一致）；间距由主题引擎 TipLabel 自身留白统一管
-        hl = QHBoxLayout(head)
-        hl.setContentsMargins(14, 8, 14, 8)
+        hl = QVBoxLayout(head)
+        hl.setContentsMargins(16, 12, 16, 12)
         hl.setSpacing(6)
         # 标题文字：近黑粗体 + 白描边（与说明文字同款画法，大一号）
-        lab = _TipLabel(title, head, pixel_size=16, word_wrap=False)
-        hl.addWidget(lab, 0)
+        lab = _TipLabel(title, head, pixel_size=14, word_wrap=False)
+        lab.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        lab.setAlignment(Qt.AlignCenter)
+        hl.addWidget(lab)
         if tip:
             t = _TipLabel(tip, head)
-            hl.addWidget(t, 1)
-        else:
-            hl.addStretch(1)
+            t.setAlignment(Qt.AlignCenter)
+            hl.addWidget(t)
         root.addWidget(head)
 
         body = QFrame(self)
         body.setObjectName("autoPushBody")
         self.body = QVBoxLayout(body)
-        self.body.setContentsMargins(10, 6, 10, 10)
-        self.body.setSpacing(6)
+        self.body.setContentsMargins(16, 12, 16, 16)
+        self.body.setSpacing(10)
         root.addWidget(body)
 
     @staticmethod
@@ -127,8 +133,8 @@ def _embed(module_name: str, config, parent) -> QWidget:
     except Exception as e:
         box = QFrame(parent)
         box.setStyleSheet(
-            "QFrame{background:rgba(255,240,240,180);border:1px dashed #c66;"
-            "border-radius:6px;}"
+            f"QFrame{{background:{themed_note_bg()};border:1px solid {themed_note_border()};"
+            "border-radius:8px;}"
         )
         lay = QVBoxLayout(box)
         lay.setContentsMargins(12, 10, 12, 10)
@@ -138,7 +144,7 @@ def _embed(module_name: str, config, parent) -> QWidget:
         )
         msg.setWordWrap(True)
         msg.setStyleSheet(
-            'font-family:"Microsoft YaHei";font-size:12px;font-weight:700;color:#622;'
+            f'font-size:13px;color:{themed_text()};'
         )
         lay.addWidget(msg)
         return box
@@ -188,15 +194,15 @@ def _embed_formation(config, parent) -> QWidget:
     except Exception as e:
         box = QFrame(parent)
         box.setStyleSheet(
-            "QFrame{background:rgba(255,240,240,180);border:1px dashed #c66;"
-            "border-radius:6px;}"
+            f"QFrame{{background:{themed_note_bg()};border:1px solid {themed_note_border()};"
+            "border-radius:8px;}"
         )
         lay = QVBoxLayout(box)
         lay.setContentsMargins(12, 10, 12, 10)
         msg = QLabel("未能载入编队表格：%s" % e, box)
         msg.setWordWrap(True)
         msg.setStyleSheet(
-            'font-family:"Microsoft YaHei";font-size:12px;font-weight:700;color:#622;'
+            f'font-size:13px;color:{themed_text()};'
         )
         lay.addWidget(msg)
         return box
@@ -297,38 +303,17 @@ class Layout(QWidget):
         root.setContentsMargins(12, 8, 12, 8)
         root.setSpacing(0)
 
-        scroll = QScrollArea(self)
-        scroll.setObjectName("autoPushScroll")
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        from gui.components.expand.tool_style import (
-            themed_page_transparent_qss,
-            themed_scrollbar_qss,
-        )
-
-        scroll.setStyleSheet(
-            themed_page_transparent_qss("autoPushScroll") + themed_scrollbar_qss()
-        )
-        try:
-            scroll.viewport().setStyleSheet("background:transparent;")
-        except Exception:
-            pass
-
-        body = QWidget()
-        body.setStyleSheet("background:transparent;")
-        bl = QVBoxLayout(body)
-        bl.setContentsMargins(0, 4, 4, 12)
-        bl.setSpacing(12)
-        bl.setAlignment(Qt.AlignTop)
-
-        # 四个设置块（编队 / 推未通关图 / 推剧情 / 活动图）
-        self._build_sections(bl)
-
-        bl.addStretch(1)
-
-        scroll.setWidget(body)
-        root.addWidget(scroll, 1)
+        self.workspace = QTabWidget(self)
+        self.workspace.setObjectName("autoPushWorkspace")
+        self.workspace.setDocumentMode(True)
+        self._build_sections(self.workspace)
+        def _refresh_tabs():
+            self.workspace.setStyleSheet(themed_workspace_tabs_css("autoPushWorkspace"))
+        self.workspace._refresh = _refresh_tabs
+        self.workspace.currentChanged.connect(
+            lambda _index: apply_full_theme_refresh(self.workspace.currentWidget()))
+        _refresh_tabs()
+        root.addWidget(self.workspace, 1)
 
         # 深色模式适配（统一刷：labels/输入框/QFrame白底/_Sec._refresh 等）
         if apply_full_theme_refresh is not None:
@@ -373,86 +358,128 @@ class Layout(QWidget):
         )
         return cell
 
-    def _build_sections(self, lay):
-        """四个设置块（编队 / 推未通关图 / 推剧情 / 活动图）。"""
-        config = self.config
+    def _build_sections(self, tabs):
+        """按执行场景分开工作区，每页只保留当前任务需要的控件。"""
+        from gui.components.expand.tool_style import themed_scrollbar_qss
+        def page(title):
+            scroll = QScrollArea(self)
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QFrame.NoFrame)
+            scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            scroll.setStyleSheet("QScrollArea{background:transparent;border:none;}" + themed_scrollbar_qss())
+            scroll.viewport().setStyleSheet("background:transparent;")
+            body = QWidget()
+            body.setStyleSheet("background:transparent;")
+            layout = QVBoxLayout(body)
+            layout.setContentsMargins(0, 12, 4, 12)
+            layout.setSpacing(12)
+            layout.setAlignment(Qt.AlignTop)
+            scroll.setWidget(body)
+            tabs.addTab(scroll, title)
+            return body, layout
 
-        # 1) 编队（插件私有表格：一张表完成一切：侧栏 / 预设1-4）
-        sec_form = _Sec(
-            "编队",
-            "可设置对应队伍里的属性。侧栏为战斗界面左边的从上到下的1234队。"
-            "预设为游戏内的预设队伍。队伍均单独可选。"
-            "不选择则使用当前战斗界面设置的队伍战斗。",
-            self,
-        )
-        self.w_form = _embed_formation(config, sec_form)
-        sec_form.add_inner(self.w_form)
-        lay.addWidget(sec_form)
+        main, layout = page("主线任务")
+        section = _Sec("推未通关关卡", "填写目标关卡后执行；队伍可在「编队设置」调整。", main)
+        self.w_explore = _embed("exploreConfig", self.config, section)
+        self._compact_template(self.w_explore)
+        section.add_inner(self.w_explore)
+        layout.addWidget(section)
+        layout.addStretch(1)
 
-        # 2) 推未通关图（内嵌 exploreConfig 面板 + 大厅引擎的「推当前页面」按钮行）
-        sec_explore = _Sec(
-            "推未通关图",
-            "填要推的普通图 / 困难图，再点执行。简易模式适合人少；手动 BOSS 会进关后停等你手操。",
-            self,
-        )
-        self.w_explore = _embed("exploreConfig", config, sec_explore)
-        sec_explore.add_inner(self.w_explore)
-        sec_explore.body.addWidget(self._build_current_push_row(sec_explore))
-        lay.addWidget(sec_explore)
+        team, layout = page("编队设置")
+        section = _Sec("选择战斗队伍", "勾选队伍并设置属性；全部不选时沿用当前队伍。", team)
+        self.w_form = _embed_formation(self.config, section)
+        section.add_inner(self.w_form)
+        layout.addWidget(section)
+        layout.addStretch(1)
 
-        # 3) 推剧情
-        sec_plot = _Sec(
-            "推剧情",
-            "主线章节数 + 主线 / 小组 / 支线一键开推。",
-            self,
-        )
-        self.w_plot = _embed("proceedPlot", config, sec_plot)
-        sec_plot.add_inner(self.w_plot)
-        lay.addWidget(sec_plot)
+        current, layout = page("当前页面")
+        section = _Sec("从当前游戏页面继续", "先打开游戏内的选章页或选关页，再启动对应任务。", current)
+        section.body.addWidget(self._build_current_push_row(section))
+        layout.addWidget(section)
+        layout.addStretch(1)
 
-        # 4) 活动图
-        sec_event = _Sec(
-            "活动图",
-            "当期活动故事 / 任务 / 挑战；下方属性表帮助你对照带队。",
-            self,
-        )
-        self.w_event = _embed("eventMapConfig", config, sec_event)
-        sec_event.add_inner(self.w_event)
-        lay.addWidget(sec_event)
+        plot, layout = page("剧情任务")
+        section = _Sec("推进剧情", "选择要推进的剧情类型。", plot)
+        self.w_plot = _embed("proceedPlot", self.config, section)
+        self._compact_template(self.w_plot)
+        section.add_inner(self.w_plot)
+        layout.addWidget(section)
+        layout.addStretch(1)
+
+        event, layout = page("活动任务")
+        section = _Sec("当期活动", "活动故事、任务与挑战。", event)
+        self.w_event = _embed("eventMapConfig", self.config, section)
+        self._compact_template(self.w_event)
+        section.add_inner(self.w_event)
+        layout.addWidget(section)
+        layout.addStretch(1)
+
+    @staticmethod
+    def _compact_template(widget):
+        """复用原表单与接线，移除通用设置页为独立大页面保留的空白。"""
+        from qfluentwidgets import LineEdit, SwitchButton
+        names = {
+            "是否手动boss战": "手动完成 BOSS 战",
+            "使用简易模式推图": "简易模式",
+            "普通图推图设置": "普通关卡",
+            "困难图推图设置": "困难关卡",
+        }
+        for label in widget.findChildren(QLabel):
+            if label.text() in names:
+                label.setText(names[label.text()])
+        for switch in widget.findChildren(SwitchButton):
+            switch.setOnText("开")
+            switch.setOffText("关")
+        layout = getattr(widget, "vBoxLayout", None)
+        if layout is not None:
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(14)
+            layout.setAlignment(Qt.AlignTop)
+            if layout.count() and layout.itemAt(0).spacerItem() is not None:
+                layout.takeAt(0)
+        for edit in widget.findChildren(LineEdit):
+            edit.setMinimumWidth(100)
+            edit.setMaximumWidth(16777215)
+            edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        if layout is not None:
+            for index in range(layout.count()):
+                row = layout.itemAt(index).layout()
+                if row is None:
+                    continue
+                for item_index in range(row.count()):
+                    item = row.itemAt(item_index)
+                    if item.widget() is not None and isinstance(item.widget(), LineEdit):
+                        row.setAlignment(item.widget(), Qt.AlignVCenter)
+                        row.setStretch(item_index, 1)
 
     def _build_current_push_row(self, parent):
-        """「推当前页面剧情 / 推当前页面关卡」按钮行（挂在「推未通关图」分组内）。
-
-        逻辑全部在插件 push_current.py（工具大厅自包含，上游保持干净）：
-        先手动停在剧情选章/选话页或选关页再点执行，不回主页。
-        """
-        row = QFrame(parent)
-        row.setStyleSheet("background:transparent;")
-        rl = QHBoxLayout(row)
-        rl.setContentsMargins(0, 0, 0, 0)
-        rl.setSpacing(10)
-        try:
-            # 蓝色功能按钮（与「执行」同款 Primary）
-            from qfluentwidgets import PrimaryPushButton as PushButton
-        except Exception:
-            from PyQt5.QtWidgets import QPushButton as PushButton
-        btn_story = PushButton("推当前页面剧情", row)
-        btn_stage = PushButton("推当前页面关卡", row)
-        btn_story.setToolTip("先手动停在剧情选章/选话页（含当期活动故事页）再点；不回主页，自动在右半屏找可开始的按钮逐个推完")
-        btn_stage.setToolTip("把游戏停在选关页/活动图/困难页再点即可，无需任何前置：自动扫描右半屏所有蓝色入场按钮逐个战斗（已通关的自动跳过，剧情页自动跳过）")
-        for b in (btn_story, btn_stage):
-            try:
-                b.setMinimumHeight(30)
-            except Exception:
-                pass
-            rl.addWidget(b, 0)
-        rl.addStretch(1)
-        try:
-            btn_story.clicked.connect(self._action_push_current_story)
-            btn_stage.clicked.connect(self._action_push_current_stage)
-        except Exception as e:
-            print("[auto_push] 当前页面推图按钮接线失败:", e)
-        return row
+        """保留原任务入口与信号，用独立设置行说明两个执行目标。"""
+        from qfluentwidgets import FluentIcon
+        host = QWidget(parent)
+        layout = QVBoxLayout(host)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(20)
+        for title, hint, button_text, action in (
+            ("剧情页面", "自动识别可开始的剧情，逐个推进。", "开始推剧情", self._action_push_current_story),
+            ("关卡页面", "自动识别入场按钮，跳过已通关关卡。", "开始推关卡", self._action_push_current_stage),
+        ):
+            row = QHBoxLayout()
+            text = QVBoxLayout()
+            text.setSpacing(4)
+            label = QLabel(title, host)
+            label.setStyleSheet("font-size:14px;font-weight:600;")
+            description = _TipLabel(hint, host)
+            text.addWidget(label)
+            text.addWidget(description)
+            row.addLayout(text, 1)
+            button = make_icon_button(
+                FluentIcon.PLAY, button_text + "\n" + hint + "先手动停在对应游戏页面；执行时不返回主页。",
+                host, primary=True)
+            button.clicked.connect(action)
+            row.addWidget(button)
+            layout.addLayout(row)
+        return host
 
     def _publish_live_config(self):
         """执行前把卡片对话框注入的 ConfigDraft 落盘并切回 live ConfigSet。"""

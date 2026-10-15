@@ -10,12 +10,12 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from PyQt5.QtCore import QPoint, Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtCore import QPoint, QRectF, Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QColor, QPainter, QPen
-from PyQt5.QtWidgets import QAbstractSpinBox, QCheckBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QBoxLayout, QCheckBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy, QSpinBox, QVBoxLayout, QWidget
 
 try:
-    from qfluentwidgets import CheckBox, PrimaryPushButton, PushButton, SpinBox
+    from qfluentwidgets import CheckBox, FluentIcon, PrimaryPushButton, PushButton, SpinBox
     from qfluentwidgets.components.widgets.spin_box import SpinButton as _QfwSpinButton
     _qfw_spin_orig_paint = _QfwSpinButton.paintEvent
 
@@ -43,9 +43,10 @@ except Exception:  # pragma: no cover
     SpinBox = QSpinBox
 
 try:
-    from gui.components.expand.tool_style import (apply_full_theme_refresh, connect_theme_refresh_full, themed_text,
+    from gui.components.expand.tool_style import (apply_full_theme_refresh, connect_theme_refresh_full, make_icon_button, themed_text,
                                                   is_dark, themed_input_bg, themed_input_text, themed_input_border,
-                                                  themed_spinbox_css, themed_accent)
+                                                  themed_spinbox_css, themed_accent, themed_card_bg,
+                                                  themed_note_bg, themed_secondary_text, themed_scrollbar_qss)
 except Exception:  # pragma: no cover
     apply_full_theme_refresh = connect_theme_refresh_full = None
     themed_text = lambda: "#333333"
@@ -55,6 +56,10 @@ except Exception:  # pragma: no cover
     themed_input_border = lambda: "#999999"
     themed_spinbox_css = lambda: ""
     themed_accent = lambda: "#0078d4"
+    themed_card_bg = lambda: "#FFFFFF"
+    themed_note_bg = lambda: "#F5F7FA"
+    themed_secondary_text = lambda: "#687588"
+    themed_scrollbar_qss = lambda: ""
 
 
 def _darken(hex_color, factor=0.45):
@@ -93,17 +98,17 @@ UI_CONFIG = {
     "cell_size": 52,
     "grid_line": 1,
     "panel_gap": 16,
-    "page_padding": 8,
-    "row_gap": 3,
+    "page_padding": 16,
+    "row_gap": 10,
     "spin_width": 76,
     "place_width": 62,
-    "title": "沙勒总决算：库存管理",
-    "hint": "默认点击棋盘输入空格；点击备品后的“放置”后再点击棋盘放置。左键旋转，右键删除，拖动移动。",
-    "empty_color": "#d7dce0",
+    "title": "记录棋盘，查看下一格的概率",
+    "hint": "点击空格记录已翻空的位置；选择备品后点击棋盘放置。左键旋转，右键移除，按住拖动。",
+    "empty_color": "#e6e9ee",
     "open_color": "#ffffff",
-    "prob_low": "#E6F7FA",
-    "prob_high": "#00A0E9",
-    "item_colors": ["#e57373", "#22c55e", "#64b5f6"],
+    "prob_low": "#edf3fa",
+    "prob_high": "#4d8fea",
+    "item_colors": ["#d99c8d", "#8db7a7", "#94afd6"],
 }
 
 # solver 原始错误码 → 用户可读文案（正常操作流到不了这些码，兜底用）
@@ -236,7 +241,7 @@ class BoardCanvas(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(QPen(QColor("#888888"), UI_CONFIG["grid_line"]))
+        painter.setPen(QPen(QColor(themed_input_border()), UI_CONFIG["grid_line"]))
         defs = self.owner._read_item_defs()
         placed_map = {}
         seq = {}
@@ -300,7 +305,7 @@ class BoardCanvas(QWidget):
                         painter.drawText(bx, by, badge_w, badge_h, Qt.AlignCenter, label)
                         painter.setBrush(Qt.NoBrush)
                 else:
-                    painter.setPen(QPen(QColor("#888888"), UI_CONFIG["grid_line"]))
+                    painter.setPen(QPen(QColor(themed_input_border()), UI_CONFIG["grid_line"]))
                     painter.drawRect(rect_x, rect_y, self.cell_size, self.cell_size)
                     if text:
                         painter.setPen(QColor(themed_input_text()))
@@ -323,7 +328,7 @@ class BoardCanvas(QWidget):
                         (x, y + self.cell_size, x + self.cell_size, y + self.cell_size, (rr + 1, cc) in cells),
                     ):
                         (inner if shared else outer).append((a, b, c2, d2))
-                painter.setPen(QPen(QColor("#888888"), 1))
+                painter.setPen(QPen(QColor(themed_input_border()), 1))
                 for seg in inner:
                     painter.drawLine(*seg)
                 painter.setPen(QPen(QColor(_darken(UI_CONFIG["item_colors"][p.item_index])), 2))
@@ -416,14 +421,14 @@ class _ItemShapePreview(QWidget):
             painter.setBrush(QColor(self._color))
             for r in range(rows):
                 for c in range(cols):
-                    painter.drawRect(x0 + c * (cell + gap), y0 + r * (cell + gap), cell, cell)
+                    painter.drawRect(QRectF(x0 + c * (cell + gap), y0 + r * (cell + gap), cell, cell))
             painter.setBrush(Qt.NoBrush)
         finally:
             painter.end()
 
 
 class Layout(QWidget):
-    """库存计算器页面；三行备品控件和棋盘均保持紧凑布局。"""
+    """棋盘工作区与完整备品卡；窄窗口按阅读顺序上下排列。"""
 
     def __init__(self, parent=None, config=None, **kwargs):
         super().__init__(parent)
@@ -441,7 +446,9 @@ class Layout(QWidget):
         self._histories = [[], [], []]
         self._history_buttons = [[], [], []]
         self._history_layouts = []
+        self._history_hosts = []
         self._item_frames = []
+        self._item_usage_labels = []
         self._shape_previews = []
         self._history_delete_mode = False
         self._history_values = [[], [], []]
@@ -457,6 +464,7 @@ class Layout(QWidget):
         self._apply_uniform_font()
         self._refresh_place_buttons()
         self._loading_state = False
+        self._refresh_theme()
         self._refresh_board()
         self._schedule_recalc()
 
@@ -464,59 +472,144 @@ class Layout(QWidget):
         root = QVBoxLayout(self)
         pad = UI_CONFIG["page_padding"]
         root.setContentsMargins(pad, pad, pad, pad)
-        root.setSpacing(4)
+        root.setSpacing(8)
+        self._secondary_labels = []
+        self._heading_labels = []
         title = QLabel(UI_CONFIG["title"], self)
         title.setObjectName("schaleInventoryTitle")
+        title.setAlignment(Qt.AlignCenter)
         root.addWidget(title)
         hint = QLabel(UI_CONFIG["hint"], self)
+        hint.setObjectName("schaleInventoryHint")
         hint.setWordWrap(True)
+        hint.setAlignment(Qt.AlignCenter)
+        hint.setProperty("themeSemanticColor", True)
+        self._secondary_labels.append(hint)
         root.addWidget(hint)
-        main = QHBoxLayout(); main.setContentsMargins(0, 0, 0, 0); main.setSpacing(UI_CONFIG["panel_gap"])
-        left_host = QWidget(self); self._left_host = left_host; left_host.setFixedWidth(BOARD_W * UI_CONFIG["cell_size"] + 2); left_host.setSizePolicy(left_host.sizePolicy().Fixed, left_host.sizePolicy().Fixed)
-        left = QVBoxLayout(left_host); left.setContentsMargins(0, 0, 0, 0); left.setSpacing(0)
-        self._board = BoardCanvas(self, left_host)
-        # 棋盘整体下移 12px（约至右列「显示概率」中段往下）：
-        # 顶部 spacer 12、与底行间距 16→4，列总高不变，清空棋盘与状态文字位置不动
-        left.addSpacing(12)
-        left.addWidget(self._board, 0, Qt.AlignLeft)
-        left.addSpacing(4)
-        actions = QHBoxLayout(); actions.setContentsMargins(0, 0, 0, 0); actions.setSpacing(4)
-        self._clear = PushButton("清空棋盘", self)
+        root.addSpacing(6)
+
+        content = QWidget(self)
+        content.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        content.setMinimumWidth(0)
+        main = QBoxLayout(QBoxLayout.LeftToRight, content)
+        main.setContentsMargins(0, 0, 0, 0)
+        main.setSpacing(20)
+        self._workspace_layout = main
+        self._left_host = QFrame(content)
+        self._left_host.setObjectName("schaleBoardCard")
+        self._left_host.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Maximum)
+        self._left_host.setMinimumWidth(0)
+        left = QVBoxLayout(self._left_host)
+        left.setContentsMargins(18, 18, 18, 16)
+        left.setSpacing(14)
+        board_heading = QVBoxLayout()
+        board_heading.setSpacing(5)
+        heading = QLabel("当前棋盘", self._left_host)
+        heading.setAlignment(Qt.AlignCenter)
+        self._heading_labels.append(heading)
+        board_heading.addWidget(heading)
+        dimensions = QLabel("9 列 × 5 行", self._left_host)
+        dimensions.setAlignment(Qt.AlignCenter)
+        dimensions.setProperty("themeSemanticColor", True)
+        self._secondary_labels.append(dimensions)
+        board_heading.addWidget(dimensions)
+        left.addLayout(board_heading)
+        self._board = BoardCanvas(self, self._left_host)
+        left.addWidget(self._board, 0, Qt.AlignHCenter)
+
+        legend = QHBoxLayout()
+        legend.setSpacing(8)
+        self._legend_swatches = []
+        for text, opened in (("未翻开", False), ("已翻空", True)):
+            swatch = QFrame(self._left_host)
+            swatch.setFixedSize(10, 10)
+            self._legend_swatches.append((swatch, opened))
+            legend.addWidget(swatch)
+            label = QLabel(text, self._left_host)
+            label.setProperty("themeSemanticColor", True)
+            self._secondary_labels.append(label)
+            legend.addWidget(label)
+            legend.addSpacing(8)
+        legend.addStretch(1)
+        left.addLayout(legend)
+        probability_hint = QLabel("颜色越深，备品出现的概率越高。描边格为当前建议位置。", self._left_host)
+        probability_hint.setWordWrap(True)
+        probability_hint.setProperty("themeSemanticColor", True)
+        self._secondary_labels.append(probability_hint)
+        left.addWidget(probability_hint)
+
+        self._status_box = QFrame(self._left_host)
+        self._status_box.setObjectName("schaleStatusBox")
+        actions = QHBoxLayout(self._status_box)
+        actions.setContentsMargins(12, 10, 10, 10)
+        actions.setSpacing(12)
+        self._status = QLabel("计算完成", self._status_box)
+        self._status.setWordWrap(True)
+        self._status.setMinimumWidth(0)
+        self._status.setProperty("themeSemanticColor", True)
+        actions.addWidget(self._status, 1)
+        self._clear = make_icon_button(FluentIcon.BROOM, "清空棋盘", self._status_box)
         self._clear.clicked.connect(self._clear_board)
-        actions.addStretch(1)
         actions.addWidget(self._clear)
-        actions.addStretch(1)
-        status_box = QFrame(self); status_box.setObjectName("schaleStatusBox"); status_box.setFixedWidth(128); status_box.setFixedHeight(50); status_row = QVBoxLayout(status_box); status_row.setContentsMargins(0, 0, 0, 0); self._status = QLabel("计算完成", status_box); self._status.setWordWrap(True); self._status.setAlignment(Qt.AlignLeft | Qt.AlignTop); self._status.setProperty("themeSemanticColor", True); status_row.addWidget(self._status)
-        actions.addSpacing(12)
-        actions.addWidget(status_box, 0, Qt.AlignVCenter)
-        left.addLayout(actions); self._actions_row = actions; self._left_host = left_host; self._status_box = status_box; left_host.setFixedHeight(self._board.height() + 16 + 50)
-        main.addWidget(left_host, 0, Qt.AlignLeft | Qt.AlignTop); main.addSpacing(UI_CONFIG["panel_gap"]); main.addWidget(self._build_side_panel(), 0); main.addStretch(1); root.addLayout(main)
+        left.addWidget(self._status_box)
+        self._side_panel = self._build_side_panel()
+        main.addWidget(self._left_host, 3, Qt.AlignTop)
+        main.addWidget(self._side_panel, 2, Qt.AlignTop)
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setStyleSheet("QScrollArea{background:transparent;border:none;}")
+        scroll.viewport().setStyleSheet("background:transparent;")
+        self._content_widget = content
+        scroll.setWidget(content)
+        self._content_scroll = scroll
+        scroll.viewport().installEventFilter(self)
+        root.addWidget(scroll, 1)
+        QTimer.singleShot(0, self._relayout_scale)
 
     def _apply_uniform_font(self):
         font = self._clear.font() if hasattr(self, "_clear") else self.font()
+        font.setPixelSize(13)
         for widget in self.findChildren(QWidget):
             widget.setFont(font)
+        title = self.findChild(QLabel, "schaleInventoryTitle")
+        if title is not None:
+            title_font = title.font()
+            title_font.setPixelSize(16)
+            title_font.setBold(True)
+            title.setFont(title_font)
 
     def _refresh_theme(self):
         self._apply_uniform_font(); self._apply_status_color(); self._apply_status_baseline(); self._refresh_place_buttons(); self._configure_spinboxes(); self._restyle_item_boxes(); 
+        self._left_host.setStyleSheet(
+            f"QFrame#schaleBoardCard{{background:{themed_card_bg()};border:1px solid {themed_input_border()};border-radius:12px;}}"
+        )
+        self._status_box.setStyleSheet(
+            f"QFrame#schaleStatusBox{{background:{themed_note_bg()};border:0;border-radius:8px;}}"
+        )
+        for label in self._secondary_labels:
+            label.setStyleSheet(f"background:transparent;color:{themed_secondary_text()};font-size:12px;")
+        for label in self._heading_labels:
+            label.setStyleSheet(f"background:transparent;color:{themed_text()};font-size:14px;font-weight:600;")
+        for swatch, opened in self._legend_swatches:
+            fill = themed_input_bg() if opened else ("#26282c" if is_dark() else UI_CONFIG["empty_color"])
+            swatch.setStyleSheet(f"background:{fill};border:1px solid {themed_input_border()};border-radius:2px;")
+        for shape in self._shape_previews:
+            shape.parentWidget().setStyleSheet(
+                f"QFrame#schaleShapeSurface{{background:{themed_note_bg()};border:0;border-radius:8px;}}"
+            )
+        self._content_scroll.setStyleSheet(
+            "QScrollArea{background:transparent;border:none;}" + themed_scrollbar_qss()
+        )
         for cb in getattr(self, "_compute_checks", []):
             cb.setStyleSheet(self._small_checkbox_css())
         self._refresh_history_buttons(); self._board.update()
 
     def _apply_status_baseline(self):
-        # 清空棋盘已移到底部居中行：状态文字在固定 50px 框内垂直居中，
-        # 框高与列高不变，窗口几何零波动。
-        try:
-            if not hasattr(self, "_status") or not hasattr(self, "_status_box"):
-                return
-            row = self._status.parentWidget().layout()
-            if row is None:
-                return
-            fm = self._status.fontMetrics()
-            top = max(0, (self._status_box.height() - fm.height()) // 2)
-            row.setContentsMargins(0, top, 0, 0)
-        except Exception:
-            pass
+        # 状态与清空操作共用棋盘卡底部，自然换行而不固定行高。
+        self._status.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -529,25 +622,26 @@ class Layout(QWidget):
             self._scaling = False
 
     def _relayout_scale(self):
-        # 棋盘随窗口比例缩放（文字大小不变），限制在 0.7x–1.6x。
-        if not hasattr(self, "_board") or not hasattr(self, "_left_host"):
+        if not hasattr(self, "_content_scroll"):
             return
-        base_w = BOARD_W * UI_CONFIG["cell_size"] + 2 + UI_CONFIG["panel_gap"] + 300
-        base_h = BOARD_H * UI_CONFIG["cell_size"] + 2 + 16 + 44 + 80 + 2 * UI_CONFIG["page_padding"]
-        factor = min(self.width() / base_w, self.height() / base_h)
-        cell = int(UI_CONFIG["cell_size"] * max(0.7, min(1.6, factor)))
-        if cell == self._board.cell_size:
-            return
-        self._board.set_cell_size(cell)
-        self._left_host.setFixedWidth(BOARD_W * cell + 2)
-        self._left_host.setFixedHeight(self._board.height() + 16 + 50)
-        for sp in getattr(self, "_shape_previews", []):
-            sp.set_scale(factor)
-        QTimer.singleShot(0, self._apply_status_baseline)
+        available = max(1, self._content_scroll.viewport().width())
+        stacked = available < 920
+        direction = QBoxLayout.TopToBottom if stacked else QBoxLayout.LeftToRight
+        if self._workspace_layout.direction() != direction:
+            self._workspace_layout.setDirection(direction)
+        self._workspace_layout.setStretch(0, 0 if stacked else 3)
+        self._workspace_layout.setStretch(1, 0 if stacked else 2)
+        card_width = available if stacked else (available - 20) * 0.60
+        cell = max(20, min(60 if stacked else 76, int((card_width - 40) / BOARD_W)))
+        if cell != self._board.cell_size:
+            self._board.set_cell_size(cell)
+        for index in range(len(self._history_layouts)):
+            self._relayout_history(index)
+        self._content_widget.updateGeometry()
 
     def showEvent(self, event):
         super().showEvent(event)
-        QTimer.singleShot(0, self._apply_status_baseline)
+        QTimer.singleShot(0, self._relayout_scale)
 
     def _configure_spinboxes(self):
         # 使用 Qt 原生 SpinBox：上下箭头天然纵向排列，数字编辑区不会被按钮覆盖。
@@ -575,39 +669,23 @@ class Layout(QWidget):
         self._cache_prob_range(); self._on_board_changed()
 
     def _style_item_box(self, index):
-        """备品小框：主题引擎「程序内在选的 1px 蓝框」统一发放（与编队表格同款）。"""
-        try:
-            from gui.components.expand.tool_style import themed_inner_select_qss
-
-            box = self._item_frames[index]
-            on = self._compute_checks[index].isChecked()
-            box.setStyleSheet(themed_inner_select_qss("schaleItemBox%d" % (index + 1), on))
-        except Exception:
-            pass
+        box = self._item_frames[index]
+        border = themed_accent() if self._active_item == index else themed_input_border()
+        box.setStyleSheet(
+            f"QFrame#schaleItemBox{index + 1}{{background:{themed_card_bg()};"
+            f"border:1px solid {border};border-radius:10px;}}"
+        )
 
     def _restyle_item_boxes(self):
         for i in range(len(self._item_frames)):
             self._style_item_box(i)
 
     def eventFilter(self, obj, event):
-        # 整个备品小框都可点选切换"是否计算"；点在旋钮/按钮/勾选框上除外。
-        try:
-            from PyQt5.QtCore import QEvent
+        from PyQt5.QtCore import QEvent
 
-            if event.type() == QEvent.MouseButtonRelease and obj in self._item_frames:
-                child = obj.childAt(event.pos())
-                meaningful = child is not None and child is not obj and (
-                    isinstance(child, (QAbstractSpinBox, QPushButton))
-                    or isinstance(child, QCheckBox)
-                    or child.objectName().startswith("schalePlace")
-                )
-                if not meaningful:
-                    i = self._item_frames.index(obj)
-                    cb = self._compute_checks[i]
-                    cb.setChecked(not cb.isChecked())
-                    return True
-        except Exception:
-            pass
+        scroll = getattr(self, "_content_scroll", None)
+        if scroll is not None and obj is scroll.viewport() and event.type() == QEvent.Resize:
+            QTimer.singleShot(0, self._relayout_scale)
         return super().eventFilter(obj, event)
 
     def _selected_items(self):
@@ -615,76 +693,142 @@ class Layout(QWidget):
 
     def _build_side_panel(self):
         panel = QWidget(self)
-        # 整列右移一点：不贴着棋盘，给左缘留 14px 空气
-        layout = QVBoxLayout(panel); layout.setContentsMargins(14, 0, 0, 0); layout.setSpacing(UI_CONFIG["row_gap"])
-        # 表头与备品行同构（同 spacing=4、同槽宽）："显示概率" 对齐小框，
-        # 空 62px 让出放置钮位，高/宽/总数 52px 对齐旋钮
-        header = QHBoxLayout(); header.setContentsMargins(4, 0, 0, 0); header.setSpacing(4)
-        prob = QLabel("显示概率", panel); prob.setFixedWidth(UI_CONFIG["place_width"]); prob.setAlignment(Qt.AlignCenter)
-        header.addWidget(prob)
-        place_holder = QWidget(panel); place_holder.setFixedWidth(UI_CONFIG["place_width"])
-        header.addWidget(place_holder)
-        for label in ("高", "宽", "总数"):
-            lab = QLabel(label, panel); lab.setFixedWidth(52); lab.setAlignment(Qt.AlignCenter); header.addWidget(lab)
-        header.addStretch(1)
-        layout.addLayout(header)
-        for i in range(3): layout.addWidget(self._build_item_row(i))
-        # 删除历史记录紧跟右栏内容（间距=行距，不沉到整列最底）
-        bottom = QHBoxLayout(); bottom.setContentsMargins(0, 0, 0, 0)
-        delete = PushButton("删除历史记录", panel); delete.setCheckable(True); delete.clicked.connect(self._toggle_history_delete)
-        bottom.addWidget(delete); bottom.addStretch(1); layout.addLayout(bottom)
-        layout.addStretch(1)
+        panel.setMinimumWidth(0)
+        panel.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Maximum)
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(12)
+        for index in range(3):
+            layout.addWidget(self._build_item_row(index))
+        bottom = QHBoxLayout()
+        bottom.setContentsMargins(0, 0, 0, 0)
+        bottom.addStretch(1)
+        delete = make_icon_button(FluentIcon.DELETE, "删除历史记录", panel)
+        delete.setCheckable(True)
+        delete.clicked.connect(self._toggle_history_delete)
+        bottom.addWidget(delete)
+        layout.addLayout(bottom)
         return panel
 
     def _build_item_row(self, index):
-        # 计算开关小框：只围 checkbox + 备品N 文字（与放置钮差不多大），
-        # 勾选框紧贴备品文字；1px 灰框，参与计算=主题色框，整框可点选。
-        row_widget = QFrame(self)
-        outer = QVBoxLayout(row_widget); outer.setContentsMargins(4, 3, 4, 3); outer.setSpacing(2)
-        line = QHBoxLayout(); line.setContentsMargins(0, 0, 0, 0); line.setSpacing(4)
-        box = QFrame(row_widget); box.setObjectName(f"schaleItemBox{index + 1}")
-        box.setFixedSize(UI_CONFIG["place_width"], 32)
-        bl = QHBoxLayout(box); bl.setContentsMargins(3, 1, 3, 1); bl.setSpacing(1)
-        cb = CheckBox(box); cb.setChecked(True)
+        box = QFrame(self)
+        box.setObjectName(f"schaleItemBox{index + 1}")
+        box.setMinimumWidth(0)
+        box.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Maximum)
+        outer = QVBoxLayout(box)
+        outer.setContentsMargins(16, 14, 16, 14)
+        outer.setSpacing(12)
+        identity = QGridLayout()
+        identity.setSpacing(8)
+        identity_title = QWidget(box)
+        title_row = QHBoxLayout(identity_title)
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(8)
+        title_row.setAlignment(Qt.AlignCenter)
+        swatch = QFrame(identity_title)
+        swatch.setFixedSize(10, 10)
+        swatch.setStyleSheet(f"background:{UI_CONFIG['item_colors'][index]};border:0;border-radius:3px;")
+        title_row.addWidget(swatch)
+        name = QLabel(f"备品 {index + 1}", identity_title)
+        name.setObjectName(f"schaleInventoryItem{index + 1}")
+        self._heading_labels.append(name)
+        title_row.addWidget(name)
+        identity.addWidget(identity_title, 0, 1, Qt.AlignCenter)
+        cb = CheckBox("显示概率", box)
+        cb.setChecked(True)
         cb.setStyleSheet(self._small_checkbox_css())
         cb.stateChanged.connect(self._on_compute_changed)
-        cb.setToolTip("勾选=参与概率计算；点击小框同样切换")
+        cb.setToolTip("在棋盘上显示这类备品的覆盖概率")
         self._compute_checks.append(cb)
-        # 勾选框 = 原垂直居中位置再往下 2px：19px 宿主（上留 2px）随行居中
-        cb_host = QWidget(box); ch = QVBoxLayout(cb_host)
-        ch.setContentsMargins(0, 2, 0, 0); ch.setSpacing(0); ch.addWidget(cb)
-        bl.addWidget(cb_host, 0, Qt.AlignVCenter)
-        name = QLabel(f"备品{index + 1}", box); name.setObjectName(f"schaleInventoryItem{index + 1}"); name.setFixedWidth(42)
-        name.setStyleSheet(f"color: {UI_CONFIG['item_colors'][index]};")
-        bl.addWidget(name, 0, Qt.AlignVCenter)
-        line.addWidget(box, 0, Qt.AlignVCenter)
-        place = PrimaryPushButton("放置", row_widget); place.setCheckable(False); place.setObjectName(f"schalePlace{index + 1}"); place.setFixedWidth(UI_CONFIG["place_width"]); place.clicked.connect(lambda checked=False, i=index: self._select_item(i))
-        cancel = PushButton("取消", row_widget); cancel.setCheckable(False); cancel.setObjectName(f"schalePlace{index + 1}"); cancel.setFixedWidth(UI_CONFIG["place_width"]); cancel.clicked.connect(lambda checked=False, i=index: self._select_item(i)); cancel.setVisible(False)
-        line.addWidget(place)
-        line.addWidget(cancel)
-        self._cancel_buttons = getattr(self, "_cancel_buttons", []); self._cancel_buttons.append(cancel)
-        controls = []
-        for maximum in (4, 4, 7):
-            spin = SpinBox(row_widget); spin.setRange(1, maximum); spin.setValue(1); spin.setFixedWidth(52); spin.setFixedHeight(33); spin.setAlignment(Qt.AlignCenter); spin.valueChanged.connect(self._on_item_changed); line.addWidget(spin); controls.append(spin)
-        outer.addLayout(line)
-        # 第二行：正方形格数示意图（横排），历史记录（最多两行）紧随其后
-        row2 = QHBoxLayout(); row2.setContentsMargins(0, 0, 0, 0); row2.setSpacing(6)
-        shape = _ItemShapePreview(index, row_widget)
+        identity.addWidget(cb, 0, 2, Qt.AlignRight)
+        identity.setColumnMinimumWidth(0, cb.sizeHint().width())
+        identity.setColumnMinimumWidth(2, cb.sizeHint().width())
+        identity.setColumnStretch(0, 1)
+        identity.setColumnStretch(1, 1)
+        identity.setColumnStretch(2, 1)
+        outer.addLayout(identity)
+
+        form = QHBoxLayout()
+        form.setSpacing(10)
+        shape_surface = QFrame(box)
+        shape_surface.setObjectName("schaleShapeSurface")
+        shape_surface.setFixedSize(56, 56)
+        shape_layout = QVBoxLayout(shape_surface)
+        shape_layout.setContentsMargins(4, 4, 4, 4)
+        shape = _ItemShapePreview(index, shape_surface)
+        shape._side = 44
+        shape.setFixedSize(44, 44)
         shape.set_owner(self)
         shape.set_item_color(UI_CONFIG["item_colors"][index])
-        for spin in controls:
-            spin.valueChanged.connect(shape.update)
+        shape_layout.addWidget(shape, 0, Qt.AlignCenter)
         self._shape_previews.append(shape)
-        row2.addWidget(shape, 0, Qt.AlignVCenter)
-        history = QGridLayout(); history.setContentsMargins(0, 0, 0, 0); history.setHorizontalSpacing(3); history.setVerticalSpacing(2)
-        hist_host = QWidget(row_widget); hist_host.setLayout(history)
-        row2.addWidget(hist_host, 1)
-        outer.addLayout(row2)
-        self._history_layouts.append(history); self._items.append(tuple(controls)); self._place_buttons = getattr(self, "_place_buttons", []); self._place_buttons.append(place)
-        box.installEventFilter(self)
+        form.addWidget(shape_surface)
+        controls = []
+        for text, maximum in (("高", 4), ("宽", 4), ("总数", 7)):
+            field = QVBoxLayout()
+            field.setSpacing(5)
+            label = QLabel(text, box)
+            label.setProperty("themeSemanticColor", True)
+            self._secondary_labels.append(label)
+            field.addWidget(label)
+            spin = SpinBox(box)
+            spin.setRange(1, maximum)
+            spin.setValue(1)
+            spin.setMinimumWidth(62)
+            spin.setMaximumWidth(130)
+            spin.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            spin.setFixedHeight(33)
+            spin.setAlignment(Qt.AlignCenter)
+            spin.valueChanged.connect(self._on_item_changed)
+            spin.valueChanged.connect(shape.update)
+            field.addWidget(spin)
+            form.addLayout(field, 1)
+            controls.append(spin)
+        outer.addLayout(form)
+
+        footer = QHBoxLayout()
+        footer.setSpacing(10)
+        hint = QLabel("尚未放置", box)
+        hint.setProperty("themeSemanticColor", True)
+        self._secondary_labels.append(hint)
+        self._item_usage_labels.append(hint)
+        footer.addWidget(hint, 1)
+        place = make_icon_button(FluentIcon.ADD, f"放置备品 {index + 1}", box, primary=True)
+        place.setObjectName(f"schalePlace{index + 1}")
+        place.clicked.connect(lambda checked=False, i=index: self._select_item(i))
+        cancel = make_icon_button(FluentIcon.CLOSE, f"取消放置备品 {index + 1}", box)
+        cancel.setObjectName(f"schalePlace{index + 1}")
+        cancel.clicked.connect(lambda checked=False, i=index: self._select_item(i))
+        cancel.hide()
+        footer.addWidget(place)
+        footer.addWidget(cancel)
+        outer.addLayout(footer)
+        self._cancel_buttons = getattr(self, "_cancel_buttons", [])
+        self._cancel_buttons.append(cancel)
+        self._place_buttons = getattr(self, "_place_buttons", [])
+        self._place_buttons.append(place)
+
+        history = QGridLayout()
+        history.setContentsMargins(0, 0, 0, 0)
+        history.setHorizontalSpacing(5)
+        history.setVerticalSpacing(5)
+        history_host = QWidget(box)
+        history_row = QHBoxLayout(history_host)
+        history_row.setContentsMargins(0, 0, 0, 0)
+        history_row.setSpacing(8)
+        history_label = QLabel("最近形状", history_host)
+        history_label.setProperty("themeSemanticColor", True)
+        self._secondary_labels.append(history_label)
+        history_row.addWidget(history_label)
+        history_row.addLayout(history, 1)
+        history_host.hide()
+        outer.addWidget(history_host)
+        self._history_hosts.append(history_host)
+        self._history_layouts.append(history)
+        self._items.append(tuple(controls))
         self._item_frames.append(box)
         self._style_item_box(index)
-        return row_widget
+        return box
 
     def _read_item_defs(self):
         return [ItemDef(h.value(), w.value(), total.value()) for h, w, total in self._items]
@@ -731,21 +875,27 @@ class Layout(QWidget):
             return ""
 
     def _refresh_place_buttons(self):
-        # 按钮外观全由主题引擎/qfw 原生发放：未选中=PrimaryPushButton
-        # 「放置」（主题色底白字），选中=PushButton「取消」（浅底深字），
-        # 两态即主题引擎内两种功能按钮色，插件不碰 setStyleSheet。
+        # 放置与取消分别使用主题色加号、原生关闭图标；悬停显示完整操作名。
         cancels = getattr(self, "_cancel_buttons", [])
         for i, place in enumerate(self._place_buttons):
             active = self._active_item == i
             place.setVisible(not active)
             if i < len(cancels):
                 cancels[i].setVisible(active)
+        self._restyle_item_boxes()
+        self._refresh_item_usage()
         # 刚被点击的按钮随 setVisible(False) 隐藏时，Qt 会把焦点沿 Tab 链
         # 丢给第一个旋钮（表现为"点放置激活了输入栏"）。显式收回棋盘。
         try:
             self._board.setFocus(Qt.OtherFocusReason)
         except Exception:
             pass
+
+    def _refresh_item_usage(self):
+        for index, label in enumerate(self._item_usage_labels):
+            used = sum(item.item_index == index for item in self._placed)
+            total = self._items[index][2].value()
+            label.setText("点击棋盘选择位置" if self._active_item == index else f"已放置 {used} / {total} 件")
 
     def _select_item(self, index):
         defs = self._read_item_defs()
@@ -775,10 +925,13 @@ class Layout(QWidget):
     def _apply_status_color(self):
         if not hasattr(self, "_status"): return
         pal = self._status.palette()
-        color = themed_text() if self._status_item is None else UI_CONFIG["item_colors"][self._status_item]
+        color = themed_text()
+        if self._status_item is not None:
+            item_color = UI_CONFIG["item_colors"][self._status_item]
+            color = _lighten(item_color, 0.35) if is_dark() else _darken(item_color, 0.45)
         pal.setColor(pal.WindowText, QColor(color))
         self._status.setPalette(pal)
-        self._status.setStyleSheet(f"color: {color}; font-size: {self._status.font().pointSize()}pt;")
+        self._status.setStyleSheet(f"color: {color}; font-size: 13px;")
 
     def _refresh_board(self):
         """刷新自绘棋盘；保留该兼容方法供旧挂载流程调用。"""
@@ -789,7 +942,10 @@ class Layout(QWidget):
         self._history_delete_mode = bool(enabled)
         sender = self.sender()
         if sender is not None:
-            sender.setText("保存历史记录" if enabled else "删除历史记录")
+            tooltip = "完成历史记录编辑" if enabled else "删除历史记录"
+            sender.setIcon(FluentIcon.ACCEPT if enabled else FluentIcon.DELETE)
+            sender.setToolTip(tooltip)
+            sender.setAccessibleName(tooltip)
         self._refresh_history_buttons()
 
     def _refresh_history_buttons(self):
@@ -805,6 +961,7 @@ class Layout(QWidget):
         # 交换等价的方案（如 2x3 与 3x2）只记录一次。
         if scheme in self._histories[index] or (w, h) in self._histories[index]: return
         self._histories[index].append(scheme)
+        self._history_hosts[index].show()
         self._histories[index].sort(key=lambda s: (max(s), min(s)))
         # 标签统一大数字在前（2x4 → 4x2），按尺寸从小到大扫过去即可查找。
         label = f"{max(scheme)}x{min(scheme)}"
@@ -816,22 +973,24 @@ class Layout(QWidget):
         button.clicked.connect(lambda checked=False, ii=index, ss=scheme, bb=button: self._history_clicked(ii, ss, bb))
         self._history_buttons[index].append(button)
         layout = self._history_layouts[index]
-        layout.setContentsMargins(4, 0, 0, 0)
-        # 最多两行：先横向填满一行（8 个）再换行，位置即排序后的名次。
-        layout.setColumnStretch(8, 1)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(button, 0, 0, Qt.AlignLeft)
         self._relayout_history(index)
         self._refresh_history_buttons()
 
     def _relayout_history(self, index):
-        """按尺寸从小到大、从左到右重排；一行 8 个，填满再换行。"""
+        """历史形状按卡片可用宽度换行，保持窄窗口无横向滚动。"""
         layout = self._history_layouts[index]
+        columns = max(1, min(8, (self._item_frames[index].width() - 96) // 55))
+        for column in range(max(layout.columnCount(), columns + 1)):
+            layout.setColumnStretch(column, 0)
+        layout.setColumnStretch(columns, 1)
         self._history_buttons[index].sort(
             key=lambda b: (max(b.property("scheme")), min(b.property("scheme")))
         )
         for pos, button in enumerate(self._history_buttons[index]):
             layout.removeWidget(button)
-            layout.addWidget(button, pos // 8, pos % 8, Qt.AlignLeft)
+            layout.addWidget(button, pos // columns, pos % columns, Qt.AlignLeft)
 
     def _on_item_changed(self):
         if self._loading_state:
@@ -845,6 +1004,7 @@ class Layout(QWidget):
             self._history_buttons[index].remove(button)
             button.deleteLater()
             self._relayout_history(index)
+            self._history_hosts[index].setVisible(bool(self._history_buttons[index]))
             self._save_state()
             return
         self._use_history(index, scheme)
@@ -969,10 +1129,11 @@ class Layout(QWidget):
         self._placed = kept
 
     def _on_board_changed(self):
+        self._refresh_item_usage()
         self._save_state(); self._board.update(); self._schedule_recalc()
 
     def _clear_board(self):
-        self._cells = [0] * 45; self._placed = []; self._prob = None; self._set_status_color(None, "计算中…"); self._save_state(); self._board.update(); self._schedule_recalc()
+        self._cells = [0] * 45; self._placed = []; self._prob = None; self._refresh_item_usage(); self._set_status_color(None, "计算中…"); self._save_state(); self._board.update(); self._schedule_recalc()
 
     def _schedule_recalc(self):
         if self._worker and self._worker.isRunning(): self._pending_recalc = True; return
@@ -1029,7 +1190,7 @@ class Layout(QWidget):
 
     def _prob_color(self, value):
         if is_dark():
-            low, high = QColor("#B0BEC5"), QColor("#004D40")
+            low, high = QColor("#293747"), QColor("#70a7ec")
         else:
             low, high = QColor(UI_CONFIG["prob_low"]), QColor(UI_CONFIG["prob_high"])
         value = max(0.0, min(1.0, float(value)))

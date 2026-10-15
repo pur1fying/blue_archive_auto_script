@@ -30,6 +30,7 @@ from PyQt5.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QScrollArea,
+    QTabWidget,
     QSizePolicy,
     QTextEdit,
     QVBoxLayout,
@@ -38,6 +39,7 @@ from PyQt5.QtWidgets import (
 
 try:
     from qfluentwidgets import (
+        FluentIcon,
         LineEdit,
         PrimaryPushButton,
         PushButton,
@@ -107,20 +109,24 @@ from module.tools.equip_farm.secretstone import (
 
 from gui.components.expand.tool_style import (
     GreenFrameOption,
+    make_icon_button,
     REM,
     themed_accent_text,
+    themed_accent_fill_rgba,
     themed_input_bg,
+    themed_input_border,
+    themed_secondary_text,
     themed_input_css,
     themed_note_bg,
     themed_note_border,
     themed_scrollbar_qss,
     themed_section_body_bg,
     themed_separator,
-    themed_success_fill_rgba,
     themed_switch_note_bg,
     themed_text,
     themed_title_bar_qss,
     themed_title_text,
+    themed_workspace_tabs_css,
 )
 
 # 页底透明对齐工具大厅；大框=浅蓝标题 + 透明内容（=大厅四周）；小框浅青；输入纯白
@@ -274,21 +280,20 @@ class _NoteCell(QFrame):
         self.setStyleSheet(_note_switch_css() if switch_box else _note_css())
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(REM, 6, REM, 8)
-        lay.setSpacing(4)
+        lay.setContentsMargins(12, 10, 12, 12)
+        lay.setSpacing(8)
         lay.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         self.title = QLabel(title, self)
         self.title.setObjectName("equipNoteTitle")
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.title.setStyleSheet(
-            'QLabel#equipNoteTitle{font-family:"Microsoft YaHei";'
-            f"font-size:13px;font-weight:900;color:{themed_title_text()};}}"
+            'QLabel#equipNoteTitle{'
+            f"font-size:13px;font-weight:600;color:{themed_title_text()};}}"
         )
         try:
             f = self.title.font()
-            f.setFamily("Microsoft YaHei")
             f.setBold(True)
-            f.setWeight(QFont.Black)
+            f.setWeight(QFont.DemiBold)
             f.setPixelSize(13)
             self.title.setFont(f)
         except Exception:
@@ -304,6 +309,7 @@ class _NoteCell(QFrame):
             from gui.components.expand.tool_style import set_style_dedup
 
             set_style_dedup(self, _note_switch_css() if self._switch_box else _note_css())
+            set_style_dedup(self.title, f"font-size:13px;font-weight:600;color:{themed_title_text()};")
         except Exception:
             pass
 
@@ -342,29 +348,31 @@ class _Section(QFrame):
         # —— 标题栏 ——
         self.header = QFrame(self)
         self.header.setObjectName("equipSectionHeader")
-        head = QHBoxLayout(self.header)
-        head.setContentsMargins(REM * 2, 8, REM * 2, 8)
-        head.setSpacing(10)
+        head = QVBoxLayout(self.header)
+        head.setContentsMargins(16, 12, 16, 12)
+        head.setSpacing(6)
         # 标题文字：近黑粗体 + 白描边（与说明文字同款画法，大一号）
-        self.title_lab = _TipLabel(title, self.header, pixel_size=16, word_wrap=False)
-        head.addWidget(self.title_lab, 0, Qt.AlignVCenter)
+        self.title_lab = _TipLabel(title, self.header, pixel_size=14, word_wrap=False)
+        self.title_lab.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.title_lab.setAlignment(Qt.AlignCenter)
+        head.addWidget(self.title_lab)
         self.tip_lab = _TipLabel(tip or "", self.header)
+        self.tip_lab.setAlignment(Qt.AlignCenter)
         if tip:
-            head.addWidget(self.tip_lab, 1, Qt.AlignVCenter)
+            head.addWidget(self.tip_lab)
         else:
             self.tip_lab.hide()
-            head.addStretch(1)
         self.head_right = QHBoxLayout()
         self.head_right.setContentsMargins(0, 0, 0, 0)
         self.head_right.setSpacing(8)
-        head.addLayout(self.head_right, 0)
+        head.addLayout(self.head_right)
         root.addWidget(self.header, 0)
 
         # —— 白色内容 ——
         self.body_host = QFrame(self)
         self.body_host.setObjectName("equipSectionBody")
         self.body = QVBoxLayout(self.body_host)
-        self.body.setContentsMargins(REM * 2, REM + 2, REM * 2, REM + 4)
+        self.body.setContentsMargins(16, 12, 16, 16)
         self.body.setSpacing(8)
         self.body.setAlignment(Qt.AlignTop)
         root.addWidget(self.body_host, 0)
@@ -496,8 +504,8 @@ class Layout(QWidget):
                 pass
         top._refresh = _top_refresh  # 供统一遍历刷新（深/浅双向）
         top_v = QVBoxLayout(top)
-        top_v.setContentsMargins(10, 8, 10, 8)
-        top_v.setSpacing(6)
+        top_v.setContentsMargins(12, 10, 12, 10)
+        top_v.setSpacing(8)
 
         self.sw_home_entry = SwitchButton(self)
         try:
@@ -520,9 +528,9 @@ class Layout(QWidget):
 
         row2 = QHBoxLayout()
         row2.setSpacing(8)
-        self.btn_simple = _ModeBtn("简单", top)
-        self.btn_complex = _ModeBtn("复杂", top)
-        self.btn_stone = _ModeBtn("神明文字", top)
+        self.btn_simple = _ModeBtn("装备需求", top)
+        self.btn_complex = _ModeBtn("库存精算", top)
+        self.btn_stone = _ModeBtn("神名文字", top)
         self.btn_simple.mousePressEvent = lambda e: self._set_mode("simple")  # type: ignore
         self.btn_complex.mousePressEvent = lambda e: self._set_mode("complex")  # type: ignore
         self.btn_stone.mousePressEvent = lambda e: self._set_mode("stone")  # type: ignore
@@ -535,12 +543,12 @@ class Layout(QWidget):
         row2.addWidget(sep, 0, Qt.AlignVCenter)
         row2.addWidget(self.btn_stone, 0, Qt.AlignVCenter)
         row2.addSpacing(12)
-        self.btn_calc = PrimaryPushButton("计算计划", top)
-        row2.addWidget(self.btn_calc, 0, Qt.AlignVCenter)
         row2.addStretch(1)
+        self.btn_calc = make_icon_button(FluentIcon.PIE_SINGLE, "计算刷图计划", top, primary=True)
+        row2.addWidget(self.btn_calc, 0, Qt.AlignVCenter)
         top_v.addLayout(row2)
         root.addWidget(top, 0)
-        root.addSpacing(2)
+        root.addSpacing(12)
 
     def _build_scroll_body(self, root) -> QWidget:
         """可滚内容容器 + 三个模式面板。"""
@@ -590,7 +598,32 @@ class Layout(QWidget):
         self.body_lay.addWidget(self.panel_complex)
         self.body_lay.addWidget(self.panel_stone)
 
-        root.addWidget(scroll, 1)
+        scroll.setWidget(body)
+        self.workspace = QTabWidget(self)
+        self.workspace.setObjectName("equipWorkspace")
+        self.workspace.setDocumentMode(True)
+        self.workspace.addTab(scroll, "需求设置")
+        self._result_scroll = QScrollArea(self)
+        self._result_scroll.setWidgetResizable(True)
+        self._result_scroll.setFrameShape(QFrame.NoFrame)
+        self._result_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._result_scroll.setStyleSheet("QScrollArea{background:transparent;border:none;}" + themed_scrollbar_qss())
+        self._result_scroll.viewport().setStyleSheet("background:transparent;")
+        self._result_body = QWidget()
+        self._result_body.setStyleSheet("background:transparent;")
+        self._result_lay = QVBoxLayout(self._result_body)
+        self._result_lay.setContentsMargins(0, 12, 4, 12)
+        self._result_lay.setSpacing(12)
+        self._result_lay.setAlignment(Qt.AlignTop)
+        self._result_scroll.setWidget(self._result_body)
+        self.workspace.addTab(self._result_scroll, "计算结果")
+        def _refresh_tabs():
+            self.workspace.setStyleSheet(themed_workspace_tabs_css("equipWorkspace"))
+        self.workspace._refresh = _refresh_tabs
+        self.workspace.currentChanged.connect(
+            lambda _index: apply_full_theme_refresh(self.workspace.currentWidget()))
+        _refresh_tabs()
+        root.addWidget(self.workspace, 1)
         return body
 
     def _build_io_blocks(self, body):
@@ -599,8 +632,8 @@ class Layout(QWidget):
         self.equip_io = self._build_io_block(
             body,
             kind="equip",
-            apply_title="可刷关卡串",
-            apply_tip="格式为地图-几图-次数，可通过修改次数点击上方计算计划，重算可能获取数量。",
+            apply_title="应用刷图计划",
+            apply_tip="可修改次数后重新计算，或写入扫荡任务。",
             apply_ph="如 16-3-12,h11-3-8",
             result_title="装备刷图结果",
             result_ph="装备计算结果…",
@@ -608,15 +641,15 @@ class Layout(QWidget):
             show_hard=True,
             show_univ=True,
         )
-        self.body_lay.addWidget(self.equip_io["apply_sec"])
-        self.body_lay.addWidget(self.equip_io["result_sec"])
+        self._result_lay.addWidget(self.equip_io["result_sec"])
+        self._result_lay.addWidget(self.equip_io["apply_sec"])
 
         # 神名 IO
         self.stone_io = self._build_io_block(
             body,
             kind="stone",
-            apply_title="可刷关卡串",
-            apply_tip="格式为地图-几图-次数，可通过修改次数点击上方计算计划，重算可能获取数量。",
+            apply_title="应用刷图计划",
+            apply_tip="可修改次数后重新计算，或写入扫荡任务。",
             apply_ph="如 h7-3-12,h11-3-12",
             result_title="推算刷图结果",
             result_ph="神明文字计算结果…",
@@ -624,8 +657,8 @@ class Layout(QWidget):
             show_hard=True,
             show_univ=False,
         )
-        self.body_lay.addWidget(self.stone_io["apply_sec"])
-        self.body_lay.addWidget(self.stone_io["result_sec"])
+        self._result_lay.addWidget(self.stone_io["result_sec"])
+        self._result_lay.addWidget(self.stone_io["apply_sec"])
 
         # 兼容旧属性
         self.ed_apply = self.equip_io["apply"]
@@ -643,11 +676,10 @@ class Layout(QWidget):
         self.result_head = self.equip_io["result_sec"]
 
         foot = QLabel("概率数据来自：https://schaledb.brightsu.cn/stage/", body)
-        foot.setStyleSheet('font-family:"Microsoft YaHei";color:#789;font-size:11px;')
-        self.body_lay.addWidget(foot)
+        foot.setStyleSheet(f'color:{themed_text()};font-size:12px;')
+        self._result_lay.addWidget(foot)
+        self._result_lay.addStretch(1)
         self.body_lay.addStretch(1)
-
-        self._scroll.setWidget(body)
 
     def _connect_signals(self, body):
         """按钮/输入框信号与持久化定时器接线。"""
@@ -774,29 +806,29 @@ class Layout(QWidget):
 
         brow = QHBoxLayout()
         brow.setSpacing(8)
-        btn_main = PrimaryPushButton("写入普通扫荡", apply_sec)
-        btn_hard = PrimaryPushButton("写入困难扫荡", apply_sec)
-        btn_copy = PushButton("复制关卡串", apply_sec)
+        btn_main = make_icon_button(FluentIcon.SAVE, "写入普通扫荡", apply_sec)
+        btn_hard = make_icon_button(FluentIcon.SAVE_AS, "写入困难扫荡", apply_sec)
+        btn_copy = make_icon_button(FluentIcon.COPY, "复制关卡串", apply_sec)
         btn_main.setVisible(show_main)
         btn_hard.setVisible(show_hard)
+        brow.addStretch(1)
         if show_main:
             brow.addWidget(btn_main)
         if show_hard:
             brow.addWidget(btn_hard)
         brow.addWidget(btn_copy)
-        brow.addStretch(1)
-        apply_sec.add_layout(brow)
 
-        # —— 结果 大框 ——
+        # 结果与写入动作同时出现在视口顶部，关卡串仍可在下方修改。
         result_sec = _Section(result_title, parent, tip="")
+        result_sec.head_right.addLayout(brow)
         # 右侧：倍率 + 开关（绿色选框）
         mult_host = QWidget(result_sec)
         mh = QHBoxLayout(mult_host)
         mh.setContentsMargins(0, 0, 0, 0)
         mh.setSpacing(6)
-        lab_m = QLabel("当前掉落倍率", mult_host)
+        lab_m = QLabel("掉落倍率", mult_host)
         lab_m.setStyleSheet(
-            'font-family:"Microsoft YaHei";font-size:12px;font-weight:600;color:#234;'
+            f'font-size:12px;font-weight:600;color:{themed_text()};'
         )
         mh.addWidget(lab_m, 0, Qt.AlignVCenter)
         mult_row = None
@@ -824,19 +856,19 @@ class Layout(QWidget):
 
         chip_univ = None
         if show_univ:
-            chip_univ = _ToggleChip("显示万能设计图", mult_host)
+            chip_univ = _ToggleChip("万能设计图", mult_host)
             chip_univ.set_on(True)
             chip_univ.mousePressEvent = self._wrap_chip_click(  # type: ignore
                 chip_univ.mousePressEvent, lambda: self._on_univ_changed()
             )
             mh.addWidget(chip_univ, 0, Qt.AlignVCenter)
 
-        chip_detail = _ToggleChip("附带详细概率", mult_host)
+        chip_detail = _ToggleChip("详细概率", mult_host)
         chip_detail.mousePressEvent = self._wrap_chip_click(  # type: ignore
             chip_detail.mousePressEvent, lambda: self._on_detail_toggled(kind)
         )
         mh.addWidget(chip_detail, 0, Qt.AlignVCenter)
-        result_sec.head_right.addWidget(mult_host, 0, Qt.AlignVCenter)
+        result_sec.body.addWidget(mult_host)
 
         out_ed = self._mk_auto_text(result_sec, placeholder=result_ph, readonly=True)
         out_ed.setMinimumHeight(100)
@@ -860,87 +892,65 @@ class Layout(QWidget):
         lay = QVBoxLayout(page)
         lay.setContentsMargins(0, 0, 0, 0)
         lay.setSpacing(12)
+        need_sec = _Section("装备需求", page, tip="按部位填写 T 阶，例如 9 或 9,8；留空跳过。")
+        need_sec.setToolTip("建议按游戏内持有数量从低到高填写，靠前的部位优先计算。")
+        grid = QGridLayout()
+        grid.setHorizontalSpacing(20)
+        grid.setVerticalSpacing(12)
+        for index, (slot, name) in enumerate(SLOT_UI_ORDER):
+            field = QWidget(need_sec)
+            row = QHBoxLayout(field)
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(8)
+            label = QLabel(name, field)
+            label.setFixedWidth(38)
+            row.addWidget(label)
+            edit = LineEdit(field)
+            edit.setPlaceholderText("T 阶，如 9,8")
+            edit.setMinimumWidth(0)
+            edit.setFixedHeight(32)
+            edit.setClearButtonEnabled(False)
+            edit.setMaxLength(32)
+            edit.setStyleSheet(themed_input_css())
+            self._slot_edits[slot] = edit
+            row.addWidget(edit, 1)
+            grid.addWidget(field, index // 3, index % 3)
+        for column in range(3):
+            grid.setColumnStretch(column, 1)
+        need_sec.add_layout(grid)
 
-        # 最缺装备
-        need_sec = _Section(
-            "最缺装备",
-            page,
-            tip="建议按缺口从低到高填（靠前优先算）。部位填 T 阶，如 9 或 9,8。游戏内可调「持有数量，从低到高」。",
-        )
-        grid_host = QWidget(need_sec)
-        grid = QGridLayout(grid_host)
-        grid.setContentsMargins(0, 0, 0, 0)
-        grid.setHorizontalSpacing(10)
-        grid.setVerticalSpacing(10)
-        for i, (slot, cn) in enumerate(SLOT_UI_ORDER):
-            r, c = divmod(i, 3)
-            cell = _NoteCell(cn, grid_host)
-            ed = LineEdit(cell)
-            ed.setPlaceholderText("如 9,8")
-            ed.setMinimumWidth(120)
-            ed.setMaximumWidth(220)
-            try:
-                ed.setClearButtonEnabled(False)
-            except Exception:
-                pass
-            ed.setStyleSheet(themed_input_css())
-            ed.setMaxLength(32)
-            self._slot_edits[slot] = ed
-            cell.set_widget(ed)
-            grid.addWidget(cell, r, c)
-        need_sec.add_widget(grid_host)
-        lay.addWidget(need_sec)
-
-        # 计算设置
-        opt_sec = _Section(
-            "计算设置",
-            page,
-            tip="含低级装备时：选「高级图概率掉落」优先从最高级图里找概率掉落所缺低级装备；选「低级图确定掉落」优先用一定掉落该低级装备的低级图。两种策略选出的图与排列顺序不同。",
-        )
-        row = QHBoxLayout()
-        row.setSpacing(10)
-        strat_cell = _NoteCell("计算策略", opt_sec)
+        separator = QFrame(need_sec)
+        separator.setFixedHeight(1)
+        separator.setStyleSheet(f"background:{themed_input_border()};")
+        need_sec.add_widget(separator)
+        options = QWidget(need_sec)
+        form = QGridLayout(options)
+        form.setContentsMargins(0, 8, 0, 0)
+        form.setHorizontalSpacing(16)
+        form.setVerticalSpacing(10)
+        form.addWidget(QLabel("掉落策略", options), 0, 0)
         if ExclusiveCheckRow is not None:
             self.strategy_row = ExclusiveCheckRow(
-                [
-                    ("high_random", "高级图概率掉落"),
-                    ("low_fixed", "低级图确定掉落"),
-                ],
-                strat_cell,
-            )
+                [("high_random", "优先高级图"), ("low_fixed", "优先低级图")], options)
             self.strategy_row.set_selected("high_random")
-            try:
-                self.strategy_row.changed.connect(lambda *_: self._schedule_persist())
-            except Exception:
-                pass
-            strat_cell.set_widget(self.strategy_row)
+            self.strategy_row.setToolTip("高级图：寻找所缺低阶装备的概率掉落。低级图：优先确定掉落所缺低阶装备的关卡。")
+            self.strategy_row.changed.connect(lambda *_: self._schedule_persist())
+            form.addWidget(self.strategy_row, 0, 1)
         else:
             self.strategy_row = None
-            strat_cell.set_widget(QLabel("—", strat_cell))
-        row.addWidget(strat_cell, 1)
-
-        diff_cell = _NoteCell("关卡范围", opt_sec)
+        form.addWidget(QLabel("关卡范围", options), 1, 0)
         if MultiCheckRow is not None:
-            self.diff_row = MultiCheckRow(
-                [("normal", "普通图"), ("hard", "困难图")],
-                diff_cell,
-            )
+            self.diff_row = MultiCheckRow([("normal", "普通图"), ("hard", "困难图")], options)
             self.diff_row.set_selected(["normal"])
-            try:
-                self.diff_row.changed.connect(lambda *_: self._schedule_persist())
-            except Exception:
-                pass
-            diff_cell.set_widget(self.diff_row)
+            self.diff_row.changed.connect(lambda *_: self._schedule_persist())
+            form.addWidget(self.diff_row, 1, 1)
         else:
             self.diff_row = None
-            diff_cell.set_widget(QLabel("—", diff_cell))
-        row.addWidget(diff_cell, 1)
-        opt_sec.add_layout(row)
-        lay.addWidget(opt_sec)
-        self.opt_box = opt_sec
-
-        # 兼容：倍率/万能改到结果区，这里保留引用占位
-        self.mult_row = None  # 真正挂在 equip_io
+        form.setColumnStretch(1, 1)
+        need_sec.add_widget(options)
+        self.opt_box = options
+        lay.addWidget(need_sec)
+        self.mult_row = None
         self.sw_univ = None
 
     def _build_complex(self, page: QWidget):
@@ -948,7 +958,7 @@ class Layout(QWidget):
         lay.setContentsMargins(0, 0, 0, 0)
         lay.setSpacing(10)
         box = _Section("复杂模式", page, tip="用于按库存精算，OCR 即将推出。")
-        self.btn_ocr = PushButton("OCR 录入（即将推出）", box)
+        self.btn_ocr = make_icon_button(FluentIcon.PHOTO, "OCR 录入（即将推出）", box)
         self.btn_ocr.setEnabled(False)
         box.add_widget(self.btn_ocr)
         lay.addWidget(box)
@@ -966,7 +976,8 @@ class Layout(QWidget):
             "多名学生用 ; 分隔；中文标点会自动转换。\n"
             + cost_lines
         )
-        search_sec = _Section("学生检索", page, tip=tip)
+        search_sec = _Section("学生需求", page, tip="搜索学生，并填写当前与目标星级、已有碎片。")
+        search_sec.setToolTip(tip)
 
         self.ed_stone_q = LineEdit(search_sec)
         self.ed_stone_q.setPlaceholderText("输入单字或名字后点选（仅主线掉落）")
@@ -987,13 +998,16 @@ class Layout(QWidget):
         self._stone_list.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self._stone_list.setMaximumHeight(180)
         self._stone_list.hide()
-        self._stone_list.setStyleSheet(
-            f"QListWidget{{border:1px solid {themed_note_border()};border-radius:6px;"
-            f'background:{themed_input_bg()};font-family:"Microsoft YaHei";font-size:13px;}}'
-            "QListWidget::item{padding:6px 10px;}"
-            f"QListWidget::item:selected{{background:{themed_success_fill_rgba(40)};color:#123;}}"
-            f"QListWidget::item:hover{{background:{themed_success_fill_rgba(22)};}}"
-        )
+        def _refresh_student_list():
+            self._stone_list.setStyleSheet(
+                f"QListWidget{{border:1px solid {themed_note_border()};border-radius:6px;"
+                f'background:{themed_input_bg()};color:{themed_text()};font-size:13px;}}'
+                "QListWidget::item{padding:6px 10px;}"
+                f"QListWidget::item:selected{{background:{themed_accent_fill_rgba(32)};color:{themed_accent_text()};}}"
+                f"QListWidget::item:hover{{background:{themed_accent_fill_rgba(16)};}}"
+            )
+        self._stone_list._refresh = _refresh_student_list
+        _refresh_student_list()
         self._stone_list.itemClicked.connect(self._on_stone_pick)
         search_sec.add_widget(self._stone_list)
 
@@ -1001,24 +1015,13 @@ class Layout(QWidget):
             search_sec, placeholder="星野,3-Z4,1;白子,Z2-Z3,20"
         )
         self.ed_stone_spec.setMinimumHeight(72)
-        # 已选与输入同色纯白底
-        spec_wrap = QFrame(search_sec)
-        spec_wrap.setObjectName("equipNote")
-
-        def _refresh(_w=spec_wrap):
-            # 挂进主题引擎刷新链（apply_full_theme_refresh 遍历调 _refresh），
-            # 深/浅切换时边线与底色都会跟上（修复浅色模式没带上它的问题）
-            _w.setStyleSheet(
-                "QFrame#equipNote{"
-                f"border:1px solid {themed_note_border()};border-radius:8px;background:{themed_input_bg()};}}"
-            )
-
-        spec_wrap._refresh = _refresh
-        _refresh()
+        self.ed_stone_spec.setToolTip(tip)
+        spec_wrap = QWidget(search_sec)
         sw = QVBoxLayout(spec_wrap)
-        sw.setContentsMargins(REM, 6, REM, 8)
+        sw.setContentsMargins(0, 4, 0, 0)
+        sw.setSpacing(6)
         lab = QLabel("已选学生（可手改）", spec_wrap)
-        lab.setStyleSheet('font-family:"Microsoft YaHei";font-size:13px;color:#222;')
+        lab.setStyleSheet(f'font-size:13px;color:{themed_text()};')
         sw.addWidget(lab)
         sw.addWidget(self.ed_stone_spec)
         search_sec.add_widget(spec_wrap)
@@ -1144,6 +1147,9 @@ class Layout(QWidget):
                 self.equip_io["out"].setPlainText(self._last_equip_text)
 
         self._hide_stone_list()
+        self.workspace.setCurrentIndex(0)
+        selected_panel = {"simple": self.panel_simple, "complex": self.panel_complex, "stone": self.panel_stone}[mode]
+        apply_full_theme_refresh(selected_panel)
         self._fit_texts()
         if not getattr(self, "_loading", False):
             self._persist()
@@ -1592,7 +1598,11 @@ class Layout(QWidget):
         try:
             io = self.stone_io if kind == "stone" else self.equip_io
             target = io["apply_sec"] if which == "apply" else io["result_sec"]
-            sa = getattr(self, "_scroll", None)
+            self.workspace.setCurrentIndex(1)
+            sa = self._result_scroll
+            # 计算完成后优先展示结果，应用与复制紧随其后。
+            if which == "apply":
+                target = io["result_sec"]
             if sa is None or target is None:
                 return
             # 把目标大框顶对齐到视口顶部（标题栏可见）
@@ -1700,6 +1710,7 @@ class Layout(QWidget):
         return plan_rows, ",".join(apply_parts)
 
     def _on_calc(self):
+        self.workspace.setCurrentIndex(1)
         self._persist()
         if self._mode == "stone":
             text = (self.stone_io["apply"].toPlainText() or "").strip()

@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
 )
 
 try:
-    from qfluentwidgets import SwitchButton, PrimaryPushButton, PushButton
+    from qfluentwidgets import FluentIcon, SwitchButton, PrimaryPushButton, PushButton
 except Exception:  # pragma: no cover
     SwitchButton = None  # type: ignore
     try:
@@ -33,11 +33,13 @@ from gui.components.expand.tool_style import (
     set_style_dedup,
     TipLabel,
     apply_full_theme_refresh,
+    make_icon_button,
     safe_connect_theme,
     header_switch_css,
     themed_switch_note_bg,
     themed_text,
     themed_title_text,
+    themed_input_border,
 )
 from module.tools.base import _cfg_bool, _cfg_set
 
@@ -161,47 +163,32 @@ def _goto_home_and_edit(config) -> None:
 
 
 def _mk_switch_cell(parent, title: str, checked: bool, on_change):
-    """开关类：白底小框，上字下开关。"""
+    """单层设置行：左侧名称与说明，右侧开关。"""
     cell = QFrame(parent)
-    cell.setObjectName("homeEditNote")
-    cell.setStyleSheet(_switch_note_css())
-    vl = QVBoxLayout(cell)
-    vl.setContentsMargins(14, 8, 14, 10)
-    vl.setSpacing(8)
-    vl.setAlignment(Qt.AlignHCenter)
-    lab = QLabel(title, cell)
-    lab.setObjectName("homeEditNoteTitle")
-    lab.setAlignment(Qt.AlignHCenter)
-    lab.setStyleSheet(
-        'QLabel#homeEditNoteTitle{font-family:"Microsoft YaHei";'
-        f"font-size:13px;font-weight:900;color:{themed_title_text()};}}"
-    )
-    try:
-        f = lab.font()
-        f.setBold(True)
-        f.setWeight(QFont.Black)
-        f.setPixelSize(13)
-        lab.setFont(f)
-    except Exception:
-        pass
-    vl.addWidget(lab, 0, Qt.AlignHCenter)
-    sw = SwitchButton(cell) if SwitchButton else None
-    if sw is not None:
-        try:
-            sw.setOnText("开")
-            sw.setOffText("关")
-        except Exception:
-            pass
-        try:
-            sw.setMinimumWidth(72)
-            sw.setMaximumWidth(96)
-        except Exception:
-            pass
-        sw.setChecked(bool(checked))
-        sw.checkedChanged.connect(on_change)
-        vl.addWidget(sw, 0, Qt.AlignHCenter)
-    cell.setMinimumWidth(140)
-    return cell, sw
+    cell.setObjectName("homeEditSettingRow")
+    cell.setStyleSheet("QFrame#homeEditSettingRow{background:transparent;border:none;}")
+    row = QHBoxLayout(cell)
+    row.setContentsMargins(0, 6, 0, 6)
+    row.setSpacing(20)
+    text = QVBoxLayout()
+    text.setSpacing(5)
+    label = QLabel(title, cell)
+    label.setProperty("themeSemanticColor", True)
+    text.addWidget(label)
+    text.addWidget(_TipLabel("在主页显示体力、信用点等账户资产。", cell))
+    row.addLayout(text, 1)
+    switch = SwitchButton(cell) if SwitchButton else None
+    if switch is not None:
+        switch.setOnText("开")
+        switch.setOffText("关")
+        switch.setChecked(bool(checked))
+        switch.checkedChanged.connect(on_change)
+        row.addWidget(switch)
+    def _refresh():
+        set_style_dedup(label, f"font-size:14px;font-weight:600;color:{themed_title_text()};background:transparent;")
+    cell._refresh = _refresh
+    _refresh()
+    return cell, switch
 
 
 def _mk_section(parent, title: str, tip: str = "") -> tuple:
@@ -216,24 +203,25 @@ def _mk_section(parent, title: str, tip: str = "") -> tuple:
 
     head = QFrame(sec)
     head.setObjectName("homeEditSecHead")
-    hl = QHBoxLayout(head)
-    hl.setContentsMargins(14, 8, 14, 8)
-    hl.setSpacing(10)
+    hl = QVBoxLayout(head)
+    hl.setContentsMargins(16, 12, 16, 12)
+    hl.setSpacing(6)
     # 标题文字：近黑粗体 + 白描边（与说明文字同款画法，大一号）
-    lab = _TipLabel(title, head, pixel_size=16, word_wrap=False)
-    hl.addWidget(lab, 0)
+    lab = _TipLabel(title, head, pixel_size=14, word_wrap=False)
+    lab.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+    lab.setAlignment(Qt.AlignCenter)
+    hl.addWidget(lab)
     if tip:
         t = _TipLabel(tip, head)
-        hl.addWidget(t, 1)
-    else:
-        hl.addStretch(1)
+        t.setAlignment(Qt.AlignCenter)
+        hl.addWidget(t)
     root.addWidget(head)
 
     body = QFrame(sec)
     body.setObjectName("homeEditSecBody")
     bl = QVBoxLayout(body)
-    bl.setContentsMargins(14, 10, 14, 12)
-    bl.setSpacing(10)
+    bl.setContentsMargins(16, 12, 16, 16)
+    bl.setSpacing(12)
     root.addWidget(body)
     return sec, bl
 
@@ -251,45 +239,34 @@ class Layout(QWidget):
         root.setSpacing(12)
         root.setAlignment(Qt.AlignTop)
 
-        # 单个大框（与其它工具同构）
-        sec, body = _mk_section(
-            self,
-            "主页编辑",
-            "顶栏管入口显隐；内容直接开关资产条或去主页调顺序（应用保存，离开取消）。",
-        )
-
-        row = QHBoxLayout()
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(12)
-
-        # 以 assetsVisibility 为主；tool_assets_enabled 同步
+        section, body = _mk_section(self, "主页内容", "控制资产条显示，并预览主页板块的排列。")
         if _cfg_raw(config, "assetsVisibility", None) is not None:
             assets_on = _cfg_bool(config, "assetsVisibility", True)
         else:
             assets_on = _cfg_bool(config, "tool_assets_enabled", True)
         self.cell_assets, self.sw_assets = _mk_switch_cell(
-            sec, "是否显示资产条", assets_on, self._on_assets_toggle
-        )
-        row.addWidget(self.cell_assets, 0, Qt.AlignTop)
-
-        # 去主页调顺序：主按钮，不包小框
-        self.btn_goto_edit = None
-        if PrimaryPushButton is not None:
-            self.btn_goto_edit = PrimaryPushButton("去主页调顺序", sec)
-        elif PushButton is not None:
-            self.btn_goto_edit = PushButton("去主页调顺序", sec)
+            section, "显示资产条", assets_on, self._on_assets_toggle)
+        body.addWidget(self.cell_assets)
+        divider = QFrame(section)
+        divider.setFixedHeight(1)
+        divider._refresh = lambda: divider.setStyleSheet(f"background:{themed_input_border()};border:none;")
+        divider._refresh()
+        body.addWidget(divider)
+        edit_row = QHBoxLayout()
+        edit_row.setSpacing(20)
+        description = QVBoxLayout()
+        description.setSpacing(5)
+        label = QLabel("板块顺序", section)
+        label.setStyleSheet("font-size:14px;font-weight:600;")
+        description.addWidget(label)
+        description.addWidget(_TipLabel("前往主页拖动板块，点击应用保存排列。", section))
+        edit_row.addLayout(description, 1)
+        self.btn_goto_edit = make_icon_button(FluentIcon.EDIT, "预览并编辑主页", section, primary=True)
         if self.btn_goto_edit is not None:
-            try:
-                self.btn_goto_edit.setMinimumWidth(132)
-                self.btn_goto_edit.setFixedHeight(36)
-            except Exception:
-                pass
             self.btn_goto_edit.clicked.connect(self._on_goto_edit)
-            row.addWidget(self.btn_goto_edit, 0, Qt.AlignBottom)
-
-        row.addStretch(1)
-        body.addLayout(row)
-        root.addWidget(sec, 0, Qt.AlignTop)
+            edit_row.addWidget(self.btn_goto_edit)
+        body.addLayout(edit_row)
+        root.addWidget(section)
         root.addStretch(1)
 
         # 打开本页清掉残留编辑态；同步入口（不覆盖用户已保存的 False）

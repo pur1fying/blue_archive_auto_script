@@ -177,8 +177,7 @@ class ToolPlugin:
         """主页槽位控件。
 
         框架默认（共享方法，所有插件同一实现）：未声明 home 的插件
-        自动发「进入××」按钮（PrimaryPushButton 蓝色，与囤体
-        「进入囤体」同款，不另造样式）；点击经 open_requested 信号
+        自动创建中性的工具入口按钮；点击经 open_requested 信号
         由主页接 open_tool 导航。声明了 home 的插件覆盖本方法返回
         自家板块；覆盖后返回 None 表示该插件此刻无主页贡献。
         """
@@ -188,11 +187,12 @@ class ToolPlugin:
         except Exception:
             pass
         try:
-            from qfluentwidgets import PrimaryPushButton
+            from qfluentwidgets import PushButton
 
             name = (getattr(self.manifest, "name", "") or self.id or "")
             tid = str(self.id)
-            btn = PrimaryPushButton("进入" + name[:4], parent)
+            btn = PushButton(name, parent)
+            btn.setFixedHeight(36)
             try:
                 btn.setToolTip("打开工具里的%s页" % name)
             except Exception:

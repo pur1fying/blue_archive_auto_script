@@ -35,8 +35,9 @@ class EquipFarmHomeWidget(QFrame):
         root.setSpacing(8)
         self.btn_enter = None
         if PrimaryPushButton is not None or PushButton is not None:
-            Btn = PrimaryPushButton or PushButton
-            self.btn_enter = Btn("进入装备刷图", self)
+            Btn = PushButton or PrimaryPushButton
+            self.btn_enter = Btn("装备规划", self)
+            self.btn_enter.setFixedHeight(36)
             try:
                 self.btn_enter.setToolTip("打开工具里的装备刷图页")
             except Exception:

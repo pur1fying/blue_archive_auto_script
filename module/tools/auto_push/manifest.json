@@ -2,7 +2,7 @@
   "id": "auto_push",
   "name": "自动推图",
   "version": "1.2.0",
-  "summary": "推未通关新图：编队、推图、推剧情、活动图一页搞定",
+  "summary": "设置编队，推进主线关卡、剧情与当前页面。",
   "icon": "GAME",
   "category": "battle",
   "order": 35,

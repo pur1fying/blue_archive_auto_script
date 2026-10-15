@@ -13,7 +13,8 @@ from hashlib import md5
 from random import random
 from typing import Dict, List, Optional
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QSize
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -29,21 +30,17 @@ from PyQt5.QtWidgets import (
 
 try:
     from qfluentwidgets import (
-        BodyLabel,
-        PrimaryPushButton,
         PushButton,
-        StrongBodyLabel,
-        SubtitleLabel,
-        TitleLabel,
         CheckBox,
         LineEdit,
         MessageBox,
         InfoBar,
     )
 except Exception:  # pragma: no cover
-    from PyQt5.QtWidgets import QPushButton as PrimaryPushButton, QPushButton as PushButton
-    from PyQt5.QtWidgets import QLabel as BodyLabel, QLabel as StrongBodyLabel
-    from PyQt5.QtWidgets import QLabel as SubtitleLabel, QLabel as TitleLabel
+    from PyQt5.QtWidgets import QPushButton as PushButton
+    from PyQt5.QtWidgets import QCheckBox as CheckBox, QLineEdit as LineEdit
+    MessageBox = None
+    InfoBar = None
 
 # 页级视口高度约束（防 frameless 首次移动原生加高，见类 docstring）
 try:
@@ -64,12 +61,18 @@ try:
         apply_full_theme_refresh,
         connect_theme_refresh_full,
         is_dark,
+        themed_accent_text,
+        themed_title_text,
+        themed_secondary_text,
         themed_badge_bg,
         themed_card_bg,
         themed_card_hover_border,
         themed_disabled_strip,
         themed_disabled_text,
         themed_input_border,
+        themed_section_body_bg,
+        make_icon_button,
+        themed_scrollbar_qss,
         themed_page_transparent_qss,
         safe_connect_theme,
         themed_text,
@@ -80,253 +83,227 @@ except Exception:  # pragma: no cover
     apply_full_theme_refresh = None
     connect_theme_refresh_full = None
     is_dark = lambda: False
-    themed_badge_bg = lambda: "rgba(80,120,170,40)"
-    themed_card_bg = lambda: "#F7F1E8"
+    themed_accent_text = lambda: "#1677D2"
+    themed_title_text = lambda: "#1D2735"
+    themed_secondary_text = lambda: "#687588"
+    themed_badge_bg = lambda: "#F1F3F5"
+    themed_card_bg = lambda: "#FFFFFF"
     themed_card_hover_border = lambda: "#8a8a8a"
     themed_disabled_strip = lambda: "rgba(140,140,140,36)"
     themed_disabled_text = lambda: "#8a8a8a"
     themed_input_border = lambda: "#999999"
+    themed_scrollbar_qss = lambda: ""
     themed_page_transparent_qss = lambda *o: ""
     safe_connect_theme = lambda *o, **k: None
     themed_text = lambda: "#333333"
-    themed_tool_card_bg = lambda: "#E6F7FA"
+    themed_tool_card_bg = lambda: "#FFFFFF"
     apply_theme_to_labels = lambda *o: None
 
 
 class ToolCard(QFrame):
-    """大厅里的一张工具卡：奶白本体，四周透明跟大厅一致。"""
+    """工具入口：统一图标、名称、说明和能力标签。"""
 
     clicked = pyqtSignal(str)
 
-    def __init__(self, tool_id: str, title: str, summary: str, badges=None, parent=None):
+    def __init__(self, tool_id: str, title: str, summary: str, badges=None,
+                 parent=None, icon_name: str = "APPLICATION"):
         super().__init__(parent)
         self.tool_id = tool_id
-        self.setObjectName("toolCard")
-        self.setCursor(Qt.PointingHandCursor)
-        # 与开关格一致：WA_StyledBackground 保证 QSS 底/边框可靠绘制；
-        # NoFocus 防原生焦点虚线框
-        try:
-            self.setAttribute(Qt.WA_StyledBackground, True)
-            self.setFocusPolicy(Qt.NoFocus)
-        except Exception:
-            pass
-        self.setMinimumSize(200, 108)
-        self.setMaximumHeight(140)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        # 奶白卡片；hover 只加绿边，不改四周底色
-        self.setStyleSheet(self._card_qss())
-        lay = QVBoxLayout(self)
-        lay.setContentsMargins(14, 12, 14, 12)
-        lay.setSpacing(6)
-        # 编辑模式行：左上角启用 checkbox（主题色勾选），右上角删除按钮
-        self._edit_row = QHBoxLayout()
-        self._edit_row.setContentsMargins(0, 0, 0, 0)
-        self._edit_row.setSpacing(6)
-        self.cb = CheckBox("启用", self)
-        try:
-            self.cb.setFixedHeight(22)
-        except Exception:
-            pass
-        self.cb.setVisible(False)
-        self._edit_row.addWidget(self.cb)
-        self._edit_row.addStretch(1)
-        self.btn_del = PushButton("删除", self)
-        try:
-            # qfw 原生按钮：深浅主题自动适配，不叠自定义 QSS
-            self.btn_del.setFixedHeight(24)
-        except Exception:
-            pass
-        self.btn_del.setVisible(False)
-        self.btn_del.clicked.connect(self._toggle_mark_deleted)
-        self._edit_row.addWidget(self.btn_del)
-        self._edit_row.addStretch(0)
-        lay.addLayout(self._edit_row)
-        # 标题居中（编辑模式下隐藏，改用编辑框）
-        self.t = StrongBodyLabel(title, self)
-        self.t.setAlignment(Qt.AlignCenter)
-        self.t.setStyleSheet("font-size:16px;font-weight:700;")
-        self.s = BodyLabel(summary or "", self)
-        self.s.setWordWrap(True)
-        self.s.setStyleSheet("color:%s;font-size:12px;" % themed_text())
-        lay.addWidget(self.t)
-        # 名称编辑框（编辑模式显示）
-        self.name_edit = LineEdit(self)
-        try:
-            self.name_edit.setText(str(title or ""))
-            self.name_edit.setClearButtonEnabled(False)
-            self.name_edit.setFixedHeight(28)
-        except Exception:
-            pass
-        self.name_edit.setVisible(False)
-        lay.addWidget(self.name_edit)
-        # 标签编辑框（编辑模式显示；逗号分隔，即 仅本地/模拟器 那排徽章）
-        self.tags_edit = LineEdit(self)
-        try:
-            self.tags_edit.setClearButtonEnabled(False)
-            self.tags_edit.setFixedHeight(26)
-            self.tags_edit.setToolTip("徽章标签，逗号分隔；留空恢复清单默认")
-        except Exception:
-            pass
-        self.tags_edit.setVisible(False)
-        lay.addWidget(self.tags_edit)
-        lay.addWidget(self.s, 1)
-        # 徽章行（仅本地/模拟器等标签）：构造期一次性创建，换主题只刷样式
-        self._badges = []
-        self._build_badges(badges, lay)
+        self._icon_name = icon_name
         self._edit_mode = False
         self._marked_deleted = False
         self._disabled_visual = False
+        self.setObjectName("toolCard")
+        self.setCursor(Qt.PointingHandCursor)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(title)
+        self.setMinimumWidth(240)
+        self.setMinimumHeight(176)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(20, 18, 20, 18)
+        lay.setSpacing(12)
+        self._edit_host = QWidget(self)
+        self._edit_row = QHBoxLayout(self._edit_host)
+        self._edit_row.setContentsMargins(0, 0, 0, 0)
+        self._edit_row.setSpacing(8)
+        self.cb = CheckBox("启用", self)
+        self._edit_row.addWidget(self.cb)
+        self._edit_row.addStretch(1)
+        from qfluentwidgets import FluentIcon
+
+        self.btn_del = make_icon_button(FluentIcon.DELETE, "删除工具", self, size=30)
+        self.btn_del.clicked.connect(self._toggle_mark_deleted)
+        self._edit_row.addWidget(self.btn_del)
+        self._edit_host.hide()
+        lay.addWidget(self._edit_host)
+
+        identity = QHBoxLayout()
+        identity.setContentsMargins(0, 0, 0, 0)
+        identity.setSpacing(12)
+        self.icon_label = QLabel(self)
+        self.icon_label.setObjectName("toolCardIcon")
+        self.icon_label.setFixedSize(40, 40)
+        self.icon_label.setAlignment(Qt.AlignCenter)
+        self.icon_label.setAttribute(Qt.WA_TransparentForMouseEvents)
+        identity.addWidget(self.icon_label)
+        self.t = QLabel(title, self)
+        self.t.setWordWrap(True)
+        self.t.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.t.setAttribute(Qt.WA_TransparentForMouseEvents)
+        identity.addWidget(self.t, 1)
+        self.arrow = QLabel("›", self)
+        self.arrow.setFixedWidth(16)
+        self.arrow.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.arrow.setAttribute(Qt.WA_TransparentForMouseEvents)
+        identity.addWidget(self.arrow)
+        lay.addLayout(identity)
+
+        self.name_edit = LineEdit(self)
+        self.name_edit.setText(str(title or ""))
+        self.name_edit.setClearButtonEnabled(False)
+        self.name_edit.setPlaceholderText("工具名称")
+        self.name_edit.setFixedHeight(32)
+        self.name_edit.hide()
+        identity.insertWidget(1, self.name_edit, 1)
+        self.tags_edit = LineEdit(self)
+        self.tags_edit.setClearButtonEnabled(False)
+        self.tags_edit.setPlaceholderText("标签，用逗号分隔")
+        self.tags_edit.setToolTip("留空使用工具默认标签")
+        self.tags_edit.setFixedHeight(32)
+        self.tags_edit.hide()
+        lay.addWidget(self.tags_edit)
+
+        self.s = QLabel(summary or "打开工具，查看详细设置。", self)
+        self.s.setWordWrap(True)
+        self.s.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.s.setAttribute(Qt.WA_TransparentForMouseEvents)
+        lay.addWidget(self.s, 1)
+        self._badges = []
+        self._build_badges(badges, lay)
+        for label in (self.t, self.s, self.arrow, self.icon_label, *self._badges):
+            label.setProperty("themeSemanticColor", True)
+        self._refresh_theme()
 
     def _build_badges(self, badges, lay) -> None:
-        try:
-            if not badges:
-                return
-            row = QHBoxLayout()
-            for b in badges:
-                lab = QLabel(str(b), self)
-                lab.setStyleSheet(self._badge_qss())
-                row.addWidget(lab)
-                self._badges.append(lab)
-            row.addStretch(1)
-            lay.addLayout(row)
-        except Exception:
-            self._badges = []
+        if not badges:
+            return
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(6)
+        for badge in badges:
+            lab = QLabel(str(badge), self)
+            lab.setAttribute(Qt.WA_TransparentForMouseEvents)
+            lab.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+            row.addWidget(lab)
+            self._badges.append(lab)
+        row.addStretch(1)
+        lay.addLayout(row)
 
     def set_edit_mode(
         self, on: bool, checked: bool = True, deleted: bool = False,
         tags: str = "",
     ) -> None:
-        """编辑模式：checkbox + 删除按钮 + 名称/标签编辑框；点击不再打开工具。"""
+        """保留编辑表单和提交契约；编辑时卡片不触发导航。"""
         self._edit_mode = bool(on)
         self._marked_deleted = bool(deleted)
-        try:
-            self.cb.setVisible(self._edit_mode)
-            self.cb.setChecked(bool(checked))
-            self.btn_del.setVisible(self._edit_mode)
-            self._update_del_btn()
-            self.name_edit.setVisible(self._edit_mode)
-            self.tags_edit.setVisible(self._edit_mode)
-            try:
-                self.tags_edit.setText(str(tags or ""))
-            except Exception:
-                pass
-            self.t.setVisible(not self._edit_mode)
-            self.setCursor(Qt.ArrowCursor if self._edit_mode else Qt.PointingHandCursor)
-            # 编辑模式多出勾选+两个输入框：放开高度上限，否则两行说明
-            # 被卡片下边框吞掉一半（用户实测"底部内边距27px"即此）
-            self.setMaximumHeight(16777215 if self._edit_mode else 140)
-            self.setMinimumHeight(108 if self._edit_mode else 0)
-            try:
-                self.layout().activate()
-                self.adjustSize()
-            except Exception:
-                pass
-        except Exception:
-            pass
+        self._edit_host.setVisible(self._edit_mode)
+        self.cb.setChecked(bool(checked))
+        self.name_edit.setVisible(self._edit_mode)
+        self.tags_edit.setVisible(self._edit_mode)
+        self.tags_edit.setText(str(tags or ""))
+        self.t.setVisible(not self._edit_mode)
+        self.arrow.setVisible(not self._edit_mode)
+        self.setCursor(Qt.ArrowCursor if self._edit_mode else Qt.PointingHandCursor)
+        self.setMinimumHeight(252 if self._edit_mode else 176)
+        self._update_del_btn()
 
     def _toggle_mark_deleted(self) -> None:
-        self._marked_deleted = not bool(self._marked_deleted)
+        self._marked_deleted = not self._marked_deleted
         self._update_del_btn()
 
     def _update_del_btn(self) -> None:
-        try:
-            self.btn_del.setText("撤销删除" if self._marked_deleted else "删除")
-        except Exception:
-            pass
+        from qfluentwidgets import FluentIcon
+
+        text = "撤销删除" if self._marked_deleted else "删除工具"
+        self.btn_del.setIcon(FluentIcon.RETURN if self._marked_deleted else FluentIcon.DELETE)
+        self.btn_del.setToolTip(text)
+        self.btn_del.setAccessibleName(text)
+        self._refresh_theme()
 
     def set_disabled_visual(self, on: bool) -> None:
-        """非启用：卡片灰显（文字/边框变灰），仍可打开页面。"""
+        """停用的入口仍可打开，其视觉状态跟随主题刷新。"""
         self._disabled_visual = bool(on)
-        try:
-            col = themed_disabled_text() if self._disabled_visual else themed_text()
-            border = self._card_border()
-            hborder = self._card_hover_border() if not self._disabled_visual else self._card_border()
-            self.setStyleSheet(
-                "QFrame#toolCard{"
-                f"border:2px solid {border};"
-                "border-radius:8px;"
-                f"background:{self._card_bg()};outline:0;}}"
-                "QFrame#toolCard:hover,"
-                "QFrame#toolCard:focus{"
-                f"border:2px solid {hborder};"
-                f"background:{self._card_bg()};outline:0;}}"
-            )
-            self.t.setStyleSheet("font-size:16px;font-weight:700;color:%s;" % col)
-            self.s.setStyleSheet("color:%s;font-size:12px;" % col)
-            for lab in getattr(self, "_badges", []):
-                try:
-                    lab.setStyleSheet(self._badge_qss() if not self._disabled_visual
-                                      else self._badge_qss().replace(themed_text(), col))
-                except Exception:
-                    pass
-        except Exception:
-            pass
-        # 主题刷新由 ToolsFragment 的 connect_theme_refresh_full 统一遍历调用 _refresh_theme
+        self._refresh_theme()
 
     def _card_bg(self) -> str:
-        """卡片底色：浅色青白，深色主题暗底（统一走 tool_style 收敛值）。"""
-        try:
-            return themed_tool_card_bg()
-        except Exception:
-            return "#E6F7FA"
+        return themed_tool_card_bg()
 
     def _card_border(self) -> str:
-        """常态边框：主题引擎 1px 统一实色边框（浅 207,218,232 / 深 65,65,65）。
-
-        插件卡无 2px 资格（那是设置栏/置顶栏开关格专属）；也禁用
-        COLOR_THEME 的半透明 border（#ee555555 等）——半透明+圆角会被
-        抗锯齿渲染成一圈灰点（深色模式下"粗糙边框"的根源）。
-        """
         return themed_input_border()
 
     def _card_hover_border(self) -> str:
-        """悬停边框：实色灰（themed_card_hover_border），不随主题色。"""
-        return themed_card_hover_border()
+        return themed_accent_text()
 
     def _card_qss(self) -> str:
-        """ToolCard 主题感知 QSS：常态 1px 统一实色边框；hover 升 2px
-        （用户裁定：指向是高优先级交互态，有 2px 资格）。实色、不带 alpha，
-        8px 圆角，outline:0。"""
         return (
             "QFrame#toolCard{"
             f"border:1px solid {self._card_border()};"
-            "border-radius:8px;"
-            f"background:{self._card_bg()};"
-            "outline:0;}"
-            "QFrame#toolCard:hover,"
-            "QFrame#toolCard:focus{"
-            f"border:2px solid {self._card_hover_border()};"
-            f"background:{self._card_bg()};outline:0;}}"
+            f"border-radius:10px;background:{self._card_bg()};outline:0;}}"
+            "QFrame#toolCard:hover,QFrame#toolCard:focus{"
+            f"border:1px solid {self._card_hover_border()};}}"
         )
 
     def _badge_qss(self):
         return (
-            "padding:1px 6px;border-radius:4px;"
-            f"background:{themed_badge_bg()};font-size:11px;color:{themed_text()};"
+            "padding:3px 7px;border:0;border-radius:4px;"
+            f"background:{themed_badge_bg()};font-size:11px;"
+            f"font-weight:400;color:{themed_secondary_text()};"
         )
 
     def _refresh_theme(self):
+        self.setStyleSheet(self._card_qss())
+        disabled = self._disabled_visual or self._marked_deleted
+        title_color = themed_disabled_text() if disabled else themed_title_text()
+        self.t.setStyleSheet(
+            f"background:transparent;color:{title_color};font-size:15px;font-weight:600;"
+        )
+        self.s.setStyleSheet(
+            f"background:transparent;color:{themed_secondary_text()};font-size:12px;"
+        )
+        self.arrow.setStyleSheet(
+            f"background:transparent;color:{themed_disabled_text()};font-size:24px;"
+        )
+        self.icon_label.setStyleSheet(
+            f"background:{themed_badge_bg()};border:0;border-radius:8px;"
+        )
         try:
-            self.setStyleSheet(self._card_qss())
-            if hasattr(self, "s"):
-                self.s.setStyleSheet("color:%s;font-size:12px;" % themed_text())
-            for lab in getattr(self, "_badges", []):
-                try:
-                    lab.setStyleSheet(self._badge_qss())
-                except Exception:
-                    pass
-        except Exception:
-            pass
+            from qfluentwidgets import FluentIcon
 
-    def mousePressEvent(self, e):
-        if e.button() == Qt.LeftButton:
-            if getattr(self, "_edit_mode", False):
-                e.accept()
-                return
-            self.clicked.emit(self.tool_id)
-            e.accept()
+            icon = getattr(FluentIcon, self._icon_name, FluentIcon.APPLICATION)
+            color = themed_disabled_text() if disabled else themed_accent_text()
+            self.icon_label.setPixmap(icon.icon(color=QColor(color)).pixmap(QSize(20, 20)))
+        except Exception:
+            self.icon_label.setText("◇")
+        for lab in self._badges:
+            lab.setStyleSheet(self._badge_qss())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            if not self._edit_mode:
+                self.clicked.emit(self.tool_id)
+            event.accept()
             return
-        super().mousePressEvent(e)
+        super().mousePressEvent(event)
+
+    def keyPressEvent(self, event):
+        if not self._edit_mode and event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            self.clicked.emit(self.tool_id)
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
 
 class ToolsFragment(ViewportCappedFragment, QFrame):
@@ -343,9 +320,10 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
         self._last_tool: Optional[str] = None
         self._lobby_ids: List[str] = []
         self._nav_active = False  # 当前是否停留在「工具」导航
+        self._settings_expanded = False
 
         self.setObjectName("toolsFragment")
-        # 大厅四周透明，跟窗口底一致；卡片本身奶白
+        # 页面底色随应用，卡片保持统一的中性表面。
         self.setStyleSheet(
             themed_page_transparent_qss("toolsFragment", "toolsHallScroll")
             + "QWidget#toolsHall,QWidget#toolsCardsHost{background:transparent;}"
@@ -353,141 +331,133 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setFocusPolicy(Qt.StrongFocus)
 
-        # 页面顶层布局必须钳制 totalSizeHint（见 ViewportCappedVBoxLayout 文档）
+        # 标题与设置分成两行，让各工具的设置有稳定、独立的可用宽度。
         outer = ViewportCappedVBoxLayout(self)
-        # 其他页面标题全局高度 ≈ qfw 容器 48px + ExpandLayout 默认边距 ~11px；
-        # 这里内部顶距 10px + 标题顶对齐 → 与它们一致（标题不再垂直居中下沉）
-        outer.setContentsMargins(12, 10, 12, 12)
-        outer.setSpacing(8)
-
-        # 顶栏：加高以容纳 56 高开关格；标题与其余页面一致顶到页顶
+        outer.setContentsMargins(24, 16, 24, 20)
+        outer.setSpacing(16)
         self.head_host = QWidget(self)
         self.head_host.setObjectName("toolsHeadHost")
-        # 56 开关格 + 底部余量
-        self.head_host.setFixedHeight(68)
-        self.head_host.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        head = QHBoxLayout(self.head_host)
+        self.head_host.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        head = QVBoxLayout(self.head_host)
         head.setContentsMargins(0, 0, 0, 0)
-        head.setSpacing(8)
-        head.setAlignment(Qt.AlignTop)
-        self.btn_back = PushButton("← 工具大厅", self.head_host)
+        head.setSpacing(12)
+        title_row = QWidget(self.head_host)
+        title_row.setFixedHeight(48)
+        title_lay = QHBoxLayout(title_row)
+        title_lay.setContentsMargins(0, 0, 0, 0)
+        title_lay.setSpacing(12)
+        from qfluentwidgets import FluentIcon
+
+        left_actions = QWidget(title_row)
+        left_actions.setFixedWidth(80)
+        left_lay = QHBoxLayout(left_actions)
+        left_lay.setContentsMargins(0, 0, 0, 0)
+        left_lay.setSpacing(8)
+        self.btn_back = make_icon_button(FluentIcon.LEFT_ARROW, "返回工具大厅 · Esc", left_actions, size=36)
         self.btn_back.setVisible(False)
-        try:
-            # 固定尺寸，避免不同工具页标题长度把返回钮拉宽
-            self.btn_back.setFixedHeight(32)
-            hint_w = max(96, int(self.btn_back.sizeHint().width()) + 8)
-            self.btn_back.setFixedWidth(hint_w)
-        except Exception:
-            self.btn_back.setFixedWidth(108)
         self.btn_back.clicked.connect(self.show_hall)
-        self.title = TitleLabel("工具", self.head_host)
-        # 不设固定高度：TitleLabel 28pt 文字自然高度（≈50px）与其他页面
-        # （调度状态/普通设置等，均无高度限制）一致；此前夹到 32px 导致
-        # 文字被压矮（用户实测"37px vs 50px"的来源）
-        pass
+        left_lay.addWidget(self.btn_back)
+        left_lay.addStretch(1)
+        title_lay.addWidget(left_actions)
+        self.title = QLabel("工具", title_row)
+        self.title.setMinimumWidth(0)
+        self.title.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.title.setAlignment(Qt.AlignCenter)
+        self.title.setStyleSheet("font-size:26px;font-weight:600;background:transparent;")
         try:
             if config is not None and hasattr(config, "inject"):
                 config.inject(self.title, self.tr("工具") + " {name}")
         except Exception:
             pass
-        # 垂直居中：行高被 56px 设置栏格撑起，返回钮/标题若 AlignTop 会贴顶
-        head.addWidget(self.btn_back, 0, Qt.AlignVCenter)
-        head.addWidget(self.title, 0, Qt.AlignVCenter)
-        # 名称右侧：与设置相关（各工具页挂载开关，不另起第三行）
-        # 始终占位同高，无设置时只是空的，保证各工具顶栏对齐一致
-        self.settings_host = QWidget(self.head_host)
-        self.settings_host.setObjectName("toolHeaderSettings")
-        self.settings_lay = QHBoxLayout(self.settings_host)
-        self.settings_lay.setContentsMargins(8, 0, 8, 0)
-        self.settings_lay.setSpacing(8)
-        self.settings_lay.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        self.settings_host.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        # 与开关格同高（56），不二次压缩底部
-        self.settings_host.setFixedHeight(56)
-        self.settings_host.setMinimumHeight(56)
-        self.settings_host.setVisible(True)
-        head.addWidget(self.settings_host, 1, Qt.AlignVCenter)
-        # 右侧：下个插件快捷入口（工具页时显示；宽度随文案自适应，不截断）
-        self.btn_next = PushButton("下个插件", self.head_host)
+        title_lay.addWidget(self.title, 1)
+        right_actions = QWidget(title_row)
+        right_actions.setFixedWidth(80)
+        right_lay = QHBoxLayout(right_actions)
+        right_lay.setContentsMargins(0, 0, 0, 0)
+        right_lay.setSpacing(8)
+        self.btn_settings = make_icon_button(FluentIcon.SETTING, "显示设置", right_actions, size=36)
+        self.btn_settings.setCheckable(True)
+        self.btn_settings.setToolTip("设置主页入口、显示位置和工具选项")
+        self.btn_settings.hide()
+        self.btn_settings.clicked.connect(self._toggle_header_settings)
+        right_lay.addWidget(self.btn_settings)
+        self.btn_next = make_icon_button(FluentIcon.RIGHT_ARROW, "下一个工具", right_actions, size=36)
         self.btn_next.setVisible(False)
-        try:
-            self.btn_next.setFixedHeight(32)
-            self.btn_next.setMinimumWidth(72)
-            self.btn_next.setMaximumWidth(16777215)
-            self.btn_next.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        except Exception:
-            pass
         self.btn_next.clicked.connect(self.open_next_tool)
-        head.addWidget(self.btn_next, 0, Qt.AlignVCenter)
-        outer.addWidget(self.head_host, 0)
+        right_lay.addWidget(self.btn_next)
+        title_lay.addWidget(right_actions)
+        head.addWidget(title_row)
+
+        self.settings_scroll = QScrollArea(self.head_host)
+        self.settings_scroll.setObjectName("toolHeaderSettingsScroll")
+        self.settings_scroll.setFrameShape(QFrame.NoFrame)
+        self.settings_scroll.setWidgetResizable(True)
+        self.settings_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.settings_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.settings_scroll.setFixedHeight(60)
+        self.settings_scroll.setStyleSheet(
+            "QScrollArea#toolHeaderSettingsScroll{background:transparent;border:none;}"
+            + themed_scrollbar_qss()
+        )
+        self.settings_scroll.viewport().setStyleSheet("background:transparent;")
+        self.settings_host = QWidget()
+        self.settings_host.setObjectName("toolHeaderSettings")
+        self.settings_host.setAttribute(Qt.WA_StyledBackground, True)
+        self.settings_lay = QHBoxLayout(self.settings_host)
+        self.settings_lay.setContentsMargins(16, 10, 16, 10)
+        self.settings_lay.setSpacing(28)
+        self.settings_lay.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        self.settings_scroll.setWidget(self.settings_host)
+        self.settings_host.setAutoFillBackground(False)
+        self.settings_scroll.hide()
+        head.addWidget(self.settings_scroll)
+        outer.addWidget(self.head_host)
 
         self.stack = QStackedWidget(self)
         self.stack.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         outer.addWidget(self.stack, 1)
 
-        # --- 大厅页（内部可滚）---
         self.hall = QWidget()
         self.hall.setObjectName("toolsHall")
         self.hall.setStyleSheet("QWidget#toolsHall{background:transparent;}")
         hall_l = QVBoxLayout(self.hall)
         hall_l.setContentsMargins(0, 0, 0, 0)
-        hall_l.setSpacing(10)
-        # 说明框：固定 2 行高——正常/编辑模式的说明都显示在这个框里，
-        # 「工具」标题行与下方插件卡的位置永不因文字变长而挪动
+        hall_l.setSpacing(18)
         hall_head_host = QWidget(self.hall)
         hall_head_host.setObjectName("toolsHallHead")
-        # 72px：两行说明 + DPI 缩放余量（125%/150% 下行高膨胀也不裁字）
-        hall_head_host.setFixedHeight(72)
         hall_head = QHBoxLayout(hall_head_host)
         hall_head.setContentsMargins(0, 0, 0, 0)
-        hall_head.setSpacing(8)
-        sub = SubtitleLabel("点进卡片打开对应工具。Esc 或点左侧「工具」可回大厅。", hall_head_host)
-        try:
-            sub.setWordWrap(True)
-            # 字号必须写进内联样式表：qfw 自带 label 样式表的 font-size 会盖过
-            # QFont（这是之前底部被裁的真因），而主题刷色只剥 color/background，
-            # 内联 font-size 不会被剥掉。QFont 双保险。
-            from PyQt5.QtGui import QFont as _QF
-
-            _f = sub.font()
-            _f.setPixelSize(15)
-            sub.setFont(_f)
-            sub.setStyleSheet(
-                "color:%s;background:transparent;font-size:15px;" % themed_text()
-            )
-        except Exception:
-            pass
-        self.hall_sub = sub
-        self._hall_sub_text = sub.text()
-        # 大厅右侧：「工具启用与修改」大按钮（编辑模式变「应用」，旁有「取消」）
-        hall_head.addWidget(sub, 1, Qt.AlignVCenter)
-        self.btn_tool_cancel = PushButton("取消", hall_head_host)
-        try:
-            self.btn_tool_cancel.setFixedHeight(36)
-        except Exception:
-            pass
+        hall_head.setSpacing(12)
+        intro = QVBoxLayout()
+        intro.setContentsMargins(0, 0, 0, 0)
+        intro.setSpacing(6)
+        section_row = QHBoxLayout()
+        section_row.setSpacing(8)
+        self.hall_section = QLabel("所有工具", hall_head_host)
+        self.hall_section.setStyleSheet("font-size:16px;font-weight:600;")
+        section_row.addWidget(self.hall_section)
+        self.tool_count = QLabel("", hall_head_host)
+        self.tool_count.setStyleSheet("font-size:12px;")
+        section_row.addWidget(self.tool_count)
+        section_row.addStretch(1)
+        intro.addLayout(section_row)
+        self.hall_sub = QLabel("选择工具开始工作，按 Esc 返回此处。", hall_head_host)
+        self.hall_sub.setWordWrap(True)
+        self.hall_sub.setStyleSheet("font-size:12px;background:transparent;")
+        self._hall_sub_text = self.hall_sub.text()
+        for label in (self.title, self.hall_section, self.hall_sub, self.tool_count):
+            label.setProperty("themeSemanticColor", True)
+        intro.addWidget(self.hall_sub)
+        hall_head.addLayout(intro, 1)
+        self.btn_tool_cancel = make_icon_button(FluentIcon.CLOSE, "取消更改", hall_head_host)
         self.btn_tool_cancel.setVisible(False)
         self.btn_tool_cancel.clicked.connect(self._exit_edit_mode)
-        hall_head.addWidget(self.btn_tool_cancel, 0, Qt.AlignVCenter)
-        self.btn_tool_edit = PrimaryPushButton("工具启用与修改", hall_head_host)
-        try:
-            self.btn_tool_edit.setFixedHeight(40)
-            self.btn_tool_edit.setMinimumWidth(140)
-        except Exception:
-            pass
+        hall_head.addWidget(self.btn_tool_cancel, 0, Qt.AlignTop)
+        self.btn_tool_edit = make_icon_button(FluentIcon.EDIT, "管理工具", hall_head_host, primary=True)
         self.btn_tool_edit.clicked.connect(self._toggle_edit_mode)
-        hall_head.addWidget(self.btn_tool_edit, 0, Qt.AlignVCenter)
+        hall_head.addWidget(self.btn_tool_edit, 0, Qt.AlignTop)
         hall_l.addWidget(hall_head_host)
-        self._hall_head_spacing = 8
-        # 高度按当前 DPI/宽度实测自适应（200% 缩放不再裁字）；
-        # 以更长的编辑态说明 + 编辑态更窄的可用宽度为准 → 两种模式同高，
-        # 标题行与卡片位置永不因切换模式而挪动。
-        try:
-            from PyQt5.QtCore import QTimer as _QT
-
-            _QT.singleShot(0, self._fit_hall_head_height)
-        except Exception:
-            pass
+        self._hall_head_spacing = 12
 
         self.hall_scroll = QScrollArea(self.hall)
         self.hall_scroll.setObjectName("toolsHallScroll")
@@ -496,6 +466,7 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
         self.hall_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.hall_scroll.setStyleSheet(
             "QScrollArea#toolsHallScroll{background:transparent;border:none;}"
+            + themed_scrollbar_qss()
         )
         try:
             self.hall_scroll.viewport().setStyleSheet("background:transparent;")
@@ -505,10 +476,11 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
         self.cards_host.setObjectName("toolsCardsHost")
         self.cards_host.setStyleSheet("QWidget#toolsCardsHost{background:transparent;}")
         self.cards_grid = QGridLayout(self.cards_host)
-        self.cards_grid.setContentsMargins(0, 0, 0, 0)
-        self.cards_grid.setHorizontalSpacing(12)
-        self.cards_grid.setVerticalSpacing(12)
-        self.cards_grid.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.cards_grid.setContentsMargins(0, 0, 4, 4)
+        self.cards_grid.setHorizontalSpacing(16)
+        self.cards_grid.setVerticalSpacing(16)
+        self.cards_grid.setAlignment(Qt.AlignTop)
+        self._grid_columns = 0
         self.hall_scroll.setWidget(self.cards_host)
         hall_l.addWidget(self.hall_scroll, 1)
 
@@ -518,11 +490,7 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
         rl.setContentsMargins(0, 0, 0, 0)
         rl.setSpacing(8)
         rl.addStretch(1)
-        self.btn_restore = PushButton("恢复已删除插件", restore_row)
-        try:
-            self.btn_restore.setFixedHeight(32)
-        except Exception:
-            pass
+        self.btn_restore = make_icon_button(FluentIcon.HISTORY, "恢复已删除工具", restore_row)
         self.btn_restore.setVisible(False)
         self.btn_restore.clicked.connect(self._open_restore_dialog)
         rl.addWidget(self.btn_restore, 0)
@@ -547,6 +515,7 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
         if apply_full_theme_refresh is not None:
             self._theme_seen = is_dark()
             apply_full_theme_refresh(self)
+            self._refresh_theme()
             # 切主题时只刷可见 fragment（其他账号的页由 showEvent 按需补刷）
             safe_connect_theme(
                 self,
@@ -637,11 +606,7 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
         else:
             self._enter_edit_mode()
 
-    _EDIT_DESC_TEXT = (
-        "可在此处选择是否启用插件以及编辑插件标签与徽章。"
-        "非启用：保留插件、灰显、不参与执行（即时生效）；"
-        "卡片右上角「删除」并应用＝从注册表移除（重启后彻底消失，可恢复）。"
-    )
+    _EDIT_DESC_TEXT = "调整启用状态、名称和标签后保存。删除的工具可恢复，重启后生效。"
 
     def _enter_edit_mode(self) -> None:
         self._edit_mode = True
@@ -655,7 +620,11 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
         except Exception:
             pass
         try:
-            self.btn_tool_edit.setText("应用")
+            from qfluentwidgets import FluentIcon
+
+            self.btn_tool_edit.setIcon(FluentIcon.SAVE)
+            self.btn_tool_edit.setToolTip("保存更改")
+            self.btn_tool_edit.setAccessibleName("保存更改")
             self.btn_tool_cancel.setVisible(True)
         except Exception:
             pass
@@ -715,7 +684,11 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             from PyQt5.QtCore import QTimer as _QT
 
             _QT.singleShot(0, self._fit_hall_head_height)
-            self.btn_tool_edit.setText("工具启用与修改")
+            from qfluentwidgets import FluentIcon
+
+            self.btn_tool_edit.setIcon(FluentIcon.EDIT)
+            self.btn_tool_edit.setToolTip("管理工具")
+            self.btn_tool_edit.setAccessibleName("管理工具")
             self.btn_tool_cancel.setVisible(False)
         except Exception:
             pass
@@ -778,7 +751,7 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             if disabled and banner is None:
                 banner = QLabel(
                     "此插件已非启用：不参与执行，主页贡献已隐藏；"
-                    "可在「工具启用与修改」重新勾选启用（即时生效）。",
+                    "可在「管理工具」重新启用，即时生效。",
                     page,
                 )
                 banner.setWordWrap(True)
@@ -797,47 +770,13 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             print("[tools] banner sync failed:", e)
 
     def _fit_hall_head_height(self) -> None:
-        """说明框高度 = 按当前 DPI 与可用宽度实测的文字需要高度 + 余量。
-
-        测量基准统一取"编辑态"：更长的说明文字 + 更窄的可用宽度（要给
-        「取消」按钮让位）。正常/编辑两种模式因此共用同一高度——切换
-        模式时标题行与插件卡位置纹丝不动。
-        """
+        """让说明按实际宽度换行，管理按钮保持在说明右上方。"""
         try:
-            from PyQt5 import sip
-
-            sub = self.hall_sub
-            if sub is None or sip.isdeleted(sub):
-                return
-            host = sub.parentWidget()
-            if host is None:
-                return
-            try:
-                cancel_w = self.btn_tool_cancel.sizeHint().width()
-            except Exception:
-                cancel_w = 64
-            spacing = getattr(self, "_hall_head_spacing", 8)
-            # 测宽前强制布局生效——否则拿到的是显示前的垃圾宽度，
-            # 算出的高度过小（200% DPI 下裁半行的真因）
-            try:
-                lay = host.layout()
-                if lay is not None:
-                    lay.activate()
-                host.layout().update()
-            except Exception:
-                pass
-            w = sub.width() - cancel_w - spacing * 2
-            if w < 240:
-                w = max(host.width() - 340, 240)
-            old = sub.text()
-            try:
-                sub.setText(self._EDIT_DESC_TEXT)
-                need = sub.heightForWidth(w)
-                if need <= 0:
-                    need = sub.sizeHint().height()
-            finally:
-                sub.setText(old)
-            host.setFixedHeight(max(56, need + 12))
+            self.hall_sub.updateGeometry()
+            host = self.hall_sub.parentWidget()
+            if host is not None and host.layout() is not None:
+                host.layout().invalidate()
+                host.updateGeometry()
         except Exception:
             pass
 
@@ -1013,18 +952,14 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             tools = []
             errors = {"_": str(e)}
 
+        self.tool_count.setText("%d 个" % len(tools))
         if not tools and not errors:
-            lab = BodyLabel("还没有可用工具。", self.cards_host)
+            lab = QLabel("还没有可用工具。", self.cards_host)
             self.cards_grid.addWidget(lab, 0, 0)
             return
 
-        # 按可用宽度约 3 列
-        cols = 3
-        try:
-            w = max(400, int(self.width() or 800) - 48)
-            cols = max(1, min(4, w // 220))
-        except Exception:
-            cols = 3
+        cols = self._card_columns()
+        self._grid_columns = cols
 
         r = c = 0
         edit_mode = bool(getattr(self, "_edit_mode", False))
@@ -1040,6 +975,7 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
                 t.summary,
                 badges=self._perm_badges(t),
                 parent=self.cards_host,
+                icon_name=str(getattr(t, "icon_name", "APPLICATION")),
             )
             card.clicked.connect(self.open_tool)
             if is_tool_enabled is not None:
@@ -1080,9 +1016,33 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
                 c = 0
                 r += 1
 
-        # 拉伸空列
-        for i in range(cols):
-            self.cards_grid.setColumnStretch(i, 1)
+        for i in range(4):
+            self.cards_grid.setColumnStretch(i, 1 if i < cols else 0)
+
+    def _card_columns(self) -> int:
+        """卡片随视口在一至三列间切换，不把说明挤成狭窄长条。"""
+        width = self.hall_scroll.viewport().width()
+        if width < 200:
+            width = max(240, self.width() - 48)
+        return max(1, min(3, (width + 16) // 280))
+
+    def _relayout_cards(self) -> None:
+        """只移动现有卡片，窗口缩放时保留未保存的编辑内容。"""
+        if not hasattr(self, "cards_grid"):
+            return
+        cols = self._card_columns()
+        if cols == self._grid_columns:
+            return
+        widgets = []
+        while self.cards_grid.count():
+            item = self.cards_grid.takeAt(0)
+            if item is not None and item.widget() is not None:
+                widgets.append(item.widget())
+        for index, widget in enumerate(widgets):
+            self.cards_grid.addWidget(widget, index // cols, index % cols)
+        for index in range(4):
+            self.cards_grid.setColumnStretch(index, 1 if index < cols else 0)
+        self._grid_columns = cols
 
     def _make_base_home_cells(self, tool):
         """基层主页设置组：主页显示开关 + 主页栏位单选（构建一次复用）。
@@ -1134,7 +1094,13 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             self._home_vis_cells = cache
         _cid = str(tool.id)
         if _cid in cache:
-            return cache[_cid]
+            try:
+                # 缓存页可能已随设置栏卸载而销毁。
+                cache[_cid].objectName()
+            except RuntimeError:
+                cache.pop(_cid, None)
+            else:
+                return cache[_cid]
         try:
             from qfluentwidgets import SwitchButton as _SW
         except Exception:
@@ -1211,37 +1177,63 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             print("[tools] auto settings button failed:", e)
             return None
 
+    def _refresh_theme(self) -> None:
+        self.settings_host.setStyleSheet(
+            f"QWidget#toolHeaderSettings{{background:{themed_section_body_bg()};"
+            f"border:1px solid {themed_input_border()};border-radius:8px;}}"
+        )
+        self.title.setStyleSheet(
+            f"font-size:26px;font-weight:600;background:transparent;color:{themed_title_text()};"
+        )
+        self.hall_section.setStyleSheet(
+            f"font-size:16px;font-weight:600;background:transparent;color:{themed_title_text()};"
+        )
+        for label in (self.hall_sub, self.tool_count):
+            label.setStyleSheet(
+                f"font-size:12px;background:transparent;color:{themed_secondary_text()};"
+            )
+
     def _apply_theme_full_if_visible(self) -> None:
         if self.isVisible():
             self._theme_seen = is_dark()
             apply_full_theme_refresh(self)
+            self._refresh_theme()
 
     def _apply_theme_light_if_visible(self) -> None:
         if self.isVisible():
             apply_theme_to_labels(self)
+            self._refresh_theme()
 
     def _clear_header_settings(self) -> None:
-        """清空标题栏右侧设置区并销毁卸下的控件。
-
-        各页 header_settings_widgets() 每次 mount 都新建控件，旧件不销毁
-        会随 open_tool 次数累积（其主题刷新回调也永不回收，切主题越来越
-        慢）；控件均在下一次 mount 重建，这里安全 deleteLater。
-        """
+        """收起设置并归还给缓存页，保留开关的信号连接与状态。"""
         try:
             while self.settings_lay.count():
                 item = self.settings_lay.takeAt(0)
                 w = item.widget() if item is not None else None
                 if w is not None:
+                    owner = getattr(w, "_tool_header_owner", None)
+                    if owner is not None:
+                        w.setParent(owner)
+                        w.hide()
+                        continue
+                    cache = getattr(self, "_home_vis_cells", {})
+                    for tool_id, cached in list(cache.items()):
+                        if cached is w:
+                            cache.pop(tool_id, None)
                     w.setParent(None)
                     w.deleteLater()
         except Exception:
             pass
-        # 保持占位可见，避免各工具顶栏高度/对齐跳动
         try:
-            self.settings_host.setVisible(True)
+            self.settings_scroll.setVisible(False)
+            self.btn_settings.hide()
             self.settings_host.updateGeometry()
         except Exception:
             pass
+
+    def _toggle_header_settings(self, expanded: bool) -> None:
+        self._settings_expanded = bool(expanded)
+        self.settings_scroll.setVisible(self._settings_expanded and bool(self._current_tool))
 
     def _mount_header_settings(self, page: QWidget) -> None:
         """从工具页挂载 header 设置控件到标题行右侧。"""
@@ -1264,20 +1256,25 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             inner = None
         if inner is None:
             inner = page
-        widgets = []
-        try:
-            if inner is not None and hasattr(inner, "header_settings_widgets"):
-                widgets = list(inner.header_settings_widgets() or [])
-        except Exception as e:
-            print("[tools] header settings failed:", e)
-            widgets = []
+        cached = getattr(page, "_tools_header_cells", None)
+        if cached is not None:
+            from PyQt5 import sip
+
+            if any(sip.isdeleted(w) for w in cached):
+                cached = None
+        widgets = list(cached or [])
+        if cached is None:
+            try:
+                if inner is not None and hasattr(inner, "header_settings_widgets"):
+                    widgets = list(inner.header_settings_widgets() or [])
+            except Exception as e:
+                print("[tools] header settings failed:", e)
         # 框架基层设置注入：所有工具页的设置栏自动获得「主页显示」开关；
         # 有主页贡献的再带「主页栏位」单选（栏1=标题下/栏2=启停下）。
         # 仅当页面未自带 header_settings_widgets 时注入——自带者由插件作者
         # 全权负责（囤体主页拦截、资产入口等专用开关不受影响，避免重复）。
-        # 置顶设置格属基层内容：2px 开关格原则（docs/THEME_BORDER.md §1）。
         try:
-            if not widgets:
+            if cached is None and not widgets:
                 tool_id = str(getattr(self, "_current_tool", "") or "")
                 from module.tools.registry import get_registry
 
@@ -1292,15 +1289,21 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
                         widgets.append(gear)
         except Exception as e:
             print("[tools] base home cells inject failed:", e)
+        page._tools_header_cells = widgets
         for w in widgets:
             try:
+                w._tool_header_owner = page
                 w.setParent(self.settings_host)
                 self.settings_lay.addWidget(w, 0, Qt.AlignVCenter)
+                w.show()
             except Exception:
                 pass
         try:
             self.settings_lay.addStretch(1)
             self.settings_host.setVisible(True)
+            self.btn_settings.setVisible(bool(widgets))
+            self.btn_settings.setChecked(self._settings_expanded)
+            self.settings_scroll.setVisible(bool(widgets) and self._settings_expanded)
             self.settings_host.updateGeometry()
             if getattr(self, "head_host", None) is not None:
                 self.head_host.updateGeometry()
@@ -1463,15 +1466,8 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
                 name = t.name
         except Exception:
             pass
-        self.btn_next.setText("下个插件 · %s" % name)
-        try:
-            # 按文案自适应宽度，避免被 max-width 截断
-            self.btn_next.setMaximumWidth(16777215)
-            hint = int(self.btn_next.sizeHint().width()) + 16
-            self.btn_next.setMinimumWidth(max(72, min(hint, 280)))
-            self.btn_next.adjustSize()
-        except Exception:
-            pass
+        self.btn_next.setToolTip("下一个工具：%s" % name)
+        self.btn_next.setAccessibleName("下一个工具：%s" % name)
         self.btn_next.setVisible(True)
 
     def _create_tool_page(self, tool_id: str) -> Optional[QWidget]:
@@ -1514,6 +1510,7 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             from PyQt5.QtCore import QTimer as _QT
 
             _QT.singleShot(0, self._fit_hall_head_height)
+            _QT.singleShot(0, self._relayout_cards)
         except Exception:
             pass
         # 本 fragment 不可见期间错过的主题切换：显示时按需补一次全量刷新
@@ -1521,15 +1518,16 @@ class ToolsFragment(ViewportCappedFragment, QFrame):
             if getattr(self, "_theme_seen", is_dark()) != is_dark():
                 self._theme_seen = is_dark()
                 apply_full_theme_refresh(self)
+                self._refresh_theme()
         except Exception:
             pass
 
     def resizeEvent(self, e):
         super().resizeEvent(e)
-        # 大厅时按宽度重排列数
+        # 只重排卡片，保留管理模式下尚未保存的输入。
         try:
             if self._current_tool is None and self.stack.currentWidget() is self.hall:
-                self._load_cards()
+                self._relayout_cards()
         except Exception:
             pass
         # 窗口变化 → 说明文字换行数可能变：实测重算说明框高度

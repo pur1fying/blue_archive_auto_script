@@ -77,8 +77,9 @@ class PreferClearHomeWidget(QFrame):
 
         self.btn_enter = None
         if PrimaryPushButton is not None or PushButton is not None:
-            Btn = PrimaryPushButton or PushButton
-            self.btn_enter = Btn("进入囤体", self)
+            Btn = PushButton or PrimaryPushButton
+            self.btn_enter = Btn("囤体规划", self)
+            self.btn_enter.setFixedHeight(36)
             try:
                 self.btn_enter.setToolTip("打开工具里的囤体页")
             except Exception:
@@ -162,7 +163,7 @@ class PreferClearHomeWidget(QFrame):
         lab = QLabel(title, cell)
         lab.setAlignment(Qt.AlignHCenter)
         lab.setStyleSheet(
-            'font-family:"Microsoft YaHei";font-size:12px;font-weight:600;'
+            'font-size:12px;font-weight:600;'
             f"color:{themed_text()};"
         )
         if SwitchButton is not None and IndicatorPosition is not None:

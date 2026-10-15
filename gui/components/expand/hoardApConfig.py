@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""囤体配置页：三列便签并排（现状|目标|已领），小框随内容+1rem，窗高对齐咖啡厅。"""
+"""囤体工作台：规划配置、清体规则和计划结果三个独立工作区。"""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import traceback
 from datetime import datetime
 
 from PyQt5.QtCore import Qt, QDate, QPoint, QThread, pyqtSignal, QSize, QTimer, QEvent
-from PyQt5.QtGui import QColor, QFont, QIntValidator, QPainter, QTextDocument, QTextOption
+from PyQt5.QtGui import QColor, QIntValidator
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -23,29 +23,22 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QGridLayout,
     QScrollArea,
-    QStyle,
-    QStyleOption,
+    QTabWidget,
 )
 
-from qfluentwidgets import LineEdit, PrimaryPushButton, PushButton, SwitchButton
+from qfluentwidgets import FluentIcon, LineEdit, PushButton, SwitchButton, ToolButton
 
 from gui.util import notification
 
 try:
-    from gui.components.expand.hoard_goods import MultiCheckRow, ExclusiveCheckRow
+    from gui.components.expand.hoard_goods import MultiCheckRow
 except Exception:
-    from .hoard_goods import MultiCheckRow, ExclusiveCheckRow  # type: ignore
+    from .hoard_goods import MultiCheckRow  # type: ignore
 
 from gui.components.expand.tool_style import (
-    REM,
-    SWITCH_CELL_H,
-    SWITCH_CELL_PAD_X,
-    SWITCH_CELL_PAD_Y,
     TipLabel,
-    attach_header_switch_refresh,
     header_switch_css,
-    themed_accent,
-    themed_accent_text,
+    make_icon_button,
     themed_input_bg,
     themed_input_css,
     themed_input_border,
@@ -53,14 +46,11 @@ from gui.components.expand.tool_style import (
     themed_note_border,
     themed_page_bg,
     themed_page_transparent_qss,
-    themed_separator,
-    themed_title_bar_qss,
     themed_scrollbar_qss,
     themed_section_body_bg,
-    themed_soft_border_rgba,
     themed_switch_note_bg,
     themed_text,
-    themed_title_text,
+    themed_workspace_tabs_css,
 )
 
 try:
@@ -295,208 +285,6 @@ class _NoInnerScrollText(QTextEdit):
             return super().minimumSizeHint()
 
 
-class NoteCell(QFrame):
-    """便签小框：上标题下控件；宽随内容，左右 0.5rem，靠左不居中。
-
-    switch_box=True → 开关类白底小框；否则大框内浅青小框。
-    """
-
-    def __init__(self, title: str, parent=None, *, white: bool = True, switch_box: bool = False):
-        super().__init__(parent)
-        self._switch_box = bool(switch_box)
-        self.setObjectName("hoardNote")
-        # 必须开 StyledBackground，否则部分样式下 QFrame 底色/边框画不出来
-        self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setStyleSheet(NOTE_SWITCH_CSS if switch_box else NOTE_WHITE_CSS)
-        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        lay = QVBoxLayout(self)
-        # 开关小框上下更匀；普通便签略紧
-        if switch_box:
-            lay.setContentsMargins(REM, 6, REM, 8)
-        else:
-            lay.setContentsMargins(REM, 4, REM, 6)
-        lay.setSpacing(4)
-        lay.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        self.title = QLabel(title, self)
-        self.title.setObjectName("hoardNoteTitle")
-        self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        self.title.setStyleSheet(
-            'QLabel#hoardNoteTitle{font-family:"Microsoft YaHei";'
-            f"font-size:13px;font-weight:900;color:{themed_title_text()};background:transparent;}}"
-        )
-        try:
-            f = self.title.font()
-            f.setFamily("Microsoft YaHei")
-            f.setBold(True)
-            f.setWeight(QFont.Black)
-            f.setPixelSize(13)
-            self.title.setFont(f)
-        except Exception:
-            pass
-        lay.addWidget(self.title, 0, Qt.AlignLeft)
-        self.slot = QVBoxLayout()
-        self.slot.setContentsMargins(0, 0, 0, 0)
-        self.slot.setSpacing(4)
-        self.slot.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        lay.addLayout(self.slot)
-
-    def paintEvent(self, event):
-        # 让 QSS 的 background / border-radius 真正生效（与商店 GoodsCard 同套路）
-        opt = QStyleOption()
-        opt.initFrom(self)
-        p = QPainter(self)
-        self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
-
-    def set_widget(self, w: QWidget):
-        while self.slot.count():
-            it = self.slot.takeAt(0)
-            if it.widget():
-                it.widget().setParent(None)
-        self.slot.addWidget(w, 0, Qt.AlignLeft)
-        return w
-
-
-class Section(QFrame):
-    """大框：浅蓝标题栏 + 大厅同色实心底（非透明）。"""
-
-    def __init__(self, title: str, parent=None, tip: str = ""):
-        super().__init__(parent)
-        self.setObjectName("hoardSection")
-        # 实心底必须 StyledBackground + 强制填色，禁止透明穿透
-        self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setAutoFillBackground(True)
-        try:
-            from PyQt5.QtGui import QPalette
-            _pal = self.palette()
-            _bg = QColor(themed_section_body_bg())
-            _pal.setColor(QPalette.Window, _bg)
-            _pal.setColor(QPalette.Base, _bg)
-            self.setPalette(_pal)
-        except Exception:
-            pass
-        self.setStyleSheet(self._section_qss())
-        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
-        root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
-        root.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-
-        # 标题栏
-        self.header = QFrame(self)
-        self.header.setObjectName("hoardSectionHeader")
-        self.header.setAttribute(Qt.WA_StyledBackground, True)
-        self.header.setAutoFillBackground(False)
-        head = QHBoxLayout(self.header)
-        head.setContentsMargins(REM * 2, 8, REM * 2, 8)
-        head.setSpacing(8)
-        head.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        # 标题文字：近黑粗体 + 白描边（与说明文字同款画法，大一号）
-        self.title_lab = _TipLabel(title, self.header, pixel_size=16, word_wrap=False)
-        head.addWidget(self.title_lab, 0, Qt.AlignLeft | Qt.AlignVCenter)
-        self.tip_lab = _TipLabel(tip or "", self.header)
-        if tip:
-            head.addWidget(self.tip_lab, 1, Qt.AlignVCenter)
-        else:
-            self.tip_lab.hide()
-            head.addStretch(1)
-        self.head_right = QHBoxLayout()
-        self.head_right.setContentsMargins(0, 0, 0, 0)
-        self.head_right.setSpacing(6)
-        head.addLayout(self.head_right, 0)
-        # 兼容旧代码读 lab
-        self._title = self.title_lab
-        root.addWidget(self.header, 0)
-
-        # 白内容
-        self.body_host = QFrame(self)
-        self.body_host.setObjectName("hoardSectionBody")
-        self.body_host.setAttribute(Qt.WA_StyledBackground, True)
-        self.body_host.setAutoFillBackground(True)
-        try:
-            from PyQt5.QtGui import QPalette
-            _pal = self.body_host.palette()
-            _bg = QColor(themed_section_body_bg())
-            _pal.setColor(QPalette.Window, _bg)
-            _pal.setColor(QPalette.Base, _bg)
-            self.body_host.setPalette(_pal)
-        except Exception:
-            pass
-        body_l = QVBoxLayout(self.body_host)
-        body_l.setContentsMargins(REM * 2, REM + 2, REM * 2, REM + 4)
-        body_l.setSpacing(REM)
-        body_l.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-
-        # 小框容器：横向流式换行，靠左
-        self._flow_host = QWidget(self.body_host)
-        self._flow = QHBoxLayout(self._flow_host)
-        self._flow.setContentsMargins(0, 0, 0, 0)
-        self._flow.setSpacing(6)
-        self._flow.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        body_l.addWidget(self._flow_host, 0, Qt.AlignLeft)
-        # 纵向备用
-        self.col = QVBoxLayout()
-        self.col.setContentsMargins(0, 0, 0, 0)
-        self.col.setSpacing(6)
-        self.col.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        body_l.addLayout(self.col)
-        self._extra = QVBoxLayout()
-        self._extra.setContentsMargins(0, 0, 0, 0)
-        self._extra.setSpacing(6)
-        body_l.addLayout(self._extra)
-        root.addWidget(self.body_host, 0)
-        self._use_flow = True
-
-    def _section_qss(self) -> str:
-        """Section 主题感知 QSS：主题引擎统一工厂，不再自造。"""
-        from gui.components.expand.tool_style import themed_section_css
-
-        return themed_section_css("hoardSection", "hoardSectionHeader", "hoardSectionBody")
-
-    def _refresh(self):
-        """_refresh() 别名 → 转发 _refresh_theme，供 equip_farm/auto_push 的 w._refresh() 调用。"""
-        self._refresh_theme()
-
-    def _refresh_theme(self):
-        """主题变化时刷新 Section 样式。"""
-        try:
-            from gui.components.expand.tool_style import set_style_dedup
-
-            set_style_dedup(self, self._section_qss())
-            from PyQt5.QtGui import QPalette
-            _pal = self.palette()
-            _bg = QColor(themed_section_body_bg())
-            _pal.setColor(QPalette.Window, _bg)
-            _pal.setColor(QPalette.Base, _bg)
-            self.setPalette(_pal)
-        except Exception:
-            pass
-
-
-
-    def set_vertical(self, on: bool = True):
-        """True=小框竖排（现状/目标）；False=小框横排流式（今日已领）。"""
-        self._use_flow = not on
-        try:
-            self._flow_host.setVisible(self._use_flow)
-        except Exception:
-            pass
-
-    def add_note(self, note: "NoteCell"):
-        if self._use_flow:
-            self._flow.addWidget(note, 0, Qt.AlignLeft | Qt.AlignTop)
-        else:
-            self.col.addWidget(note, 0, Qt.AlignLeft | Qt.AlignTop)
-        return note
-
-    def add_extra(self, w: QWidget):
-        self._extra.addWidget(w)
-        return w
-
-    def add_extra_layout(self, lay):
-        self._extra.addLayout(lay)
-        return lay
-
-
 class _CalendarPopup(QDialog):
     def __init__(self, parent=None, current=None, minimum=None):
         super().__init__(parent)
@@ -564,7 +352,6 @@ class Layout(QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(12, 8, 12, 8)
         root.setSpacing(0)
-        root.setAlignment(Qt.AlignTop)
 
         # ===== 冻结顶栏：两行式 =====
         self._build_top_bar(root)
@@ -577,6 +364,8 @@ class Layout(QWidget):
             self._build()
             self._load()
             self._load_plan()
+            if self.txt_plan.toPlainText().strip():
+                self._result_summary.setText("已载入保存的计划。执行时间与完成记录以本页内容为准。")
             self._fit()
             QTimer.singleShot(0, self._sync_claimed_height)
             self._proj_timer = QTimer(self)
@@ -589,119 +378,33 @@ class Layout(QWidget):
             self.body.addWidget(QLabel("初始化失败：%s" % e))
 
     def _build_top_bar(self, root):
-        """冻结顶栏：拦截状态 + 去向开关 + 一键清除/计算 + 上限/日期输入。"""
-        top = QFrame(self)
-        top.setObjectName("hoardTop")
-        top.setStyleSheet(self._top_bar_qss())
-        top_v = QVBoxLayout(top)
-        top_v.setContentsMargins(10, 6, 10, 6)
-        top_v.setSpacing(2)  # 紧密：约 0.1rem
-
-        # 设置相关开关：挂到 ToolsFragment 标题栏右侧（名称旁），不在此占行
+        """Always-visible actions; the detailed form lives in the planning tab."""
         self._build_header_switches()
-
-        # 行1：左=使用囤体开关；中=状态+花体去向；最右=清除配置
-        row2 = QHBoxLayout()
-        row2.setContentsMargins(0, 0, 0, 0)
-        row2.setSpacing(8)
-        row2.setAlignment(Qt.AlignVCenter)
-
-        # 使用囤体总开关（自设置栏移入）：与花体去向格同画法，开=蓝框
-        en_cell = QFrame(top)
-        en_cell.setObjectName("spendDestCell")
-        en_cell.setAttribute(Qt.WA_StyledBackground, True)
-        en_cell.setStyleSheet(SPEND_DEST_OFF_CSS)
-        attach_header_switch_refresh(en_cell)
-        env = QVBoxLayout(en_cell)
-        env.setContentsMargins(
-            SWITCH_CELL_PAD_X, SWITCH_CELL_PAD_Y, SWITCH_CELL_PAD_X, SWITCH_CELL_PAD_Y
-        )
-        env.setSpacing(2)
-        env.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-        en_lab = QLabel("使用囤体", en_cell)
-        en_lab.setAlignment(Qt.AlignHCenter)
-        en_lab.setStyleSheet(
-            'font-family:"Microsoft YaHei";font-size:12px;font-weight:900;'
-            "color:#222;background:transparent;"
-        )
-        env.addWidget(en_lab, 0, Qt.AlignHCenter)
-        env.addWidget(self.sw_enabled, 0, Qt.AlignHCenter)
-        en_cell.setMinimumWidth(88)
-        en_cell.setFixedHeight(SWITCH_CELL_H)
-        en_cell.setMinimumHeight(SWITCH_CELL_H)
-        row2.addWidget(en_cell, 0, Qt.AlignVCenter)
-
-        def _sync_enabled(on, c=en_cell):
-            try:
-                _state_fn = getattr(c, "_apply_switch_state", None)
-                if callable(_state_fn):
-                    _state_fn(bool(on))
-                else:
-                    from gui.components.expand.tool_style import _switch_qss
-
-                    c.setStyleSheet(_switch_qss("spendDestCell", bool(on)))
-                c.update()
-            except Exception:
-                pass
-
-        self.sw_enabled.checkedChanged.connect(_sync_enabled)
-        try:
-            _sync_enabled(bool(self.sw_enabled.isChecked()))
-        except Exception:
-            pass
-
-        # 弹性空白1：把「说明+四开关」组推离左侧使用囤体开关
-        row2.addStretch(1)
-
-        self.lbl_status = QLabel("激活右侧开关\n会拦截选项以外的花体力事件", top)
-        self.lbl_status.setWordWrap(True)
-        # 组内左端；宽度以「激活右侧开关」行为准，长句自动折成三行
-        # （wordWrap QLabel 的 sizeHint 宽度虚大，必须锁死）
-        self.lbl_status.setFixedWidth(94)
-        self.lbl_status.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        self.lbl_status.setStyleSheet(
-            'font-family:"Microsoft YaHei";font-size:12px;font-weight:700;color:#345;'
-        )
-        row2.addWidget(self.lbl_status, 0, Qt.AlignVCenter)
-
-        self._build_spend_dest_cells(top, row2)
-
-        # 弹性空白2：四开关之后再弹开，清除配置贴最右；将来要加的东西放这
-        row2.addStretch(1)
-
-        # 最右：清除配置（原「计算囤体计划」位置；计算/使用方法移入第二栏）
-        self.btn_new_plan = PrimaryPushButton("清除配置", top)
-        self.btn_new_plan.setMinimumWidth(100)
-        self.btn_new_plan.setToolTip(
-            "仅清除可变数值配置。清空执行记录、今日已领、当前现状与旧计划；"
-            "保留体力/咖啡上限、氪金、清体配置、花体时刻。"
+        toolbar = QWidget(self)
+        row = QHBoxLayout(toolbar)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(12)
+        label = _TipLabel("启用囤体", toolbar, pixel_size=14, word_wrap=False)
+        row.addWidget(label)
+        self.sw_enabled.setOnText("已启用")
+        self.sw_enabled.setOffText("已停用")
+        row.addWidget(self.sw_enabled)
+        row.addStretch(1)
+        self.btn_usage = make_icon_button(FluentIcon.QUESTION, "使用说明", toolbar)
+        self.btn_usage.clicked.connect(self._show_usage_menu)
+        row.addWidget(self.btn_usage)
+        self.btn_new_plan = make_icon_button(
+            FluentIcon.BROOM,
+            "清除配置\n清空现状、今日已领、执行记录和旧计划；保留上限、购买策略与清体规则。",
+            toolbar,
         )
         self.btn_new_plan.clicked.connect(self._on_new_plan)
-        row2.addWidget(self.btn_new_plan, 0, Qt.AlignVCenter)
-        top_v.addLayout(row2)
-
-        # 细分隔线
-        sep = QFrame(top)
-        sep.setObjectName("hoardTopSep")
-        sep.setFixedHeight(1)
-        top_v.addWidget(sep)
-
-        # 行3：上限 / 消费日 / 花体时刻（可换行流式）
-        self._build_top_row3(top, top_v)
-
-        root.addWidget(top, 0)
-        root.addSpacing(2)
-
-    def _top_bar_qss(self) -> str:
-        """顶栏：标题栏工厂统一发放（与 equipTop 同线同底）+ 引擎分隔线。"""
-        return (
-            themed_title_bar_qss("hoardTop")
-            + "QFrame#hoardTopMini{"
-            + f"border:1px solid {themed_soft_border_rgba(50)};"
-            + f"border-radius:8px;background:{themed_input_bg()};}}"
-            + "QFrame#hoardTopSep{"
-            + f"background:{themed_separator()};max-height:1px;min-height:1px;}}"
-        )
+        row.addWidget(self.btn_new_plan)
+        self.btn_calc = make_icon_button(FluentIcon.PIE_SINGLE, "计算计划", toolbar, primary=True)
+        self.btn_calc.clicked.connect(self._on_calculate)
+        row.addWidget(self.btn_calc)
+        root.addWidget(toolbar)
+        root.addSpacing(18)
 
     def _build_header_switches(self):
         """标题栏侧设置开关：主页显示 / 拦截显示（纯设置，不含插件启停）。
@@ -743,195 +446,147 @@ class Layout(QWidget):
             self._make_header_setting_cell("拦截显示", self.sw_home_intercept, 78)
         )
 
-    def _build_spend_dest_cells(self, top, row2):
-        """4 项花体去向拦截开关：普通多倍 / 困难多倍 / 特别委托3倍 / 高价值活动。"""
+    def _build_spend_dest_cells(self, parent, layout):
         self._spend_dest_switches = {}
         self._spend_dest_cells = {}
-        for title, key in (
-            ("普通多倍", "normal"),
-            ("困难多倍", "hard"),
-            ("特别委托3倍", "special"),
-            ("高价值活动", "high_value"),
-        ):
-            cell = QFrame(top)
-            cell.setObjectName("spendDestCell")
-            cell.setAttribute(Qt.WA_StyledBackground, True)
-            cell.setStyleSheet(SPEND_DEST_OFF_CSS)
-            attach_header_switch_refresh(cell)  # 现算 _refresh + 统一 paintEvent 画框
-            vl = QVBoxLayout(cell)
-            # 与顶栏设置开关同一套边距/高度
-            vl.setContentsMargins(SWITCH_CELL_PAD_X, SWITCH_CELL_PAD_Y, SWITCH_CELL_PAD_X, SWITCH_CELL_PAD_Y)
-            vl.setSpacing(2)
-            vl.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            lab = QLabel(title, cell)
-            lab.setAlignment(Qt.AlignHCenter)
-            lab.setStyleSheet(
-                'font-family:"Microsoft YaHei";font-size:12px;font-weight:900;color:#222;background:transparent;'
-            )
+        for index, (title, key) in enumerate((
+            ("普通多倍", "normal"), ("困难多倍", "hard"),
+            ("特别委托 3 倍", "special"), ("高价值活动", "high_value"),
+        )):
+            cell = QWidget(parent)
+            row = QHBoxLayout(cell)
+            row.setContentsMargins(0, 6, 8, 6)
+            row.setSpacing(16)
+            row.addWidget(_TipLabel(title, cell, pixel_size=13, word_wrap=False))
+            row.addStretch(1)
             sw = SwitchButton(cell)
-            try:
-                sw.setOnText("开")
-                sw.setOffText("关")
-            except Exception:
-                pass
-            sw.setToolTip("激活拦截其它花体；并给「到点清体力」对应项自动填 -1")
-            vl.addWidget(lab, 0, Qt.AlignHCenter)
-            vl.addWidget(sw, 0, Qt.AlignHCenter)
-            cell.setMinimumWidth(88)
-            cell.setFixedHeight(SWITCH_CELL_H)
-            cell.setMinimumHeight(SWITCH_CELL_H)
+            sw.setOnText("允许")
+            sw.setOffText("关闭")
+            sw.setToolTip("开启后放行此类花体事件，并给对应清体规则自动填入 -1。")
+            row.addWidget(sw)
             self._spend_dest_cells[key] = cell
             self._spend_dest_switches[key] = sw
-            row2.addWidget(cell, 0, Qt.AlignVCenter)
-            # 开启 = 蓝框（现算 CSS，切主题后再拨仍正确）
-            def _sync_spend(on, c=cell):
-                try:
-                    _state_fn = getattr(c, "_apply_switch_state", None)
-                    if callable(_state_fn):
-                        _state_fn(bool(on))
-                    else:
-                        from gui.components.expand.tool_style import _switch_qss
+            sw.checkedChanged.connect(lambda checked, mode=key: self._on_spend_dest_toggled(mode, checked))
+            layout.addWidget(cell, index // 2, index % 2)
 
-                        c.setStyleSheet(_switch_qss("spendDestCell", bool(on)))
-                    c.update()
-                except Exception:
-                    pass
-            sw.checkedChanged.connect(_sync_spend)
-            try:
-                _sync_spend(bool(sw.isChecked()))
-            except Exception:
-                pass
-            sw.checkedChanged.connect(
-                lambda checked, mode=key: self._on_spend_dest_toggled(mode, checked)
-            )
-
-    def _build_top_row3(self, top, top_v):
-        """行3：上限 / 消费日 / 花体时刻（可换行流式）。"""
-        def _top_cell(title: str, widget: QWidget, min_w: int = 0) -> QFrame:
-            cell = QFrame(top)
-            cell.setObjectName("hoardTopMini")
-            cl = QVBoxLayout(cell)
-            cl.setContentsMargins(8, 4, 8, 4)
-            cl.setSpacing(2)
-            cl.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
-            lab = QLabel(title, cell)
-            lab.setAlignment(Qt.AlignHCenter)
-            lab.setStyleSheet(
-                'font-family:"Microsoft YaHei";font-size:12px;font-weight:600;color:#222;'
-            )
-            cl.addWidget(lab, 0, Qt.AlignHCenter)
-            cl.addWidget(widget, 0, Qt.AlignHCenter)
-            if min_w:
-                cell.setMinimumWidth(min_w)
-            cell.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-            return cell
-
-        row3_host = QWidget(top)
-        row3 = QHBoxLayout(row3_host)
-        row3.setContentsMargins(0, 0, 0, 0)
-        row3.setSpacing(8)
-        self.edit_soft = LineEdit(top)
-        self.edit_soft.setFixedWidth(56)
-        self.edit_soft.setAlignment(Qt.AlignCenter)
-        self.edit_soft.setValidator(QIntValidator(1, 999, top))
-        self.edit_soft.editingFinished.connect(
-            lambda: self._save("hoard_ap_soft_cap", self.edit_soft.text().strip() or "160")
-        )
-        row3.addWidget(_top_cell("体力上限", self.edit_soft, 88), 0, Qt.AlignVCenter)
-
-        self.edit_cafe_cap = LineEdit(top)
-        self.edit_cafe_cap.setFixedWidth(56)
-        self.edit_cafe_cap.setAlignment(Qt.AlignCenter)
-        self.edit_cafe_cap.setValidator(QIntValidator(1, 9999, top))
-        self.edit_cafe_cap.editingFinished.connect(
-            lambda: self._save(
-                "hoard_ap_cafe_ap_full_cap", self.edit_cafe_cap.text().strip() or "740"
-            )
-        )
-        row3.addWidget(_top_cell("咖啡厅上限", self.edit_cafe_cap, 100), 0, Qt.AlignVCenter)
-
-        dw = QWidget(top)
-        dh = QHBoxLayout(dw)
-        dh.setContentsMargins(0, 0, 0, 0)
-        dh.setSpacing(6)
-        self.edit_date = LineEdit(top)
-        self.edit_date.setFixedWidth(118)
-        self.edit_date.setAlignment(Qt.AlignCenter)
-        self.edit_date.setPlaceholderText("yyyy-MM-dd")
-        self._bind(self.edit_date, "hoard_ap_target_date")
-        self.btn_cal = PushButton("📅", top)
-        self.btn_cal.setFixedSize(36, 30)
-        self.btn_cal.setToolTip("选择消费日")
-        self.btn_cal.clicked.connect(self._popup_cal)
-        dh.addWidget(self.edit_date)
-        dh.addWidget(self.btn_cal)
-        row3.addWidget(_top_cell("消费日", dw, 180), 0, Qt.AlignVCenter)
-
-        self.edit_spend_time = LineEdit(top)
-        self.edit_spend_time.setFixedWidth(64)
-        self.edit_spend_time.setAlignment(Qt.AlignCenter)
+    def _build_top_row3(self, parent, layout):
+        """A four-column target form without a card around each field."""
+        self.edit_soft = self._num(1, 999, 80)
+        self._bind(self.edit_soft, "hoard_ap_soft_cap")
+        self.edit_cafe_cap = self._num(1, 9999, 80)
+        self._bind(self.edit_cafe_cap, "hoard_ap_cafe_ap_full_cap")
+        self.edit_spend_time = LineEdit(parent)
         self.edit_spend_time.setPlaceholderText("18:30")
         self._bind(self.edit_spend_time, "hoard_ap_spend_time")
-        row3.addWidget(_top_cell("花体时刻", self.edit_spend_time, 96), 0, Qt.AlignVCenter)
-        # 第二栏最右：计算囤体计划 + 使用方法 上下排（自第一栏移入；
-        # 使用方法面板点开时插在「使用方法」紧邻下方，类下拉菜单）
-        self._top_right_v = QVBoxLayout()
-        self._top_right_v.setContentsMargins(0, 0, 0, 0)
-        self._top_right_v.setSpacing(4)
-        self.btn_calc = PrimaryPushButton("计算囤体计划", top)
-        self.btn_calc.setFixedWidth(120)
-        self.btn_calc.clicked.connect(self._on_calculate)
-        self._top_right_v.addWidget(self.btn_calc, 0, Qt.AlignLeft)
-        self.btn_usage = PushButton("使用方法", top)
-        self.btn_usage.setFixedWidth(120)
-        self.btn_usage.clicked.connect(self._show_usage_menu)
-        self._top_right_v.addWidget(self.btn_usage, 0, Qt.AlignLeft)
-        right_host = QWidget(top)
-        right_host.setLayout(self._top_right_v)
-        row3.addStretch(1)
-        row3.addWidget(right_host, 0, Qt.AlignVCenter)
-        top_v.addWidget(row3_host)
+        self.edit_date = LineEdit(parent)
+        self.edit_date.setPlaceholderText("YYYY-MM-DD")
+        self._bind(self.edit_date, "hoard_ap_target_date")
+        self.btn_cal = ToolButton(FluentIcon.CALENDAR, parent)
+        self.btn_cal.setFixedSize(32, 32)
+        self.btn_cal.setToolTip("选择消费日")
+        self.btn_cal.clicked.connect(self._popup_cal)
+        date_host = QWidget(parent)
+        date_row = QHBoxLayout(date_host)
+        date_row.setContentsMargins(0, 0, 0, 0)
+        date_row.setSpacing(6)
+        date_row.addWidget(self.edit_date, 1)
+        date_row.addWidget(self.btn_cal)
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(20)
+        for column, (title, control) in enumerate((
+            ("消费日", date_host), ("花体时刻", self.edit_spend_time),
+            ("角色体力上限", self.edit_soft), ("咖啡厅容量", self.edit_cafe_cap),
+        )):
+            control.setMinimumWidth(0)
+            control.setMaximumWidth(16777215)
+            control.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            grid.addWidget(self._form_field(title, control), 0, column)
+            grid.setColumnStretch(column, 1)
+        layout.addLayout(grid)
 
     def _build_scroll(self, root):
-        """仅内容区滚动容器；外层 Dialog 对囤体关竖滚 → 顶栏冻结。"""
-        scroll = QScrollArea(self)
-        scroll.setObjectName("hoardScroll")
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll.setStyleSheet(
-            "QScrollArea#hoardScroll{background:transparent;border:none;}"
-            + themed_scrollbar_qss()
-        )
-        try:
-            scroll.viewport().setStyleSheet("background:transparent;")
-            scroll.setAutoFillBackground(False)
-            scroll.viewport().setAutoFillBackground(False)
-        except Exception:
-            pass
-        self._scroll = scroll
-        try:
-            sb = scroll.verticalScrollBar()
-            if sb is not None:
-                # 竖滚动条出现/消失会改变视口宽 → 重算计划框宽度（防横向溢出）
-                sb.rangeChanged.connect(lambda *_a: self._fit())
-        except Exception:
-            pass
-        body = QWidget()
-        body.setObjectName("hoardBody")
-        body.setStyleSheet("QWidget#hoardBody{background:transparent;}")
-        try:
-            body.setAutoFillBackground(False)
-        except Exception:
-            pass
-        self.body = QVBoxLayout(body)
-        # 右边距 0：计划框右缘到 Section 边框的距离=左侧(16px)，左右对称
-        self.body.setContentsMargins(0, 0, 0, 8)
-        self.body.setSpacing(10)  # 大框间距再紧一点，避免横向溢出观感
-        self.body.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        scroll.setWidget(body)
-        root.addWidget(scroll, 1)
+        self._tab_stack = QTabWidget(self)
+        self._tab_stack.setObjectName("hoardWorkspaceTabs")
+        self._tab_stack.setMinimumSize(0, 0)
+        self._tab_stack._refresh = lambda: self._tab_stack.setStyleSheet(themed_workspace_tabs_css("hoardWorkspaceTabs"))
+        self._tab_stack._refresh()
+        self._tab_keys = ("planning", "rules", "results")
+        self._tab_bodies = {}
+        self._tab_scrolls = {}
+        for index, (key, title) in enumerate(zip(self._tab_keys, ("规划配置", "清体规则", "计划结果"))):
+            if key == "results":
+                page = QWidget(self._tab_stack)
+                body = QVBoxLayout(page)
+                body.setContentsMargins(0, 0, 0, 0)
+                body.setSpacing(16)
+            else:
+                page = QScrollArea(self._tab_stack)
+                page.setObjectName("hoardScroll")
+                page.setWidgetResizable(True)
+                page.setFrameShape(QFrame.NoFrame)
+                page.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                page.setStyleSheet("QScrollArea{background:transparent;border:none;}" + themed_scrollbar_qss())
+                page.viewport().setStyleSheet("background:transparent;")
+                content = QWidget()
+                content.setObjectName("hoardBody")
+                content.setStyleSheet("QWidget#hoardBody{background:transparent;}")
+                body = QVBoxLayout(content)
+                body.setContentsMargins(0, 0, 4, 8)
+                body.setSpacing(16)
+                body.setAlignment(Qt.AlignTop)
+                page.setWidget(content)
+                self._tab_scrolls[key] = page
+            self._tab_bodies[key] = body
+            self._tab_stack.addTab(page, title)
+        self._tab_stack.currentChanged.connect(lambda _index: QTimer.singleShot(0, self._fit))
+        root.addWidget(self._tab_stack, 1)
+        self._scroll = self._tab_scrolls["planning"]
+        self.body = self._tab_bodies["planning"]
 
+    def _show_tab(self, index):
+        self._tab_stack.setCurrentIndex(index)
+        QTimer.singleShot(0, self._fit)
+
+    def _form_section(self, title, hint=""):
+        section = QFrame(self)
+        section.setObjectName("hoardFormSection")
+        section.setAttribute(Qt.WA_StyledBackground, True)
+        section.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        layout = QVBoxLayout(section)
+        layout.setContentsMargins(20, 18, 20, 20)
+        layout.setSpacing(14)
+        heading = _TipLabel(title, section, pixel_size=14, word_wrap=False)
+        heading.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        heading.setAlignment(Qt.AlignCenter)
+        layout.addWidget(heading)
+        if hint:
+            description = _TipLabel(hint, section)
+            description.setAlignment(Qt.AlignCenter)
+            layout.addWidget(description)
+        def _refresh():
+            section.setStyleSheet(
+                f"QFrame#hoardFormSection{{background:{themed_section_body_bg()};"
+                f"border:1px solid {themed_input_border()};border-radius:10px;}}"
+            )
+        section._refresh = _refresh
+        _refresh()
+        return section, layout
+
+    def _form_field(self, title, control, hint=""):
+        field = QWidget(self)
+        field.setMinimumWidth(0)
+        layout = QVBoxLayout(field)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+        layout.addWidget(_TipLabel(title, field, pixel_size=12, word_wrap=False))
+        control.setParent(field)
+        if isinstance(control, LineEdit):
+            control.setAlignment(Qt.AlignLeft)
+        layout.addWidget(control)
+        if hint:
+            layout.addWidget(_TipLabel(hint, field))
+        return field
 
     def _style_input_white(self, w):
         """输入控件统一纯白底。"""
@@ -997,449 +652,302 @@ class Layout(QWidget):
             pass
 
     def _build(self):
-        # ----- 行1：当前现状整行 -----
+        self.body = self._tab_bodies["planning"]
+        target, target_layout = self._form_section("囤体目标", "设置体力集中使用的日期、时刻与账号容量。")
+        self._build_top_row3(target, target_layout)
+        self.body.addWidget(target)
         self._build_status_section()
-
-        # ----- 行2：氪金相关 整行 -----
         self._build_pay_section()
+        self.body.addStretch(1)
 
-        # ----- 多自回清体 / 到点清体力：独立配置，不绑原扫荡设置 -----
+        self.body = self._tab_bodies["rules"]
+        destinations, content = self._form_section("花体去向", "启用任一项后，只放行所选去向，其它花体事件会被拦截；同时自动填入对应清体规则。")
+        self.lbl_status = _TipLabel("", destinations)
+        self.lbl_status.hide()
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(32)
+        grid.setColumnStretch(0, 1)
+        grid.setColumnStretch(1, 1)
+        self._build_spend_dest_cells(destinations, grid)
+        content.addLayout(grid)
+        self.body.addWidget(destinations)
         self._build_clear_panels()
+        self.body.addStretch(1)
 
-        # ----- 计划全文（不截断）-----
+        self.body = self._tab_bodies["results"]
         self._build_plan_section()
-
-        # 主题感知：初始化 + 注册主题引擎（引擎 0ms+150ms 双刷，页面不再另连 themeChanged）
+        self.body = self._tab_bodies["planning"]
         self._apply_theme()
         if configGui is not None:
             try:
                 from gui.components.expand.tool_style import register_theme_managed
-
                 register_theme_managed(self, self._apply_theme)
             except Exception:
                 pass
 
     def _apply_theme(self):
-        """主题变化时刷新关键组件样式（深色/浅色切换）。"""
-        try:
-            _refresh_theme_css()
-        except Exception:
-            pass
-        try:
-            from PyQt5.QtWidgets import QLineEdit as _QLE
-            from PyQt5.QtGui import QPalette
-            import re as _re
-            # 全局 QPalette：设默认背景和文字色（影响未设样式的组件）
-            _pal = self.palette()
-            _bg = QColor(themed_page_bg())
-            _txt = QColor(themed_text())
-            _pal.setColor(QPalette.Window, _bg)
-            _pal.setColor(QPalette.Base, _bg)
-            _pal.setColor(QPalette.Text, _txt)
-            _pal.setColor(QPalette.WindowText, _txt)
-            self.setPalette(_pal)
-            # 输入框 / 文本框统一刷新
-            css_input = INPUT_WHITE_CSS
-            from gui.components.expand.tool_style import set_style_dedup as _dedup
-            for w in self.findChildren(_QLE):
-                try:
-                    _dedup(w, css_input)
-                except Exception:
-                    pass
-            for w in self.findChildren(QTextEdit):
-                try:
-                    _dedup(w, css_input)
-                except Exception:
-                    pass
-            # 便签框 + 顶栏刷新
-            note_css = NOTE_WHITE_CSS
-            sw_css = NOTE_SWITCH_CSS
-            top_qss = self._top_bar_qss()
-            for w in self.findChildren(QFrame):
-                try:
-                    name = w.objectName()
-                    if name == "hoardNote":
-                        # switch_box 用白底(与设置栏开关格同款),普通便签用浅青底
-                        _dedup(w, sw_css if getattr(w, "_switch_box", False) else note_css)
-                    elif name == "hoardTop":
-                        _dedup(w, top_qss)
-                    elif name in ("spendDestCell", "hoardHeaderSetting"):
-                        # 开关格：调 attach_header_switch_refresh 挂的现算 _refresh
-                        # （深/浅双向正确，不依赖浅色常量快照）
-                        _fn = getattr(w, "_refresh", None)
-                        if callable(_fn):
-                            _fn()
-                        else:
-                            _accent = themed_accent()
-                            _on = _accent in (w.styleSheet() or "")
-                            _dedup(w, SPEND_DEST_ON_CSS if _on else SPEND_DEST_OFF_CSS)
-                except Exception:
-                    pass
-            # Section 大框刷新
-            for w in self.findChildren(Section):
-                try:
-                    w._refresh_theme()
-                except Exception:
-                    pass
-            # QLabel 深灰文字色 → 主题感知（保留蓝色强调色 #1a5fb4 不动）
-            txt = themed_text()
-            # 含 themed 值(e0e0e0/e8e8e8/333333/111111):切回浅色能逆向匹配→双向可逆
-            dark_re = _re.compile(
-                r'color:#(222|223|234|333|334|345|456|622|678|789|'
-                r'142433|2A3A4A|1a3a7a|'
-                r'e0e0e0|e8e8e8|333333|111111);',
-                _re.IGNORECASE,
-            )
-            for w in self.findChildren(QLabel):
-                try:
-                    old = w.styleSheet() or ""
-                    if dark_re.search(old):
-                        _dedup(w, dark_re.sub(f'color:{txt};', old))
-                except Exception:
-                    pass
-            # 竞技场统计字(蓝色强调)跟主题刷新
-            try:
-                if getattr(self, "lbl_jjc", None) is not None:
-                    _dedup(
-                        self.lbl_jjc,
-                        'font-family:"Microsoft YaHei";color:%s;font-size:14px;font-weight:700;'
-                        % themed_accent_text(),
-                    )
-            except Exception:
-                pass
-            self.update()
-        except Exception:
-            pass
+        """Refresh the current form without retaining light-theme color snapshots."""
+        from PyQt5.QtWidgets import QLineEdit
+        from PyQt5.QtGui import QPalette
+        from gui.components.expand.tool_style import set_style_dedup
+        _refresh_theme_css()
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor(themed_page_bg()))
+        palette.setColor(QPalette.Base, QColor(themed_input_bg()))
+        palette.setColor(QPalette.Text, QColor(themed_text()))
+        palette.setColor(QPalette.WindowText, QColor(themed_text()))
+        self.setPalette(palette)
+        for control in self.findChildren(QLineEdit):
+            set_style_dedup(control, INPUT_WHITE_CSS)
+        for control in self.findChildren(QTextEdit):
+            set_style_dedup(control, INPUT_WHITE_CSS + themed_scrollbar_qss())
+        for section in self.findChildren(QFrame):
+            if section.objectName() == "hoardFormSection":
+                section._refresh()
+        for label in self.findChildren(_TipLabel):
+            label._refresh_theme()
+        if hasattr(self, "_tab_stack"):
+            self._tab_stack._refresh()
+        self.update()
 
-    def _build_status_ap_row(self) -> QWidget:
-        """现状上排：当前体力 + 咖啡可领。"""
-        row_ap = QHBoxLayout()
-        row_ap.setContentsMargins(0, 0, 0, 0)
-        row_ap.setSpacing(8)
-        row_ap.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        n = NoteCell("当前体力", self)
-        self.edit_current_ap = self._num(0, 999, 72)
-        self._style_input_white(self.edit_current_ap)
+    def _build_status_ap_row(self):
+        host = QWidget(self)
+        grid = QGridLayout(host)
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(20)
+        self.edit_current_ap = self._num(0, 999, 80)
         self._bind(self.edit_current_ap, "hoard_ap_current_ap")
         self.edit_current_ap.editingFinished.connect(self._resnap_inventory_from_form)
-        n.set_widget(self.edit_current_ap)
-        row_ap.addWidget(n, 0, Qt.AlignLeft | Qt.AlignTop)
-        n = NoteCell("咖啡可领", self)
-        self.edit_cafe_claimable = self._num(0, 9999, 72)
-        self._style_input_white(self.edit_cafe_claimable)
+        self.edit_cafe_claimable = self._num(0, 9999, 80)
         self._bind(self.edit_cafe_claimable, "hoard_ap_cafe_claimable_manual")
         self.edit_cafe_claimable.editingFinished.connect(self._resnap_inventory_from_form)
-        n.set_widget(self.edit_cafe_claimable)
-        row_ap.addWidget(n, 0, Qt.AlignLeft | Qt.AlignTop)
-        row_ap.addStretch(1)
-        wrap_ap = QWidget(self)
-        wrap_ap.setLayout(row_ap)
-        try:
-            wrap_ap.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        except Exception:
-            pass
-        return wrap_ap
+        for column, (title, control) in enumerate((("当前角色体力", self.edit_current_ap), ("咖啡厅可领体力", self.edit_cafe_claimable))):
+            control.setMinimumWidth(0)
+            control.setMaximumWidth(16777215)
+            control.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            grid.addWidget(self._form_field(title, control), 0, column)
+            grid.setColumnStretch(column, 1)
+        return host
 
-    def _build_mail_detail_cell(self) -> "NoteCell":
-        """邮箱明细：输入框 + 合计行 + 识别按钮。"""
-        n_mail = NoteCell("邮箱明细", self)
-        try:
-            n_mail.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-            n_mail.setMaximumWidth(16777215)
-            n_mail.setMinimumWidth(280)
-        except Exception:
-            pass
-        mail_host = QWidget(n_mail)
-        mv = QVBoxLayout(mail_host)
-        mv.setContentsMargins(0, 0, 0, 0)
-        mv.setSpacing(6)
-        self.edit_mail_detail = _NoInnerScrollText(self)
-        self.edit_mail_detail.setPlaceholderText(
-            "@后为该体力写着的持续时间，如10@d6为这个10体力持续6天，数字为小时，小数点会自走。"
-        )
-        self.edit_mail_detail.setMinimumHeight(72)
-        self.edit_mail_detail.setMinimumWidth(260)
-        self.edit_mail_detail.setMaximumWidth(16777215)
-        self.edit_mail_detail.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+    def _build_mail_detail_cell(self):
+        host = QWidget(self)
+        host.setMinimumWidth(0)
+        layout = QVBoxLayout(host)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(10)
+        layout.addWidget(_TipLabel("邮箱体力", host, pixel_size=14, word_wrap=False))
+        layout.addWidget(_TipLabel("按「体力@剩余时间」填写，例如 100@d6 表示剩余 6 天。", host))
+        self.edit_mail_detail = _NoInnerScrollText(host)
+        self.edit_mail_detail.setPlaceholderText("100@d6, 50@23\n时间无 d 时按小时计算，支持小数。")
+        self.edit_mail_detail.setMinimumWidth(0)
+        self.edit_mail_detail.setMinimumHeight(108)
         self.edit_mail_detail.setAcceptRichText(False)
         self.edit_mail_detail.setLineWrapMode(QTextEdit.WidgetWidth)
         self.edit_mail_detail.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.edit_mail_detail.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._style_input_white(self.edit_mail_detail)
-        try:
-            self.edit_mail_detail.focusOutEvent = self._mail_detail_focus_out  # type: ignore
-        except Exception:
-            pass
-        mv.addWidget(self.edit_mail_detail)
-
-        self.lbl_mail = QLabel("", mail_host)
-        self.lbl_mail.setWordWrap(True)
-        self.lbl_mail.setStyleSheet(
-            'font-family:"Microsoft YaHei";color:#456;font-size:12px;'
-        )
+        self.edit_mail_detail.focusOutEvent = self._mail_detail_focus_out
+        layout.addWidget(self.edit_mail_detail)
+        self.lbl_mail = _TipLabel("", host)
         self.lbl_mail.setMinimumHeight(16)
-        mv.addWidget(self.lbl_mail)
-
-        sum_row = QHBoxLayout()
-        sum_row.setContentsMargins(0, 0, 0, 0)
-        sum_row.setSpacing(8)
-        sum_row.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        lab_sum = QLabel("合计：", mail_host)
-        lab_sum.setStyleSheet(
-            'font-family:"Microsoft YaHei";font-size:13px;color:#222;font-weight:600;'
-        )
-        sum_row.addWidget(lab_sum, 0)
-        self.edit_mail_ap = self._num(0, 99999, 80)
+        layout.addWidget(self.lbl_mail)
+        total = QHBoxLayout()
+        total.setContentsMargins(0, 0, 0, 0)
+        total.setSpacing(8)
+        total.addWidget(_TipLabel("合计体力", host, pixel_size=12, word_wrap=False))
+        self.edit_mail_ap = self._num(0, 99999, 72)
         self.edit_mail_ap.setReadOnly(True)
-        self._style_input_white(self.edit_mail_ap)
-        try:
-            self.edit_mail_ap.setStyleSheet(
-                self.edit_mail_ap.styleSheet()
-                + "QLineEdit{background:%s;}" % themed_note_bg()
-            )
-        except Exception:
-            pass
         self._bind(self.edit_mail_ap, "hoard_ap_mail_ap")
-        sum_row.addWidget(self.edit_mail_ap, 0)
-        self.btn_mail_ocr = PrimaryPushButton("识别邮箱", mail_host)
-        self.btn_mail_ocr.setMinimumWidth(96)
-        self.btn_mail_ocr.setToolTip(
-            "只识别邮箱写入明细，不跑清体/囤体计划。\n"
-            "需已连上模拟器；不必为了识别去开一整套囤体。"
-        )
+        total.addWidget(self.edit_mail_ap)
+        total.addStretch(1)
+        self.btn_mail_ocr = make_icon_button(FluentIcon.VIEW, "识别邮箱\n连接模拟器后识别邮箱并填写明细。", host)
         self.btn_mail_ocr.clicked.connect(self._on_mail_ocr)
-        sum_row.addWidget(self.btn_mail_ocr, 0)
-        sum_row.addStretch(1)
-        mv.addLayout(sum_row)
-        n_mail.set_widget(mail_host)
-        return n_mail
+        total.addWidget(self.btn_mail_ocr)
+        layout.addLayout(total)
+        return host
 
-    def _build_claimed_grid(self) -> "NoteCell":
-        """今天是否已领：5 个白色开关小框（登陆/日程/小组/礼包/竞技场商店）。"""
-        n_claimed = NoteCell("今天是否已领（影响计算）", self)
-        try:
-            n_claimed.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-            n_claimed.setMinimumWidth(280)
-            n_claimed.setMaximumWidth(440)
-        except Exception:
-            pass
-        items = [
-            ("登陆100体", "sw_task", "hoard_ap_task_claimed", 0, 0),
-            ("日程50体", "sw_lesson", "hoard_ap_lesson_claimed", 0, 1),
-            ("小组10体", "sw_group", "hoard_ap_group_claimed", 1, 0),
-            ("礼包10体", "sw_free", "hoard_ap_free_buy_claimed", 1, 1),
-            ("竞技场商店", "sw_jjc", "hoard_ap_jjc_claimed", 2, 0),
-        ]
-        grid_host = QWidget(n_claimed)
-        grid_host.setAttribute(Qt.WA_StyledBackground, True)
-        grid_host.setStyleSheet("background:transparent;")
-        grid = QGridLayout(grid_host)
-        grid.setContentsMargins(2, 2, 2, 2)
-        grid.setHorizontalSpacing(8)
-        grid.setVerticalSpacing(8)
-        grid.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        for title, attr, key, row, col in items:
-            # 每个开关 = 独立白底小框（上字下开关），与标题栏/设置栏开关格同视觉语言
-            cell = NoteCell(title, grid_host, switch_box=True)
-            try:
-                cell.setMinimumWidth(118)
-            except Exception:
-                pass
-            sw = SwitchButton(cell)
-            try:
-                sw.setOnText("已领")
-                sw.setOffText("未领")
-            except Exception:
-                pass
-            sw.setMinimumWidth(72)
-            sw.setMaximumWidth(88)
-            sw.setChecked(False)
-            sw.checkedChanged.connect(lambda v, k=key, s=sw: self._on_claimed_switch(k, v, s))
-            cell.set_widget(sw)
+    def _build_claimed_grid(self):
+        host = QWidget(self)
+        host.setMinimumWidth(0)
+        layout = QVBoxLayout(host)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(10)
+        layout.addWidget(_TipLabel("今日已领取", host, pixel_size=14, word_wrap=False))
+        layout.addWidget(_TipLabel("已领取的奖励会从今天的可用体力中扣除。", host))
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(20)
+        grid.setVerticalSpacing(9)
+        for row, (title, attr, key) in enumerate((
+            ("登录奖励 · 100 体力", "sw_task", "hoard_ap_task_claimed"),
+            ("日程奖励 · 50 体力", "sw_lesson", "hoard_ap_lesson_claimed"),
+            ("小组奖励 · 10 体力", "sw_group", "hoard_ap_group_claimed"),
+            ("每日礼包 · 10 体力", "sw_free", "hoard_ap_free_buy_claimed"),
+            ("竞技场商店", "sw_jjc", "hoard_ap_jjc_claimed"),
+        )):
+            grid.addWidget(_TipLabel(title, host, pixel_size=13, word_wrap=False), row, 0)
+            sw = SwitchButton(host)
+            sw.setOnText("已领")
+            sw.setOffText("未领")
+            sw.checkedChanged.connect(lambda value, k=key, control=sw: self._on_claimed_switch(k, value, control))
             setattr(self, attr, sw)
-            span = 2 if row == 2 else 1
-            grid.addWidget(cell, row, col, 1, span, Qt.AlignLeft)
-        n_claimed.set_widget(grid_host)
-        return n_claimed
+            grid.addWidget(sw, row, 1, Qt.AlignRight)
+        grid.setColumnStretch(0, 1)
+        layout.addLayout(grid)
+        layout.addStretch(1)
+        return host
 
     def _build_status_section(self):
-        """行1：当前现状整行；内部：上排体力/咖啡，下排邮箱+今天是否已领。"""
-        sec = Section(
-            "当前现状",
-            self,
-            tip="请填写当前体力以及咖啡厅可领体力，邮箱明细可自填可识别后修改",
-        )
-        sec.set_vertical(True)
-        try:
-            sec.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-            sec.setMaximumWidth(16777215)
-            sec.setMinimumWidth(0)
-        except Exception:
-            pass
-
-        # 上排：当前体力 + 咖啡可领
-        sec.col.addWidget(self._build_status_ap_row(), 0, Qt.AlignLeft | Qt.AlignTop)
-
-        # 下排：邮箱明细 | 今天是否已领（顶部与邮箱小框顶对齐，形成错位）
-        row_mail = QHBoxLayout()
-        row_mail.setContentsMargins(0, 0, 0, 0)
-        row_mail.setSpacing(10)
-        row_mail.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        row_mail.addWidget(self._build_mail_detail_cell(), 3)
-        n_claimed = self._build_claimed_grid()
-        row_mail.addWidget(n_claimed, 0, Qt.AlignTop)
-
-        wrap_mail = QWidget(self)
-        wrap_mail.setLayout(row_mail)
-        try:
-            wrap_mail.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        except Exception:
-            pass
-        sec.col.addWidget(wrap_mail, 0, Qt.AlignLeft | Qt.AlignTop)
-
+        section, content = self._form_section("当前资源", "填写当前账号现状；已执行过的奖励记得标为已领。")
+        content.addWidget(self._build_status_ap_row())
+        content.addSpacing(6)
+        resource_host = QWidget(section)
+        self._resource_grid = QGridLayout(resource_host)
+        self._resource_grid.setContentsMargins(0, 0, 0, 0)
+        self._resource_grid.setHorizontalSpacing(40)
+        self._resource_grid.setVerticalSpacing(24)
+        self._mail_panel = self._build_mail_detail_cell()
+        self._claimed_panel = self._build_claimed_grid()
+        self._resource_grid.addWidget(self._mail_panel, 0, 0, Qt.AlignTop)
+        self._resource_grid.addWidget(self._claimed_panel, 0, 1, Qt.AlignTop)
+        self._resource_grid.setColumnStretch(0, 1)
+        self._resource_grid.setColumnStretch(1, 1)
+        self._resources_stacked = False
+        content.addWidget(resource_host)
         self.edit_daily_xy = LineEdit(self)
         self.edit_daily_xy.hide()
         self.btn_pick = PushButton("点选", self)
         self.btn_pick.hide()
         self.lbl_pick = QLabel("", self)
         self.lbl_pick.hide()
-        # 兼容旧代码：_sec_claimed 指向现状内已领小框
-        self._sec_status = sec
-        self._sec_claimed = n_claimed
-        self.body.addWidget(sec, 0)
+        self._sec_status = section
+        self._sec_claimed = self._claimed_panel
+        self.body.addWidget(section)
 
     def _build_pay_section(self):
-        """行2：氪金相关（买管上限 / 竞技场商店 / 体力礼包）。"""
-        sec = Section(
-            "氪金相关",
-            self,
-            tip="请填写体力不满时愿意如何买体。",
-        )
-        sec.set_vertical(False)
-        try:
-            sec.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        except Exception:
-            pass
+        section, content = self._form_section("购买策略", "按实际体力缺口购买，以下设置投入上限。")
+        self._sec_pay = section
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(24)
+        grid.setVerticalSpacing(0)
+        grid.setColumnStretch(0, 1)
+        separators = []
 
-        def _lab(t):
-            _l = QLabel(t, self)
-            _l.setStyleSheet(
-                'color:%s;font-family:"Microsoft YaHei";font-size:12px;'
-                "font-weight:700;background:transparent;" % themed_text()
-            )
-            return _l
+        def setting_row(index, title, hint, controls):
+            description = QWidget(section)
+            labels = QVBoxLayout(description)
+            labels.setContentsMargins(0, 12, 0, 12)
+            labels.setSpacing(4)
+            labels.addWidget(_TipLabel(title, description, pixel_size=14, word_wrap=False))
+            labels.addWidget(_TipLabel(hint, description))
+            controls.setFixedWidth(410)
+            grid.addWidget(description, index * 2, 0)
+            grid.addWidget(controls, index * 2, 1, Qt.AlignVCenter)
+            if index < 2:
+                line = QFrame(section)
+                line.setFixedHeight(1)
+                separators.append(line)
+                grid.addWidget(line, index * 2 + 1, 0, 1, 2)
 
-        n = NoteCell("买管上限（按缺口适度）", self)
-        bw = QWidget(self)
-        bl = QHBoxLayout(bw)
-        bl.setContentsMargins(0, 0, 0, 0)
-        bl.setSpacing(8)
-        bl.addWidget(_lab("数量"))
-        self.edit_tubes = self._num(0, 6, 44)
+        self.edit_tubes = self._num(0, 6, 56)
+        self.edit_tubes.setPlaceholderText("自动")
+        self.edit_tubes.setToolTip("每天最多购买的管数；留空由程序按体力缺口自动决定，0 表示不买。")
         self._bind(self.edit_tubes, "hoard_ap_tubes")
-        bl.addWidget(self.edit_tubes)
-        bl.addWidget(_lab("天数"))
-        self.edit_tube_days = self._num(0, 3, 44)
+        self.edit_tube_days = self._num(0, 3, 48)
+        self.edit_tube_days.setToolTip("允许钻石买体的持续天数，范围 0 至 3 天。")
         self._bind(self.edit_tube_days, "hoard_ap_tube_days")
-        bl.addWidget(self.edit_tube_days)
-        # 保留隐藏刷新逻辑，但不展示勤奋/上限小字
+        tubes = QWidget(section)
+        row = QHBoxLayout(tubes)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(8)
+        row.addWidget(_TipLabel("每日上限", tubes, word_wrap=False))
+        row.addWidget(self.edit_tubes)
+        row.addWidget(_TipLabel("管", tubes, word_wrap=False))
+        row.addSpacing(16)
+        row.addWidget(_TipLabel("持续", tubes, word_wrap=False))
+        row.addWidget(self.edit_tube_days)
+        row.addWidget(_TipLabel("天", tubes, word_wrap=False))
+        row.addStretch(1)
+        setting_row(0, "钻石买体", "每日上限留空时自动计算。", tubes)
         self.lbl_strategy = QLabel("", self)
         self.lbl_strategy.hide()
-        try:
-            self.edit_tubes.textChanged.connect(self._upd_strategy)
-            self.edit_tube_days.textChanged.connect(self._upd_strategy)
-        except Exception:
-            pass
-        n.set_widget(bw)
-        sec.add_note(n)
+        self.edit_tubes.textChanged.connect(self._upd_strategy)
+        self.edit_tube_days.textChanged.connect(self._upd_strategy)
 
-        n = NoteCell("竞技场商店（按缺口适度）", self)
-        self._jjc_note = n
-        # 标题右侧挂统计数字
-        try:
-            head_l = n.layout()
-            # NoteCell 内部 title 在 layout 第 0 项；改成 标题+数字 横排
-            title_row = QHBoxLayout()
-            title_row.setContentsMargins(0, 0, 0, 0)
-            title_row.setSpacing(8)
-            n.title.setParent(None)
-            title_row.addWidget(n.title, 0, Qt.AlignLeft | Qt.AlignVCenter)
-            self.lbl_jjc = QLabel("0", n)
-            self.lbl_jjc.setStyleSheet(
-                'font-family:"Microsoft YaHei";color:%s;font-size:14px;font-weight:700;'
-                % themed_accent_text()
-            )
-            title_row.addWidget(self.lbl_jjc, 0, Qt.AlignLeft | Qt.AlignVCenter)
-            title_row.addStretch(1)
-            # 原 title 位置替换
-            head_l.insertLayout(0, title_row)
-        except Exception:
-            self.lbl_jjc = QLabel("0", self)
-            self.lbl_jjc.setStyleSheet("color:%s;font-size:14px;font-weight:700;" % themed_accent_text())
-        try:
-            # 统计数字（如 120/360）定宽，变化时不挤动标题行
-            self.lbl_jjc.setMinimumWidth(44)
-        except Exception:
-            pass
-        jw = QWidget(self)
-        jh = QHBoxLayout(jw)
-        jh.setContentsMargins(0, 0, 0, 0)
-        jh.setSpacing(8)
-        self.jjc_row = MultiCheckRow([("30", "30"), ("60", "60")], self)
+        arena = QWidget(section)
+        arena_layout = QHBoxLayout(arena)
+        arena_layout.setContentsMargins(0, 0, 0, 0)
+        arena_layout.setSpacing(6)
+        self.jjc_row = MultiCheckRow([("30", "30 体力"), ("60", "60 体力")], arena)
+        for card in self.jjc_row.cards.values():
+            card._lay.setContentsMargins(7, 0, 7, 0)
+            card.setToolTip(f"选择每轮购买 {card.key} 体力，可同时选择两个档位。")
+        self.jjc_row.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.jjc_row.changed.connect(self._on_jjc)
-        jh.addWidget(self.jjc_row)
-        jh.addWidget(_lab("刷新"))
+        arena_layout.addWidget(self.jjc_row)
+        arena_layout.addSpacing(8)
+        arena_layout.addWidget(_TipLabel("刷新", arena, word_wrap=False))
         self.edit_jjc_refresh = self._num(0, 3, 40)
+        self.edit_jjc_refresh.setToolTip("额外刷新竞技场商店的次数；0 表示只购买初始一轮。")
         self._bind(self.edit_jjc_refresh, "hoard_ap_jjc_refresh")
         self.edit_jjc_refresh.textChanged.connect(self._upd_jjc)
-        jh.addWidget(self.edit_jjc_refresh)
-        jh.addStretch(1)
-        n.set_widget(jw)
-        sec.add_note(n)
+        arena_layout.addWidget(self.edit_jjc_refresh)
+        arena_layout.addWidget(_TipLabel("次", arena, word_wrap=False))
+        arena_layout.addStretch(1)
+        self.lbl_jjc = _TipLabel("共 0 体力", arena, pixel_size=13, word_wrap=False)
+        self.lbl_jjc.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.lbl_jjc.setMinimumWidth(84)
+        arena_layout.addWidget(self.lbl_jjc)
+        setting_row(1, "竞技场商店", "选择每轮购买的体力，可多选。", arena)
+        self.gift_row = MultiCheckRow([("0", "不买"), ("130", "130 体力"), ("150", "150 体力")], section)
+        for key, card in self.gift_row.cards.items():
+            card.setToolTip("不购买体力礼包。" if key == "0" else f"允许购买 {key} 体力礼包，可同时选择两种礼包。")
+            card.toggled.connect(lambda key, checked, _card=None: self._on_gift_card(str(key), checked))
+        setting_row(2, "体力礼包", "可同时选择两种体力礼包。", self.gift_row)
+        for control in (self.edit_tubes, self.edit_tube_days, self.edit_jjc_refresh):
+            control.setFixedHeight(34)
+        for choices in (self.jjc_row, self.gift_row):
+            for card in choices.cards.values():
+                card.setFixedHeight(34)
 
-        n = NoteCell("体力礼包", self)
-        self.gift_row = MultiCheckRow(
-            [("0", "0"), ("130", "130"), ("150", "150")], self
-        )
-        # 0 与 130/150 双向互斥（后点者优先）：点 0 → 立即清 130/150；
-        # 点 130/150 → 立即清 0；全取消时回落 0。逐卡连接拿得到"刚点的是谁"。
-        for _k, _c in self.gift_row.cards.items():
-            _c.toggled.connect(
-                lambda k, ck, _card=None: self._on_gift_card(str(k), ck)
-            )
-        n.set_widget(self.gift_row)
-        sec.add_note(n)
-        self.body.addWidget(sec)
+        refresh_section = section._refresh
+
+        def refresh_purchase():
+            refresh_section()
+            for line in separators:
+                line.setStyleSheet(f"background:{themed_input_border()};border:none;")
+
+        section._refresh = refresh_purchase
+        refresh_purchase()
+        content.addLayout(grid)
+        self.body.addWidget(section)
 
     def _build_plan_section(self):
-        """计划全文（不截断）。"""
-        sec = Section("计划", self)
-        try:
-            sec.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-            sec.set_vertical(True)
-        except Exception:
-            pass
-        self.txt_plan = _NoInnerScrollText(self)
+        header = QWidget(self)
+        layout = QVBoxLayout(header)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+        heading = _TipLabel("执行计划与记录", header, pixel_size=14, word_wrap=False)
+        heading.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        heading.setAlignment(Qt.AlignCenter)
+        layout.addWidget(heading)
+        self._result_summary = _TipLabel("尚未生成计划。填写规划配置并启用囤体后，点击「计算计划」。", header)
+        self._result_summary.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self._result_summary)
+        self.body.addWidget(header)
+        self.txt_plan = QTextEdit(self)
         self.txt_plan.setReadOnly(True)
         self.txt_plan.setAcceptRichText(False)
         self.txt_plan.setLineWrapMode(QTextEdit.WidgetWidth)
-        try:
-            self.txt_plan.setWordWrapMode(1)  # QTextOption.WordWrap if available
-        except Exception:
-            pass
         self.txt_plan.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.txt_plan.setFont(QFont("Microsoft YaHei", 10))
-        self.txt_plan.setMinimumHeight(160)
-        self.txt_plan.setMaximumWidth(16777215)
-        self.txt_plan.setPlaceholderText(
-            "点「计算计划」。勤奋：主堆近满→咖啡/日替进邮→邮≈980→清0；"
-            "买管数=上限，只在不够近满时按缺口买；花体日 03:50 整包领邮。"
-        )
+        self.txt_plan.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.txt_plan.setPlaceholderText("计划会列出领取、购买、清体的时间与步骤，并显示已完成的执行记录。")
         self.txt_plan.setStyleSheet(INPUT_WHITE_CSS)
+        self.txt_plan.setMinimumSize(0, 180)
         self.txt_plan.textChanged.connect(self._fit)
-        sec.add_extra(self.txt_plan)
-        self.body.addWidget(sec)
+        self.body.addWidget(self.txt_plan, 1)
 
     def _show_usage_menu(self):
         """toggle 使用方法浮层：点按钮在使用方法右下方弹出独立小窗口，
@@ -1496,178 +1004,44 @@ class Layout(QWidget):
         self._style_input_white(e)
         return e
 
-    def _build_clear_block(self, *, title: str, tip: str, prefix: str, with_manual: bool, notes_horizontal: bool = False):
-        sec = Section(title, self, tip=tip)
-        try:
-            sec.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-            sec.setMaximumWidth(16777215)
-        except Exception:
-            pass
-        # notes_horizontal=True → 小框左右流式；False → 小框竖排
-        sec.set_vertical(not notes_horizontal)
-
-        edit_main_n = self._mk_hint_edit("1-1-1 或 1-1--1", 280)
-        edit_main_h = self._mk_hint_edit("h1-1-1 或空", 280)
-        try:
-            edit_main_n.setMaximumWidth(360)
-            edit_main_h.setMaximumWidth(360)
-        except Exception:
-            pass
-        self._clear_v_note(
-            sec,
-            "主线",
-            self._labeled_edit_cell("普通", edit_main_n),
-            self._labeled_edit_cell("困难", edit_main_h),
-        )
-
-        edit_sp_exp = self._mk_count_edit("0/-1", 56)
-        edit_sp_money = self._mk_count_edit("0/-1", 56)
-        self._clear_v_note(
-            sec,
-            "特别委托",
-            self._labeled_edit_cell("经验本", edit_sp_exp),
-            self._labeled_edit_cell("钱本", edit_sp_money),
-        )
-
-        # 活动：关卡与次数左右并列
-        edit_act_stage = self._mk_count_edit("1", 48)
-        edit_act_times = self._mk_count_edit("0/-1", 56)
-        self._clear_h_note(
-            sec,
-            "活动",
-            self._labeled_edit_cell("关卡", edit_act_stage),
-            self._labeled_edit_cell("次数", edit_act_times),
-        )
-
-        # 交流会小框 + 手动清（在交流会小框之外、右侧）
-        edits_scr, manual_sw = self._build_scrimmage_row(sec, with_manual)
-
-        return {
-            "sec": sec,
-            "manual": manual_sw,
-            "main_normal": edit_main_n,
-            "main_hard": edit_main_h,
-            "sp_exp": edit_sp_exp,
-            "sp_money": edit_sp_money,
-            "act_stage": edit_act_stage,
-            "act_times": edit_act_times,
-            "scr": edits_scr,
-            "prefix": prefix,
-        }
-
-    def _labeled_edit_cell(self, label: str, edit: QWidget) -> QWidget:
-        """上标签下输入框的小格。"""
-        cell = QWidget(self)
-        cl = QVBoxLayout(cell)
-        cl.setContentsMargins(0, 0, 0, 0)
-        cl.setSpacing(2)
-        lab = QLabel(label, cell)
-        lab.setStyleSheet('font-family:"Microsoft YaHei";font-size:12px;color:#334;')
-        cl.addWidget(lab, 0, Qt.AlignLeft)
-        cl.addWidget(edit, 0, Qt.AlignLeft)
-        return cell
-
-    def _clear_v_note(self, sec: "Section", title_txt: str, *rows):
-        """上文字下控件的竖排便签。"""
-        n = NoteCell(title_txt, self)
-        host = QWidget(self)
-        vl = QVBoxLayout(host)
-        vl.setContentsMargins(0, 0, 0, 0)
-        vl.setSpacing(6)
-        vl.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        for row in rows:
-            vl.addWidget(row, 0, Qt.AlignLeft)
-        n.set_widget(host)
-        try:
-            n.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        except Exception:
-            pass
-        sec.add_note(n)
-        return n
-
-    def _clear_h_note(self, sec: "Section", title_txt: str, *cells):
-        """便签内控件左右并列。"""
-        n = NoteCell(title_txt, self)
-        host = QWidget(self)
-        hl = QHBoxLayout(host)
-        hl.setContentsMargins(0, 0, 0, 0)
-        hl.setSpacing(10)
-        hl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        for cell in cells:
-            hl.addWidget(cell, 0, Qt.AlignTop)
-        hl.addStretch(1)
-        n.set_widget(host)
-        try:
-            n.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        except Exception:
-            pass
-        sec.add_note(n)
-        return n
-
-    def _build_scrimmage_row(self, sec: "Section", with_manual: bool):
-        """交流会三校次数行；可选右侧「手动清」开关。"""
+    def _build_clear_block(self, *, title, tip, prefix, with_manual, notes_horizontal=False):
+        section, content = self._form_section(title, tip)
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(20)
+        grid.setVerticalSpacing(18)
+        edit_main_n = self._mk_hint_edit("1-1-1 或 1-1--1", 16777215)
+        edit_main_h = self._mk_hint_edit("h1-1-1 或留空", 16777215)
+        grid.addWidget(self._form_field("普通主线", edit_main_n), 0, 0, 1, 2)
+        grid.addWidget(self._form_field("困难主线", edit_main_h), 0, 2, 1, 2)
+        edit_sp_exp = self._mk_count_edit("0 / -1", 56)
+        edit_sp_money = self._mk_count_edit("0 / -1", 56)
+        edit_act_stage = self._mk_count_edit("1", 56)
+        edit_act_times = self._mk_count_edit("0 / -1", 56)
+        for column, (title, control) in enumerate((("委托 · 经验", edit_sp_exp), ("委托 · 信用", edit_sp_money), ("活动关卡", edit_act_stage), ("活动次数", edit_act_times))):
+            control.setMinimumWidth(0)
+            control.setMaximumWidth(16777215)
+            grid.addWidget(self._form_field(title, control), 1, column)
         edits_scr = {}
-        scr_rows = []
-        for lab_t, key in (
-            ("圣三一", "trinity"),
-            ("千禧年", "millennium"),
-            ("歌赫娜", "gehenna"),
-        ):
-            e = self._mk_count_edit("0/-1", 56)
-            edits_scr[key] = e
-            scr_rows.append(self._labeled_edit_cell(lab_t, e))
-        n_scr = NoteCell("交流会", self)
-        try:
-            # 标题旁短说明
-            n_scr.title.setText("交流会　请根据票数调整")
-        except Exception:
-            pass
-        host = QWidget(self)
-        hl2 = QHBoxLayout(host)
-        hl2.setContentsMargins(0, 0, 0, 0)
-        hl2.setSpacing(10)
-        for w in scr_rows:
-            hl2.addWidget(w, 0, Qt.AlignTop)
-        hl2.addStretch(1)
-        n_scr.set_widget(host)
-        try:
-            n_scr.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        except Exception:
-            pass
+        for column, (title, key) in enumerate((("交流会 · 圣三一", "trinity"), ("交流会 · 千禧年", "millennium"), ("交流会 · 歌赫娜", "gehenna"))):
+            control = self._mk_count_edit("0 / -1", 56)
+            control.setMinimumWidth(0)
+            control.setMaximumWidth(16777215)
+            edits_scr[key] = control
+            grid.addWidget(self._form_field(title, control), 2, column)
         manual_sw = None
         if with_manual:
-            row_scr = QWidget(self)
-            rsl = QHBoxLayout(row_scr)
-            rsl.setContentsMargins(0, 0, 0, 0)
-            rsl.setSpacing(10)
-            rsl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            rsl.addWidget(n_scr, 0, Qt.AlignTop)
-            manual_sw = SwitchButton(self)
-            try:
-                manual_sw.setOnText("开")
-                manual_sw.setOffText("关")
-            except Exception:
-                pass
-            manual_sw.setToolTip("开启后，到花体时刻买完体再按本栏扫荡并领邮续清")
-            man_note = NoteCell("手动清", self, switch_box=True)
-            man_note.set_widget(manual_sw)
-            try:
-                man_note.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-            except Exception:
-                pass
-            rsl.addWidget(man_note, 0, Qt.AlignTop)
-            rsl.addStretch(1)
-            try:
-                row_scr.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-            except Exception:
-                pass
-            if getattr(sec, "_use_flow", True):
-                sec._flow.addWidget(row_scr, 0, Qt.AlignLeft | Qt.AlignTop)
-            else:
-                sec.col.addWidget(row_scr, 0, Qt.AlignLeft | Qt.AlignTop)
-        else:
-            sec.add_note(n_scr)
-        return edits_scr, manual_sw
+            manual_sw = SwitchButton(section)
+            manual_sw.setOnText("开启")
+            manual_sw.setOffText("关闭")
+            manual_sw.setToolTip("到花体时刻买完体后，按本栏扫荡并领邮续清。")
+            grid.addWidget(self._form_field("到点自动清体", manual_sw), 2, 3)
+        for column in range(4): grid.setColumnStretch(column, 1)
+        content.addLayout(grid)
+        content.addWidget(_TipLabel("次数填写 0 表示跳过，-1 表示不限次数；交流会请按票数设置。", section))
+        return {"sec": section, "manual": manual_sw, "main_normal": edit_main_n, "main_hard": edit_main_h,
+                "sp_exp": edit_sp_exp, "sp_money": edit_sp_money, "act_stage": edit_act_stage,
+                "act_times": edit_act_times, "scr": edits_scr, "prefix": prefix}
 
     def _wire_clear_block(self, blk: dict) -> None:
         pfx = blk["prefix"]
@@ -1756,8 +1130,8 @@ class Layout(QWidget):
     def _build_clear_panels(self) -> None:
         # 两大框上下叠放；每个大框内部小便签左右流式
         self._overnight_blk = self._build_clear_block(
-            title="多自回清体力",
-            tip="邮箱堆到 980+ 后，为近 23 小时自回，4 点扫哪里。先清有限次数本；-1 为无限。",
+            title="凌晨清体",
+            tip="邮箱接近上限后，为自回体力腾出空间；每天 4 点执行，优先清有限次数关卡。",
             prefix="overnight",
             with_manual=False,
             notes_horizontal=True,
@@ -1765,8 +1139,8 @@ class Layout(QWidget):
         self._wire_clear_block(self._overnight_blk)
 
         self._spend_blk = self._build_clear_block(
-            title="到点清体力",
-            tip="开「手动清」后，到花体时刻买完体再按本栏扫荡领邮续清。与上方多自回独立。",
+            title="目标时刻清体",
+            tip="开启到点自动清体后，在目标时刻购买体力、扫荡并领取邮箱，按下方顺序执行。",
             prefix="spend",
             with_manual=True,
             notes_horizontal=True,
@@ -1853,71 +1227,26 @@ class Layout(QWidget):
         return QSize(480, 360)
 
     def _sync_claimed_height(self):
-        """已领小框高度与「当前体力/咖啡可领」行大致平齐（同在现状内）。"""
-        try:
-            cl = getattr(self, "_sec_claimed", None)
-            ap = getattr(self, "edit_current_ap", None)
-            if cl is None or ap is None:
-                return
-            # 邮箱明细会更高；已领只对齐上排小框高度，不硬撑整段现状
-            target = max(int(ap.sizeHint().height()) + 36, 96)
-            cl.setMinimumHeight(target)
-        except Exception:
-            pass
+        self._reflow_resources()
+
+    def _reflow_resources(self):
+        if not hasattr(self, "_resource_grid"):
+            return
+        stacked = self.width() < 940
+        if stacked == self._resources_stacked:
+            return
+        self._resource_grid.removeWidget(self._mail_panel)
+        self._resource_grid.removeWidget(self._claimed_panel)
+        self._resource_grid.addWidget(self._mail_panel, 0, 0, Qt.AlignTop)
+        self._resource_grid.addWidget(self._claimed_panel, 1 if stacked else 0, 0 if stacked else 1, Qt.AlignTop)
+        self._resource_grid.setColumnStretch(0, 1)
+        self._resource_grid.setColumnStretch(1, 0 if stacked else 1)
+        self._resources_stacked = stacked
 
     def _fit(self):
-        try:
-            # 宽度：以滚动视口为唯一真源（自动排除竖滚动条宽度）。
-            # 扣除量 34 = Section 左右内边距 16×2 + 左右边框 1×2 —— 计划框
-            # 右缘到大框边框的距离与左侧完全相等；竖滚动条出现/消失由
-            # rangeChanged 兜底重算，不会横向溢出
-            try:
-                pw = int(self._scroll.viewport().width()) if getattr(self, "_scroll", None) is not None else 0
-            except Exception:
-                pw = 0
-            vw = max(240, pw - 34) if pw > 0 else 480
-            self.txt_plan.setFixedWidth(vw)
-            doc = self.txt_plan.document()
-            doc.setTextWidth(float(vw - 16))
-            try:
-                self.txt_plan.setLineWrapMode(self.txt_plan.WidgetWidth)
-                self.txt_plan.setWordWrapMode(1)
-            except Exception:
-                pass
-            # 高度：按文档 idealHeight，外加一点 padding；长文上限交给外层 scroll
-            h = int(doc.size().height()) + 24
-            plain = ""
-            try:
-                plain = self.txt_plan.toPlainText() or ""
-            except Exception:
-                plain = ""
-            if not plain.strip():
-                h = 160
-            h = max(120, min(h, 20000))
-            self.txt_plan.setMinimumHeight(h)
-            self.txt_plan.setMaximumHeight(h)
-            self.txt_plan.setFixedHeight(h)
-            self.txt_plan.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.txt_plan.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            try:
-                sb = self.txt_plan.verticalScrollBar()
-                if sb is not None:
-                    sb.setEnabled(False)
-                    sb.setValue(0)
-                    sb.hide()
-            except Exception:
-                pass
-            # 触发布局收缩，去掉 Section 多余空白
-            try:
-                self.txt_plan.updateGeometry()
-                if getattr(self, "_scroll", None) is not None and self._scroll.widget():
-                    self._scroll.widget().adjustSize()
-                    self._scroll.widget().updateGeometry()
-                self.updateGeometry()
-            except Exception:
-                pass
-        except Exception:
-            pass
+        self._reflow_resources()
+        if hasattr(self, "txt_plan"):
+            self.txt_plan.updateGeometry()
 
     def resizeEvent(self, e):
         super().resizeEvent(e)
@@ -1984,8 +1313,7 @@ class Layout(QWidget):
         except ValueError:
             ref = 0
         per = (30 if "30" in keys else 0) + (60 if "60" in keys else 0)
-        # 只显示数量（如 360），不要「每天」
-        self.lbl_jjc.setText(str(per * (ref + 1)) if per > 0 else "0")
+        self.lbl_jjc.setText("共 %d 体力" % (per * (ref + 1)))
 
     def _popup_cal(self):
         today = QDate.currentDate()
@@ -3300,6 +2628,8 @@ class Layout(QWidget):
         try:
             self.txt_plan.setPlainText(msg)
             self._fit()
+            self._result_summary.setText("请检查规划配置后重新计算。")
+            self._show_tab(2)
         except Exception:
             pass
         try:
@@ -3361,7 +2691,10 @@ class Layout(QWidget):
             plan, plan_dict, start_idx, duty, done = res
             self._calc_commit_state(plan, plan_dict, duty, snap, start_idx)
             self._calc_sync_schedule(plan, plan_dict)
+            self._show_tab(2)
             s = plan.summary or {}
+            total = sum(int(s.get(key) or 0) for key in ("final_ap", "final_mail", "cafe_at_spend"))
+            self._result_summary.setText("目标 %s · 预计可用 %s 体力（角色 %s / 邮箱 %s / 咖啡 %s）" % (plan.spend_at.strftime("%m-%d %H:%M"), total, s.get("final_ap", 0), s.get("final_mail", 0), s.get("cafe_at_spend", 0)))
             notification.success(
                 "囤体",
                 "已计算 · %s · 体%s 邮%s"
@@ -3375,6 +2708,7 @@ class Layout(QWidget):
         except Exception as e:
             notification.error("囤体", str(e), self.config)
             self.txt_plan.setPlainText("%s\n%s" % (e, traceback.format_exc(limit=3)))
+            self._show_tab(2)
 
     def _calc_snapshot_and_save(self):
         """表单快照 → 保存配置与库存；失败返回 None。"""
@@ -3923,6 +3257,8 @@ class Layout(QWidget):
 
         # 计划区清空
         try:
+            self._result_summary.setText("请填写新一轮规划，启用囤体后计算计划。")
+            self._show_tab(0)
             self.txt_plan.setPlainText(
                 "已清空上一轮计划 / 执行记录 / 今日已领 / 现状。\n"
                 "请重新填写当前体力、邮箱、咖啡可领（或点识别邮箱），打开启用后再点「计算计划」。"

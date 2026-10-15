@@ -13,18 +13,15 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
-from qfluentwidgets import ComboBox
+from qfluentwidgets import CheckBox, ComboBox
 
 from gui.components.expand.tool_style import (
-    is_dark,
     set_style_dedup,
-    themed_accent,
     themed_input_bg,
     themed_input_border,
-    themed_note_bg,
     themed_inner_select_qss,
-    themed_table_css,
     themed_text,
+    themed_small_checkbox_css,
 )
 
 # 属性键顺序即下拉框顺序（未使用放最后）
@@ -83,11 +80,14 @@ class _TeamCell(QFrame):
             names = list(ATTR_KEYS)
 
         lay = QHBoxLayout(self)
-        lay.setContentsMargins(6, 0, 6, 0)
+        lay.setContentsMargins(4, 0, 4, 0)
         lay.setSpacing(4)
 
-        self.chip = QLabel(self.tr('使用:'), self)
-        self.chip.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.chip = CheckBox(self)
+        self.chip.setFixedSize(18, 20)
+        self.chip.setFocusPolicy(Qt.NoFocus)
+        self.chip.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self.chip.setToolTip(self.tr('使用此编队'))
         lay.addWidget(self.chip, 0, Qt.AlignVCenter)
 
         # qfw ComboBox 自带主题适配（浅色描边/深色配色/箭头内边距），不自造 QSS；仅去掉弹出动画
@@ -95,15 +95,17 @@ class _TeamCell(QFrame):
         cf = self.combo.font()
         cf.setPixelSize(13)  # 与「使用:」提示文字同一字号，避免一行两副字体
         self.combo.setFont(cf)
+        self.combo.setMinimumWidth(60)
+        self.combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.combo.addItems(list(names))
         self.combo.setCurrentIndex(len(names) - 1)
         self._combo_names = list(names)
         self.combo.currentIndexChanged.connect(self._on_combo)
-        lay.addWidget(self.combo, 0, Qt.AlignVCenter)
+        lay.addWidget(self.combo, 1, Qt.AlignVCenter)
 
         self.setCursor(Qt.PointingHandCursor)
         self.setToolTip(self.tr('点击点亮/熄灭本格；下拉选属性'))
-        self.setFixedHeight(40)
+        self.setFixedHeight(36)
 
     def _on_combo(self, idx):
         if 0 <= idx < len(ATTR_KEYS):
@@ -152,8 +154,10 @@ class _TeamCell(QFrame):
             self.apply_theme()
 
     def apply_theme(self):
-        set_style_dedup(self, themed_inner_select_qss('teamCell', self._use))
-        set_style_dedup(self.chip, f"color: {themed_text()}; background: transparent;")
+        set_style_dedup(self, themed_inner_select_qss('teamCell', True) if self._use else
+                        "QFrame#teamCell{background:transparent;border:1px solid transparent;border-radius:4px;}")
+        self.chip.setChecked(self._use)
+        set_style_dedup(self.chip, themed_small_checkbox_css())
         # 下拉框样式全权交给 qfw（FluentStyleSheet.COMBO_BOX 自带浅色描边/深色配色/
         # 箭头内边距），不再自造 QSS 覆盖。
         f = self.chip.font()
@@ -176,8 +180,10 @@ class _ColumnHeader(QFrame):
         lay = QHBoxLayout(self)
         lay.setContentsMargins(8, 0, 8, 0)
         lay.setSpacing(4)
-        self.mark = QLabel('☐', self)  # 装饰勾选示意，紧贴列名文字，整组居中
-        self.mark.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.mark = CheckBox(self)
+        self.mark.setFixedSize(18, 20)
+        self.mark.setFocusPolicy(Qt.NoFocus)
+        self.mark.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.label = QLabel(text, self)
         self.label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         lay.addStretch(1)
@@ -192,7 +198,7 @@ class _ColumnHeader(QFrame):
         self.mark.setFont(fm)
         self.setCursor(Qt.PointingHandCursor)
         self.setToolTip('点击点亮/熄灭整列')
-        self.setFixedHeight(40)  # 与下方格子同高
+        self.setFixedHeight(36)  # 与下方格子同高
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -211,8 +217,8 @@ class _ColumnHeader(QFrame):
         return self._on
 
     def apply_theme(self):
-        set_style_dedup(self.mark, 'color: %s; background: transparent;' % themed_text())
-        self.mark.setText('☑' if self._on else '☐')
+        set_style_dedup(self.mark, themed_small_checkbox_css())
+        self.mark.setChecked(self._on)
         set_style_dedup(self.label, 'color: %s; background: transparent;' % themed_text())
         set_style_dedup(self, themed_inner_select_qss('colHeader', self._on))
 
@@ -335,9 +341,9 @@ class Layout(QWidget):
         table.setObjectName('teamTable')
         table.setAttribute(Qt.WA_StyledBackground, True)
         grid = QGridLayout(table)
-        grid.setHorizontalSpacing(6)
+        grid.setHorizontalSpacing(4)
         grid.setVerticalSpacing(4)
-        grid.setContentsMargins(8, 8, 8, 8)
+        grid.setContentsMargins(0, 0, 0, 0)
 
         for c, (key, name, _cap) in enumerate(self.SOURCES):
             head = _ColumnHeader(name, table)
@@ -460,11 +466,10 @@ class Layout(QWidget):
             head.apply_theme()
         table = self._cells[('side', 0)].parentWidget() if self._cells else None
         if table is not None:
-            set_style_dedup(table, themed_table_css('teamTable'))
+            set_style_dedup(table, "QFrame#teamTable{background:transparent;border:none;}")
             for w in table.findChildren(QLabel):
                 if w.objectName() in ('rowNumLabel', 'deadCellLabel'):
                     set_style_dedup(w, f"color: {themed_text()}; background: transparent;")
         set_style_dedup(
             self.summary_label,
-            f"#planSummary {{ background: {themed_note_bg()}; color: {themed_text()}; "
-            f"border-radius: 6px; padding: 8px 10px; }}")
+            f"#planSummary {{ background:transparent;color:{themed_text()};font-size:12px;padding:4px 0; }}")

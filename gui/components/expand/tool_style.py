@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
-"""工具面板通用样式常量（主题感知）。
+"""工具工作台的主题、表单和排版。
 
-囤体 / 装备刷取 / 自动推图 / 主页资产四个面板原本各自复制一份相同
-的颜色、尺寸常量与开关格 QSS，改一处要同步四处；收敛到这里，各面板
-统一从这里引用。只收「值完全相同」的常量；个别面板独有的取值
-（如 assets_display 的 SECTION_BODY_BG）仍留在各自文件。
-
-颜色常量在浅色主题下保持原值，深色主题下通过 themed_*() 函数返回
-深色版本。各面板在初始化和 themeChanged 时调 _apply_theme() 刷新。
+使用中性背景承载内容；主题色只表示选中、焦点与主要操作。
+所有颜色在刷新时读取，保证浅色、深色和自定义主题色保持一致。
 """
 
 REM = 8  # 0.5rem（1rem≈16px）
@@ -19,11 +14,11 @@ except Exception:  # pragma: no cover
 
 # PyQt5 控件导入（TipLabel 等用）；缺库时退化为 None，不阻断样式函数
 try:
-    from PyQt5.QtCore import Qt, QSize, pyqtSignal
-    from PyQt5.QtGui import QColor, QFont, QPainter, QFontMetrics
+    from PyQt5.QtCore import Qt, pyqtSignal
+    from PyQt5.QtGui import QColor, QFont
     from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy
 except Exception:  # pragma: no cover
-    Qt = QSize = QColor = QFont = QPainter = QFontMetrics = pyqtSignal = None  # type: ignore
+    Qt = QColor = QFont = pyqtSignal = None  # type: ignore
     QFrame = QHBoxLayout = QLabel = QSizePolicy = None  # type: ignore
 
 
@@ -47,27 +42,27 @@ def is_dark() -> bool:
 # ── 主题感知颜色函数（深色主题下返回深色版本） ──
 
 def themed_section_header_bg() -> str:
-    return "#1f3a40" if is_dark() else "rgb(190,243,253)"
+    return themed_section_body_bg()
 
 
 def themed_section_body_bg() -> str:
-    return "#2b2b2b" if is_dark() else "#FFFFFF"
+    return "#26292F" if is_dark() else "#FFFFFF"
 
 
 def themed_note_bg() -> str:
-    return "#34373d" if is_dark() else "rgb(236,254,255)"
+    return "#2D3138" if is_dark() else "#F5F7FA"
 
 
 def themed_switch_note_bg() -> str:
-    return "#3a3f47" if is_dark() else "#FFFFFF"
+    return themed_section_body_bg()
 
 
 def themed_input_bg() -> str:
-    return "#3a3f47" if is_dark() else "#FFFFFF"
+    return "#22252B" if is_dark() else "#FFFFFF"
 
 
 def themed_input_text() -> str:
-    return "#e0e0e0" if is_dark() else "#111111"
+    return themed_text()
 
 
 def themed_accent() -> str:
@@ -78,21 +73,15 @@ def themed_accent() -> str:
     """
     try:
         from gui.util.config_gui import configGui
-        val = str(configGui.themeColor.value or "#0078d4")
-        return val if val.startswith("#") else "#0078d4"
+        val = QColor(configGui.themeColor.value)
+        return val.name() if val.isValid() else "#0078d4"
     except Exception:
         return "#0078d4"
 
 
 def themed_input_border() -> str:
-    """统一 1px 圆滑边框色（设置栏第一/二栏同款）。
-
-    浅色固定 rgb(207,218,232)，深色固定 rgb(65,65,65)；两者都是实色——
-    半透明 rgba 会因抗锯齿在圆角处渲染出灰点（"不圆滑"的根源）。
-    2px 厚边框只保留给设置栏/置顶栏的开关格（themed_switch_border），
-    其余一律用本颜色。
-    """
-    return "rgb(65,65,65)" if is_dark() else "rgb(207,218,232)"
+    """表单和卡片的低对比度细边框。"""
+    return "#414650" if is_dark() else "#DDE2E9"
 
 
 def themed_input_border_focus() -> str:
@@ -101,17 +90,30 @@ def themed_input_border_focus() -> str:
 
 
 def themed_page_bg() -> str:
-    return "#1e1e1e" if is_dark() else "#FFFFFF"
+    return "#202329" if is_dark() else "#F5F7FA"
 
 
 def themed_card_bg() -> str:
-    """卡片背景色（浅色奶白/深色深灰）。"""
-    return "#34373d" if is_dark() else "#F7F1E8"
+    """卡片与工作台内容使用同一层表面色。"""
+    return themed_section_body_bg()
 
 
 def themed_text() -> str:
-    """正文/输入文字统一值（用户裁定：与 themed_input_text 同值，取显眼的）。"""
-    return "#e0e0e0" if is_dark() else "#111111"
+    return "#E6E9EF" if is_dark() else "#273142"
+
+
+def themed_secondary_text() -> str:
+    """辅助说明与元数据，避免和标题争抢层次。"""
+    return "#A6AFBD" if is_dark() else "#687588"
+
+
+def themed_selected_bg() -> str:
+    """选中项的淡主题色背景。"""
+    accent = QColor(themed_accent())
+    surface = QColor(themed_section_body_bg())
+    alpha = 0.18 if is_dark() else 0.07
+    return QColor(*(round(surface.getRgb()[i] * (1 - alpha) + accent.getRgb()[i] * alpha)
+                    for i in range(3))).name()
 
 
 def themed_card_border() -> str:
@@ -124,18 +126,16 @@ def themed_card_border() -> str:
 
 
 def themed_card_hover_border() -> str:
-    """插件卡 hover 边框：实色灰（不随主题色；深浅同一值，实色无灰点）。"""
-    return "#8a8a8a"
+    return themed_accent()
 
 
 def themed_accent_text() -> str:
-    """强调/链接色（蓝色系）。"""
-    return "#80d4ea" if is_dark() else "#1a5fb4"
+    return "#8BC4FF" if is_dark() else "#0067B8"
 
 
 def themed_title_text() -> str:
     """标题文字色（比正文略深/亮）。"""
-    return "#e8e8e8" if is_dark() else "#142433"
+    return "#F3F5F8" if is_dark() else "#192536"
 
 
 # ── 颜色收敛：曾经散落在各插件页的字面量，统一在此取值（单一来源） ──
@@ -146,13 +146,11 @@ _LEGACY_LIGHT_BG_HEX = ("FFFFFF", "F7FAFD", "FAFAFA")
 
 
 def themed_top_bg() -> str:
-    """顶栏/横幅底（原 equip_farm 本地 TOP_BG=#F7FAFD）。深色跟页面底。"""
-    return themed_page_bg() if is_dark() else "#F7FAFD"
+    return themed_section_body_bg()
 
 
 def themed_tool_card_bg() -> str:
-    """大厅工具卡底：浅色指定青白（用户裁定值），深色跟主题暗底防刺眼。"""
-    return themed_card_bg() if is_dark() else "#E6F7FA"
+    return themed_card_bg()
 
 
 def themed_soft_border_rgba(alpha) -> str:
@@ -163,8 +161,8 @@ def themed_soft_border_rgba(alpha) -> str:
     观感与半透明一致、描边干净。
     """
     a = max(0, min(255, int(alpha))) / 255.0
-    base = (58, 63, 71) if is_dark() else (255, 255, 255)
-    fg = (150, 178, 208) if is_dark() else (80, 120, 170)
+    base = (38, 41, 47) if is_dark() else (255, 255, 255)
+    fg = (137, 148, 163) if is_dark() else (117, 131, 151)
     return "rgb(%d,%d,%d)" % tuple(round(b + (f - b) * a) for b, f in zip(base, fg))
 
 
@@ -247,29 +245,25 @@ def themed_inner_select_qss(obj, on) -> str:
 
 
 class GreenFrameOption(QFrame):
-    """绿框选项：整块点选的两态选项卡（囤体勾选卡 / 装备模式与倍率·概率开关共用）。
-
-    「预留 + 覆盖」画法（机制借自商店 GoodsCard，样式按小按钮裁剪）：
-    本体恒定 1px 淡灰边（永不随选中变化 → 内容零位移）+ 自适应宽度；
-    选中时一个独立的绿框覆盖层（上下 1px 浅绿 + 左右 3px 深绿，点击穿透）
-    setGeometry(self.rect()) 浮在内容之上，未选时隐藏。
-    """
+    """可点选的选项按钮；保留旧类名以兼容插件。"""
 
     toggled = pyqtSignal(str, bool)
 
     def __init__(self, key="", text="", parent=None, *, checked=False,
-                 fixed_h=36, font_px=13, font_weight=900, min_w=0, pad=(10, 6)):
+                 fixed_h=36, font_px=13, font_weight=500, min_w=0, pad=(10, 6)):
         super().__init__(parent)
         self.key = str(key)
         self._checked = bool(checked)
         self.setObjectName("greenFrameOption")
         self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(text)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.setFixedHeight(fixed_h)
         if min_w:
             self.setMinimumWidth(int(min_w))
         self._font_px = int(font_px)
-        self._font_weight = int(font_weight)
+        self._font_weight = min(600, int(font_weight))
         self.setAttribute(Qt.WA_Hover, True)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self._lay = QHBoxLayout(self)
@@ -277,12 +271,6 @@ class GreenFrameOption(QFrame):
         self._lay.setSpacing(8)
         self.lab = QLabel(text, self)
         self._lay.addWidget(self.lab)
-        # 选中覆盖层：独立子控件，不占布局、点击穿透，随 resize 铺满本体
-        self._selection_frame = QFrame(self)
-        self._selection_frame.setObjectName("greenFrameOptionSelection")
-        self._selection_frame.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        self._selection_frame.setAttribute(Qt.WA_StyledBackground, True)
-        self._selection_frame.hide()
         self._apply()
         try:
             if configGui is not None:
@@ -317,42 +305,26 @@ class GreenFrameOption(QFrame):
             return
         super().mousePressEvent(e)
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._selection_frame.setGeometry(self.rect())
-        self._selection_frame.raise_()
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter):
+            self.set_checked(not self._checked)
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def _apply(self):
-        # 本体：恒定 1px 淡灰 + 底色（底色随选中微调不位移）；
-        # 选中效果全部由覆盖层承担（上下 1px 绿 / 左右 3px 绿，商店同款）。
-        bg = themed_input_bg() if self._checked else themed_section_body_bg()
+        bg = themed_selected_bg() if self._checked else themed_section_body_bg()
+        border = themed_accent() if self._checked else themed_input_border()
         set_style_dedup(
             self,
             "QFrame#greenFrameOption{background:%s;"
-            "border:1px solid %s;border-radius:8px;}"
-            % (bg, themed_switch_border(False))
+            "border:1px solid %s;border-radius:6px;}"
+            "QFrame#greenFrameOption:hover,QFrame#greenFrameOption:focus{border-color:%s;}"
+            % (bg, border, themed_accent())
         )
-        if self._checked:
-            # 深色选中已随底色变化；浅色底色不变，覆盖层加淡 accent 染底补足
-            sel_bg = "transparent" if is_dark() else themed_accent_fill_rgba(10)
-            set_style_dedup(
-                self._selection_frame,
-                "QFrame#greenFrameOptionSelection{"
-                f"background:{sel_bg};"
-                "border-top:1px solid %s;border-bottom:1px solid %s;"
-                "border-left:3px solid %s;border-right:3px solid %s;"
-                "border-radius:8px;}"
-                % (themed_success_soft(), themed_success_soft(),
-                   themed_success_border(), themed_success_border())
-            )
-            self._selection_frame.setGeometry(self.rect())
-            self._selection_frame.show()
-            self._selection_frame.raise_()
-        else:
-            self._selection_frame.hide()
+        self.setAccessibleDescription("已选择" if self._checked else "未选择")
         if getattr(self, "lab", None) is not None:
             self.lab.setStyleSheet(
-                'font-family:"Microsoft YaHei";'
                 f"font-size:{self._font_px}px;font-weight:{self._font_weight};"
                 f"color:{themed_text()};background:transparent;"
             )
@@ -386,13 +358,12 @@ def themed_success_fill_rgba(alpha) -> str:
 
 
 def themed_badge_bg() -> str:
-    """大厅卡片徽章底（半透明蓝灰，原 tools.py 内联二值）。"""
-    return "rgba(120,150,170,70)" if is_dark() else "rgba(80,120,170,40)"
+    return "#333943" if is_dark() else "#EFF2F6"
 
 
 def themed_disabled_text() -> str:
     """停用态文字灰（原 #8a8a8a）。"""
-    return "#969696" if is_dark() else "#8a8a8a"
+    return "#929BA8" if is_dark() else "#798596"
 
 
 def themed_disabled_strip() -> str:
@@ -405,8 +376,8 @@ def themed_scrollbar_qss(handle_w=10) -> str:
 
     只含 QScrollBar 段；调用方把它与其容器（如 QScrollArea）的样式拼接。
     """
-    handle = "rgba(150,175,205,150)" if is_dark() else "rgba(100,140,180,130)"
-    hover = "rgba(170,195,220,190)" if is_dark() else "rgba(80,130,180,180)"
+    handle = "#505966" if is_dark() else "#C3CAD4"
+    hover = "#788393" if is_dark() else "#98A4B4"
     return (
         "QScrollBar:vertical{width:%dpx;background:transparent;margin:2px;}"
         "QScrollBar::handle:vertical{"
@@ -414,7 +385,13 @@ def themed_scrollbar_qss(handle_w=10) -> str:
         "QScrollBar::handle:vertical:hover{background:%s;}"
         "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0;}"
         "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:transparent;}"
-        % (handle_w, handle, handle_w // 2, hover)
+        "QScrollBar:horizontal{height:%dpx;background:transparent;margin:2px;}"
+        "QScrollBar::handle:horizontal{"
+        "background:%s;border-radius:%dpx;min-width:28px;}"
+        "QScrollBar::handle:horizontal:hover{background:%s;}"
+        "QScrollBar::add-line:horizontal,QScrollBar::sub-line:horizontal{width:0;}"
+        "QScrollBar::add-page:horizontal,QScrollBar::sub-page:horizontal{background:transparent;}"
+        % (handle_w, handle, handle_w // 2, hover, handle_w, handle, handle_w // 2, hover)
     )
 
 
@@ -444,34 +421,57 @@ def themed_table_css(table: str) -> str:
     )
 
 
+def themed_workspace_tabs_css(name: str) -> str:
+    """工作台内的轻量页签，共用尺寸和主题色下划线。"""
+    return (
+        f"QTabWidget#{name}::pane{{border:0;background:transparent;}}"
+        f"QTabWidget#{name} QTabBar{{background:transparent;}}"
+        f"QTabWidget#{name} QTabBar::tab{{background:transparent;"
+        f"color:{themed_secondary_text()};font-size:13px;padding:10px 16px;"
+        "border:0;border-bottom:2px solid transparent;margin-right:8px;}"
+        f"QTabWidget#{name} QTabBar::tab:selected{{color:{themed_title_text()};"
+        f"border-bottom-color:{themed_accent()};}}"
+        f"QTabWidget#{name} QTabBar::tab:hover{{background:{themed_note_bg()};}}"
+    )
+
+
+def make_icon_button(icon, tooltip, parent=None, *, primary=False, size=34):
+    """统一的图标操作：悬停提示、原生反馈和无障碍名称。"""
+    from qfluentwidgets import PrimaryToolButton, ToolButton, ToolTipFilter, ToolTipPosition
+
+    button = (PrimaryToolButton if primary else ToolButton)(icon, parent)
+    button.setFixedSize(size, size)
+    button.setToolTip(tooltip)
+    button.setAccessibleName(tooltip.split("\n", 1)[0])
+    button.setCursor(Qt.PointingHandCursor)
+    button._action_tooltip = ToolTipFilter(button, showDelay=250, position=ToolTipPosition.BOTTOM)
+    button.installEventFilter(button._action_tooltip)
+    return button
+
+
 # ── 默认常量（浅色，兼容旧引用；动态面板请用 themed_*() 函数） ──
 
-SECTION_HEADER_BG = "rgb(190,243,253)"
+SECTION_HEADER_BG = "#FFFFFF"
 SECTION_BODY_BG = "#FFFFFF"
 
-NOTE_BG = "rgb(236,254,255)"
+NOTE_BG = "#F5F7FA"
 SWITCH_NOTE_BG = "#FFFFFF"
 
 # 顶栏开关格统一尺寸（顶栏设置 = 标题栏快捷 = 同一套）
 SWITCH_CELL_H = 56
 SWITCH_CELL_PAD_X = 10
 SWITCH_CELL_PAD_Y = 8
-SWITCH_BORDER_PX = 2
+SWITCH_BORDER_PX = 1
 # 选中/未选边框色不再放模块级快照：themed_switch_border(on) 运行时现算
 # （历史遗留的 SWITCH_ON_BORDER/SWITCH_OFF_BORDER 浅色快照已删）。
 SWITCH_BORDER_RADIUS = 8
 
 
 def themed_switch_border(on: bool) -> str:
-    """开关格边框色（2px 厚边框专属：设置栏/置顶栏开关格）。
-
-    实色、随主题：选中态跟随 应用设置 → 主题颜色（themed_accent）；未选态
-    浅色 #B8B8B8、深色与小框边线同档（note_border 深值）——旧值
-    rgb(65,65,65) 在深底上几乎看不见。
-    """
+    """开关格通过主题色边框表示已启用。"""
     if on:
         return themed_accent()
-    return "#B8B8B8" if not is_dark() else themed_note_border()
+    return themed_input_border()
 
 
 def themed_spinbox_css() -> str:
@@ -497,7 +497,7 @@ def themed_input_css() -> str:
         "LineEdit,QLineEdit,QTextEdit{"
         f"background:{themed_input_bg()};color:{themed_input_text()};"
         f"border:1px solid {themed_input_border()};border-radius:6px;padding:4px 8px;"
-        'font-family:"Microsoft YaHei";font-size:13px;}'
+        'font-size:13px;}'
         "LineEdit:focus,QLineEdit:focus,QTextEdit:focus{"
         f"border:1px solid {themed_input_border_focus()};"
         "}"
@@ -517,7 +517,7 @@ def _dark_text_re():
         _DARK_TEXT_RE = re.compile(
             r'color:#(222|223|234|334|345|456|622|678|789|'
             r'142433|2A3A4A|1a3a7a|'
-            r'e0e0e0|e8e8e8|333333|111111);',
+            r'e0e0e0|e8e8e8|333333|111111|E6E9EF|273142);',
             re.IGNORECASE,
         )
     return _DARK_TEXT_RE
@@ -536,11 +536,11 @@ def apply_theme_to_labels(widget):
         pat = _dark_text_re()
         for w in widget.findChildren(QLabel):
             try:
+                if w.property("themeSemanticColor"):
+                    continue
                 old = w.styleSheet() or ""
                 if pat.search(old):
                     _set_style_if_changed(w, pat.sub(f'color:{txt};', old))
-                elif w.property("themeSemanticColor"):
-                    continue
                 elif "color:" not in old.replace(" ", "").lower():
                     _set_style_if_changed(w, (old + " " if old else "") + f"color:{txt};")
             except Exception:
@@ -676,17 +676,6 @@ def safe_connect_theme(widget, callback, light_callback=None):
     except Exception:
         pass
 
-        # 绑定成 widget 的成员方法再连接：receiver=widget，widget 被销毁时
-        # Qt 自动断开这条连接（旧实现连裸闭包，receiver 永久存活 → 旧控件
-        # 的回调永不回收，切主题随使用越来越慢）。
-        import types
-
-        bound = types.MethodType(_on_changed, widget)
-        widget._theme_changed_slot_ref = bound  # 持引用防 GC
-        configGui.themeChanged.connect(bound)
-    except Exception:
-        pass
-
 
 def connect_theme_refresh(widget):
     """连 themeChanged，切主题完成后延迟安全刷文字色（widget 删了跳过）。"""
@@ -694,17 +683,24 @@ def connect_theme_refresh(widget):
 
 
 def _switch_qss(object_name, on):
-    """单个开关格现算 QSS：背景随主题 + 边框按 on/off 着色（同厚 2px）。
+    """单个开关格现算 QSS：背景随主题 + 边框按 on/off 着色。
 
     框用 QSS border 画（不用 paintEvent monkey-patch——PyQt5 虚函数走 C++
     vtable，实例属性覆盖 paintEvent 不会被 Qt 调用，框画不出来）。
     on/off 用同厚 border，开关切换时格子尺寸不抖。
     """
-    bg = themed_switch_note_bg()
+    bg = themed_selected_bg() if on else themed_switch_note_bg()
     bd = themed_switch_border(on)
     return (
         "QFrame#%s{border:%dpx solid %s;border-radius:%dpx;background:%s;}"
         % (object_name, SWITCH_BORDER_PX, bd, SWITCH_BORDER_RADIUS, bg)
+    ) + _inline_setting_css(object_name)
+
+
+def _inline_setting_css(object_name):
+    return (
+        f'QFrame#{object_name}[inlineHeaderSetting="true"]'
+        '{background:transparent;border:0;border-radius:0;}'
     )
 
 
@@ -722,11 +718,11 @@ def header_switch_css(*object_names, border_px=SWITCH_BORDER_PX):
     for n in object_names:
         off_parts.append(
             "QFrame#%s{border:%dpx solid %s;border-radius:%dpx;background:%s;}"
-            % (n, border_px, bd_off, SWITCH_BORDER_RADIUS, bg)
+            % (n, border_px, bd_off, SWITCH_BORDER_RADIUS, bg) + _inline_setting_css(n)
         )
         on_parts.append(
             "QFrame#%s{border:%dpx solid %s;border-radius:%dpx;background:%s;}"
-            % (n, border_px, bd_on, SWITCH_BORDER_RADIUS, bg)
+            % (n, border_px, bd_on, SWITCH_BORDER_RADIUS, bg) + _inline_setting_css(n)
         )
     return "".join(off_parts), "".join(on_parts)
 
@@ -771,44 +767,46 @@ def _live_switch_on(cell):
 
 
 def make_header_setting_cell(title, widget, *, obj_name, min_w=0, parent=None):
-    """四页统一「标题栏设置开关格」（hoard/assets/equip/auto 共用唯一实现）。
-
-    白底格 + QSS 开关框（on 蓝 / off 淡灰；attach_header_switch_refresh 统一
-    paintEvent 画框 + 深/浅主题现算刷新）+ 标题文字主题色。
-    widget 带 checkedChanged 时自动接线同步选中态。返回 cell。
-    """
+    """显示设置栏中的标签与开关，开关本身表达状态。"""
     try:
         off_css, on_css = header_switch_css(obj_name)
     except Exception:
         off_css = on_css = ""
     try:
-        from PyQt5.QtWidgets import QFrame, QVBoxLayout, QSizePolicy
+        from PyQt5.QtWidgets import QFrame, QHBoxLayout, QSizePolicy
     except Exception:
         return None
     cell = QFrame(parent)
     cell.setObjectName(obj_name)
+    cell.setProperty("inlineHeaderSetting", True)
     cell.setAttribute(Qt.WA_StyledBackground, True)
     cell.setStyleSheet(off_css)
     attach_header_switch_refresh(cell)
-    cl = QVBoxLayout(cell)
-    cl.setContentsMargins(
-        SWITCH_CELL_PAD_X, SWITCH_CELL_PAD_Y, SWITCH_CELL_PAD_X, SWITCH_CELL_PAD_Y
-    )
-    cl.setSpacing(2)
-    cl.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+    cl = QHBoxLayout(cell)
+    cl.setContentsMargins(0, 0, 0, 0)
+    cl.setSpacing(10)
+    cl.setAlignment(Qt.AlignVCenter)
     lab = QLabel(title, cell)
-    lab.setAlignment(Qt.AlignHCenter)
+    lab.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     lab.setStyleSheet(
-        'font-family:"Microsoft YaHei";font-size:12px;font-weight:900;'
+        'font-size:13px;font-weight:400;'
         f"color:{themed_text()};background:transparent;"
     )
-    cl.addWidget(lab, 0, Qt.AlignHCenter)
+    cl.addWidget(lab, 0, Qt.AlignVCenter)
     if widget is not None:
-        cl.addWidget(widget, 0, Qt.AlignHCenter)
+        widget.setAccessibleName(title)
+        if hasattr(widget, "setOnText") and hasattr(widget, "setOffText"):
+            widget.setOnText("")
+            widget.setOffText("")
+            widget.setSpacing(0)
+            widget.label.hide()
+            widget.setFixedWidth(44)
+            if hasattr(widget, "indicator"):
+                widget.indicator.setAccessibleName(title)
+        cl.addWidget(widget, 0, Qt.AlignVCenter)
     if min_w:
         cell.setMinimumWidth(min_w)
-    cell.setFixedHeight(SWITCH_CELL_H)
-    cell.setMinimumHeight(SWITCH_CELL_H)
+    cell.setFixedHeight(36)
     cell.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
 
     def _apply_on(on):
@@ -840,7 +838,7 @@ def make_header_setting_cell(title, widget, *, obj_name, min_w=0, parent=None):
             pass
         try:
             lab.setStyleSheet(
-                'font-family:"Microsoft YaHei";font-size:12px;font-weight:900;'
+                'font-size:13px;font-weight:400;'
                 f"color:{themed_text()};background:transparent;"
             )
         except Exception:
@@ -892,8 +890,8 @@ def attach_header_switch_refresh(cell):
                     if _hdr_lab is not None:
                         set_style_dedup(
                             _hdr_lab,
-                            'font-family:"Microsoft YaHei";font-size:12px;'
-                            f"font-weight:900;color:{themed_text()};"
+                            'font-size:13px;'
+                            f"font-weight:400;color:{themed_text()};"
                             "background:transparent;"
                         )
                 except Exception:
@@ -931,11 +929,7 @@ def attach_header_switch_refresh(cell):
 
 
 def prefer_cell_qss(on):
-    """主页拦截格现算 QSS（与顶栏开关格同一套边框色/厚度/圆角）。
-
-    拦截格用 _prefer_on 态、objectName=preferClearCell，但边框规则与
-    顶栏开关格完全一致（on 蓝 2px / off 淡灰 2px），复用 _switch_qss。
-    """
+    """主页拦截格和顶栏开关格使用一致的选中态。"""
     return _switch_qss("preferClearCell", on)
 
 
@@ -969,119 +963,40 @@ def attach_prefer_cell_refresh(cell):
     return cell
 
 
-# ── 标题栏/说明文字:粗体 + 描边画法,主题感知(深色白字黑描边) ──
-# 收敛 equip_farm / auto_push / assets_display 三处重复的 _TipLabel;
-# 深色 fg=浅白 outline=黑;浅色 fg=近黑 outline=白。themeChanged 自动刷新。
-
+# 标题与说明沿用 QLabel 的原生文字渲染，支持换行、缩放和系统字体。
 def themed_tip_fg():
-    """标题/说明文字主色(描边内层)。"""
-    return QColor(235, 235, 235) if is_dark() else QColor(20, 20, 20)
+    return QColor(themed_text())
 
 
 def themed_tip_outline():
-    """标题/说明文字描边色(外层)。"""
-    return QColor(0, 0, 0, 200) if is_dark() else QColor(255, 255, 255, 255)
+    # 兼容旧插件的导入；文字不再绘制描边。
+    return QColor(Qt.transparent)
 
 
 if QLabel is not None:
-    class TipLabel(QLabel):  # type: ignore[misc]
-        """标题栏/说明文字:粗体 + 描边画法,主题感知(深色白字黑描边)。
-
-        pixel_size=16 + word_wrap=False → 大框标题栏单行标题;
-        默认小字号 + word_wrap=True → 说明文字自动换行。
-        themeChanged 自动刷新 fg/outline。
-        """
+    class TipLabel(QLabel):
+        """工作台分区标题或辅助说明。"""
 
         def __init__(self, text: str = "", parent=None, *, pixel_size: int = 12, word_wrap: bool = True):
-            super().__init__(parent)
-            self._text = text or ""
-            self._word_wrap = word_wrap
+            super().__init__(text or "", parent)
+            self._pixel_size = pixel_size
             self.setWordWrap(word_wrap)
+            self.setProperty("themeSemanticColor", True)
             if word_wrap:
                 self.setMinimumWidth(80)
-            f = QFont("Microsoft YaHei")
-            f.setPixelSize(pixel_size)
-            f.setWeight(QFont.Bold)
-            self.setFont(f)
-            self.setAttribute(Qt.WA_TranslucentBackground, True)
-            self.setStyleSheet("background:transparent;border:none;color:transparent;")
+            font = self.font()
+            font.setPixelSize(pixel_size)
+            font.setWeight(QFont.DemiBold if pixel_size >= 14 else QFont.Normal)
+            self.setFont(font)
             self.setSizePolicy(
                 QSizePolicy.Expanding if word_wrap else QSizePolicy.Maximum,
                 QSizePolicy.Preferred,
             )
-            self._apply_tip_colors()
-            # 不连 themeChanged：切主题时 TipLabel 若已删会 segfault（sip 拦不住）
-
-        def _apply_tip_colors(self):
-            self._fg = themed_tip_fg()
-            self._outline = themed_tip_outline()
+            self._refresh_theme()
 
         def _refresh_theme(self):
-            """主题引擎统一刷新入口（apply_full_theme_refresh 遍历调用）。"""
-            try:
-                try:
-                    from PyQt5 import sip
-                    if sip.isdeleted(self):
-                        return
-                except Exception:
-                    pass
-                self._apply_tip_colors()
-                self.update()
-            except Exception:
-                pass
-
-        def setText(self, text):  # noqa: N802
-            self._text = text or ""
-            self.updateGeometry()
-            self.update()
-
-        def text(self):  # noqa: N802
-            return self._text
-
-        def _metrics_height(self, width: int) -> int:
-            fm = QFontMetrics(self.font())
-            flags = int(Qt.TextWordWrap) if self._word_wrap else 0
-            r = fm.boundingRect(0, 0, max(40, int(width)), 4000, flags, self._text)
-            return max(16, int(r.height()) + 2)
-
-        def sizeHint(self):
-            if not self._word_wrap:
-                fm = QFontMetrics(self.font())
-                return QSize(fm.horizontalAdvance(self._text) + 8, fm.height() + 2)
-            w = max(80, self.width() or 240)
-            return QSize(w, self._metrics_height(w))
-
-        def minimumSizeHint(self):
-            if not self._word_wrap:
-                fm = QFontMetrics(self.font())
-                return QSize(fm.horizontalAdvance(self._text) + 8, fm.height() + 2)
-            return QSize(80, 16)
-
-        def heightForWidth(self, w):
-            if not self._word_wrap:
-                return self.sizeHint().height()
-            return self._metrics_height(max(40, w))
-
-        def hasHeightForWidth(self):
-            return True
-
-        def paintEvent(self, event):
-            if not self._text:
-                return
-            p = QPainter(self)
-            p.setRenderHint(QPainter.Antialiasing, True)
-            p.setRenderHint(QPainter.TextAntialiasing, True)
-            rect = self.rect()
-            wrap = int(Qt.TextWordWrap) if self._word_wrap else 0
-            flags = int(Qt.AlignLeft | Qt.AlignVCenter) | wrap
-            p.setPen(self._outline)
-            for dx, dy in (
-                (-1, 0), (1, 0), (0, -1), (0, 1),
-                (-1, -1), (-1, 1), (1, -1), (1, 1),
-            ):
-                p.drawText(rect.adjusted(dx, dy, dx, dy), flags, self._text)
-            p.setPen(self._fg)
-            p.drawText(rect, flags, self._text)
+            color = themed_title_text() if self._pixel_size >= 14 else themed_secondary_text()
+            set_style_dedup(self, f"background:transparent;border:none;color:{color};")
 else:
     TipLabel = None  # type: ignore
 
@@ -1159,11 +1074,11 @@ def apply_full_theme_refresh(widget):
     # ① QLabel：深灰文字色正则替换 / 无 color 裸标签补 themed_text
     for w in labels:
         try:
+            if w.property("themeSemanticColor"):
+                continue
             old = w.styleSheet() or ""
             if pat.search(old):
                 _set_style_if_changed(w, pat.sub(f'color:{txt};', old))
-            elif w.property("themeSemanticColor"):
-                continue
             elif "color:" not in old.replace(" ", "").lower():
                 _set_style_if_changed(w, (old + " " if old else "") + f"color:{txt};")
         except Exception:
@@ -1284,17 +1199,11 @@ def set_home_bar_slot(plugin_id, slot):
 
 
 def make_home_bar_slot_cell(plugin_id, parent=None):
-    """通用「主页栏位」小单选格：上下排两枚选项——第一栏(标题下插件)/
-    第二栏(启停下插件)。选中项用工具卡同款绿框，未选中灰框；选择持久化
-    config/home_bar_slots.json 并广播主页即时重挂。
-
-    各工具页在 header_settings_widgets() 里 append 本格即可（落在该页
-    设置开关右侧相邻处，不靠右）。
-    """
+    """主页入口的显示位置；选择持久化并即时刷新主页。"""
     if QLabel is None or Qt is None:
         return None
     try:
-        from PyQt5.QtWidgets import QFrame, QVBoxLayout
+        from PyQt5.QtWidgets import QFrame, QHBoxLayout
     except Exception:
         return None
 
@@ -1316,43 +1225,40 @@ def make_home_bar_slot_cell(plugin_id, parent=None):
 
     state = {"slot": get_home_bar_slot(pid) or _effective_default_slot(pid)}
 
+    try:
+        from qfluentwidgets import ComboBox
+    except ImportError:
+        from PyQt5.QtWidgets import QComboBox as ComboBox
+
     cell = QFrame(parent)
     cell.setObjectName("homeBarSlotCell")
-    v = QVBoxLayout(cell)
-    v.setContentsMargins(4, 3, 4, 3)
-    v.setSpacing(3)
+    cell.setFixedHeight(36)
+    row = QHBoxLayout(cell)
+    row.setContentsMargins(0, 0, 0, 0)
+    row.setSpacing(10)
+    caption = QLabel("显示位置", cell)
+    caption.setProperty("themeSemanticColor", True)
+    row.addWidget(caption)
 
-    pills = {}
+    def _refresh_caption():
+        caption.setStyleSheet(f"font-size:13px;color:{themed_text()};background:transparent;")
 
-    def _pick(key):
-        if state["slot"] == key:
-            return
-        state["slot"] = key
-        set_home_bar_slot(pid, key)
-        _sync_pills()
+    _refresh_caption()
+    safe_connect_theme(caption, _refresh_caption)
+    position = ComboBox(cell)
+    position.setObjectName("homeBarPosition")
+    position.addItems(["标题下方", "启动栏下方"])
+    position.setFixedSize(140, 34)
+    position.setAccessibleName("主页入口显示位置")
+    position.setToolTip("选择工具快捷入口在主页中的显示位置")
+    position.setCurrentIndex(0 if state["slot"] == "1" else 1)
+    row.addWidget(position)
 
-    def _sync_pills():
-        for k, pl in pills.items():
-            try:
-                pl.set_checked(k == state["slot"], emit=False)
-            except Exception:
-                pass
+    def _pick(index):
+        slot = "1" if index == 0 else "2"
+        if slot != state["slot"]:
+            state["slot"] = slot
+            set_home_bar_slot(pid, slot)
 
-    # 两枚栏位 = 功能性绿框（GreenFrameOption）单选；主题刷新由组件自带
-    for key, text in (("1", "第一栏"), ("2", "第二栏")):
-        pl = GreenFrameOption(key, text, cell, fixed_h=22, font_px=11,
-                              font_weight=700, pad=(8, 2))
-        pl.setToolTip("主页显示位置：第一栏=标题下插件，第二栏=启停下插件")
-
-        def _on_tog(_k=None, _ck=None, pl=pl, k=key):
-            # 单选语义：点已选项保持选中（取消立即回弹），点另一项切换
-            if not pl.is_checked():
-                pl.set_checked(True, emit=False)
-                return
-            _pick(k)
-
-        pl.toggled.connect(_on_tog)
-        v.addWidget(pl, 0, Qt.AlignHCenter)
-        pills[key] = pl
-    _sync_pills()
+    position.currentIndexChanged.connect(_pick)
     return cell

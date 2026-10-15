@@ -46,6 +46,9 @@ try:
         themed_card_bg,
         themed_input_border,
         themed_note_bg,
+        themed_accent,
+        themed_selected_bg,
+        themed_secondary_text,
         themed_text,
     )
 except Exception:  # pragma: no cover
@@ -55,6 +58,9 @@ except Exception:  # pragma: no cover
     themed_card_bg = lambda: "#34373d"
     themed_input_border = lambda: "rgba(80,120,170,70)"
     themed_note_bg = lambda: "#FFFFFF"
+    themed_accent = lambda: "#0078d4"
+    themed_selected_bg = lambda: "#EEF5FC"
+    themed_secondary_text = lambda: "#687588"
     themed_text = lambda: "#333333"
 
 if sys.platform == "win32":
@@ -215,15 +221,15 @@ class _HomeBlockWrap(QFrame):
         self.setProperty("homeBlockKey", key)
         self.setAcceptDrops(True)
         vl = QVBoxLayout(self)
-        vl.setContentsMargins(4, 4, 4, 4)
-        vl.setSpacing(4)
+        vl.setContentsMargins(8, 8, 8, 8)
+        vl.setSpacing(8)
 
         bar = QFrame(self)
         bar.setObjectName("homeEditBar")
         bar.setCursor(Qt.OpenHandCursor)
         hl = QHBoxLayout(bar)
-        hl.setContentsMargins(8, 4, 8, 4)
-        hl.setSpacing(6)
+        hl.setContentsMargins(12, 8, 12, 8)
+        hl.setSpacing(8)
         grip = QLabel("⋮⋮", bar)
         grip.setStyleSheet(
             'font-family:"Microsoft YaHei";font-size:14px;font-weight:700;'
@@ -283,22 +289,19 @@ class _HomeBlockWrap(QFrame):
     def _refresh(self):
         """主题感知刷新：编辑壳描边/标题条/板块名/提示文字随深浅色。"""
         try:
-            dark = bool(is_dark())
-            dashed = "rgba(120,170,230,150)" if dark else "rgba(50,110,200,110)"
-            bg = "rgba(255,255,255,12)" if dark else "rgba(255,255,255,18)"
             self.setStyleSheet(
                 "QFrame#homeBlockWrap{"
-                f"border:1px dashed {dashed};border-radius:8px;"
-                f"background:{bg};}}"
+                f"border:1px dashed {themed_input_border()};border-radius:8px;"
+                "background:transparent;}"
                 "QFrame#homeBlockWrap[dropHover='true']{"
-                "border:2px solid #1F9D55;background:rgba(31,157,85,28);}"
+                f"border:1px solid {themed_accent()};background:{themed_selected_bg()};}}"
             )
             self._edit_bar.setStyleSheet(
                 f"QFrame#homeEditBar{{background:{themed_note_bg()};"
                 f"border:1px solid {themed_input_border()};border-radius:6px;}}"
             )
             txt = themed_text()
-            muted = "rgba(216,220,228,172)" if dark else "#456789"
+            muted = themed_secondary_text()
             self._grip.setStyleSheet(
                 'font-family:"Microsoft YaHei";font-size:14px;font-weight:700;'
                 f"color:{txt};"
@@ -759,7 +762,7 @@ class HomeFragment(ViewportCappedFragment, QFrame):
         host.setVisible(bool(switch_entry))
 
         # —— 顺序调换：仅当「编辑主页显示」入口开时出现 ——
-        self.btn_home_edit = PushButton("顺序调换", self.startup_card)
+        self.btn_home_edit = PushButton("编辑主页", self.startup_card)
         try:
             self.btn_home_edit.setFixedHeight(28)
             self.btn_home_edit.setToolTip("进入主页可视化编辑：拖拽板块到目标位置，点应用结束；离开未应用则取消")
