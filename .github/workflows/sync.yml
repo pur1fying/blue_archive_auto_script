@@ -1,0 +1,159 @@
+name: Repository Sync
+
+on:
+  push:
+    branches:
+      - master
+  repository_dispatch:
+    types:
+      - upstream-master-push
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Synchronization operation to run
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - upstream
+          - cnb
+
+permissions: {}
+
+jobs:
+  notify-fork:
+    name: Notify fork
+    if: github.event_name == 'push' && github.repository == 'pur1fying/blue_archive_auto_script'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger fork sync
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT }}
+          FORK_REPO: Kiramei/baas-dev
+        run: |
+          set -euo pipefail
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${FORK_REPO}/dispatches" \
+            -f event_type=upstream-master-push \
+            -F "client_payload[upstream_sha]=${GITHUB_SHA}" \
+            -F "client_payload[upstream_ref]=${GITHUB_REF_NAME}"
+
+  sync-upstream:
+    name: Rebase fork onto upstream
+    if: >-
+      github.repository == 'Kiramei/baas-dev' &&
+      (github.event_name == 'repository_dispatch' ||
+       (github.event_name == 'workflow_dispatch' &&
+        (inputs.operation == 'all' || inputs.operation == 'upstream')))
+    permissions:
+      contents: write
+    concurrency:
+      group: sync-upstream-master-rebase
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Rebase and update master with a lease
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT || github.token }}
+          HAS_WORKFLOW_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT != '' }}
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/pur1fying/blue_archive_auto_script.git
+          git fetch --no-tags upstream +refs/heads/master:refs/remotes/upstream/master
+          git fetch --no-tags origin +refs/heads/master:refs/remotes/origin/master
+          fork_sha="$(git rev-parse refs/remotes/origin/master)"
+          upstream_sha="$(git rev-parse refs/remotes/upstream/master)"
+
+          if git merge-base --is-ancestor "${upstream_sha}" "${fork_sha}"; then
+            echo "Fork master already contains upstream master. Nothing to do."
+            exit 0
+          fi
+
+          if [ -n "$(git rev-list --merges "${upstream_sha}..${fork_sha}")" ]; then
+            echo "::error::Fork-only history contains merge commits. Rebuild it as linear commits before automatic synchronization; no remote refs were changed."
+            exit 1
+          fi
+
+          git checkout --detach "${fork_sha}"
+          if ! git rebase --no-rebase-merges --no-update-refs "${upstream_sha}"; then
+            git rebase --abort || true
+            echo "::error::Upstream rebase failed. Resolve it locally and push the verified result; no remote refs were changed."
+            exit 1
+          fi
+
+          if [ "${HAS_WORKFLOW_TOKEN}" != "true" ] && ! git diff --quiet "${fork_sha}" HEAD -- .github/workflows; then
+            echo "::error::The rebase changes workflow files. Configure UPSTREAM_TO_KIRAMEI_DEV_PAT with repository write and workflow permissions; no remote refs were changed."
+            exit 1
+          fi
+
+          python -m pip install -e ".[service,test]"
+          python -m pytest tests/service -q
+
+          auth_header="$(printf 'x-access-token:%s' "${GH_TOKEN}" | base64 -w0)"
+          echo "::add-mask::${auth_header}"
+          if ! git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
+            push origin HEAD:refs/heads/master \
+            "--force-with-lease=refs/heads/master:${fork_sha}"; then
+            echo "::error::Push rejected. Master may have changed since it was fetched, or the token/branch rules may not allow rewriting it. No unguarded force push was attempted."
+            exit 1
+          fi
+
+          echo "Rebased master onto ${upstream_sha}."
+
+  sync-cnb:
+    name: Sync to CNB
+    needs: sync-upstream
+    # Explicitly run after a successful rebase: GITHUB_TOKEN pushes do not trigger workflows.
+    if: >-
+      !cancelled() &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'cnb') ||
+       needs.sync-upstream.result == 'success') &&
+      (github.repository == 'Kiramei/baas-dev' ||
+       github.repository == 'pur1fying/blue_archive_auto_script')
+    permissions:
+      contents: read
+    concurrency:
+      group: sync-cnb-master-${{ github.repository }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Sync Dev
+        if: github.repository == 'Kiramei/baas-dev'
+        uses: ./.github/actions/sync-to-cnb
+        with:
+          target-url: https://cnb.cool/kiramei/baas-dev.git
+          password: ${{ secrets.CNB_SYNC_TOKEN }}
+
+      - name: Sync Stable
+        if: github.repository == 'pur1fying/blue_archive_auto_script'
+        uses: ./.github/actions/sync-to-cnb
+        with:
+          target-url: https://cnb.cool/pur1fying/blue_archive_auto_script.git
+          password: ${{ secrets.CNB_SYNC_TOKEN }}
