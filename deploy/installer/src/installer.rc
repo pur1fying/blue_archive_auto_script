@@ -1,3 +1,0 @@
-#define IDI_BAAS_ICON 101
-
-IDI_BAAS_ICON ICON "../logo.ico"
