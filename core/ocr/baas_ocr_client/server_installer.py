@@ -8,6 +8,7 @@ import re
 import subprocess
 import time
 import tempfile
+import zipfile
 from typing import Dict, Optional
 
 import pygit2
@@ -30,10 +31,31 @@ if sys.platform not in ["win32", "linux", "darwin"]:
     raise Exception("Ocr Unsupported platform " + sys.platform)
 
 OCR_SERVER_PREBUILD_URL = "https://gitee.com/pur1fy/baas_-cpp_prebuild.git"
+OCR_SERVER_PREBUILD_ARCHIVE_URLS = [
+    "https://baas-cdn.kiramei.workers.dev/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://codeload.github.com/pur1fying/BAAS_Cpp_prebuild/zip/refs/heads/{branch}",
+    "https://v4.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://v6.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://cdn.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://gh.sevencdn.com/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://githubfast.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+    "https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
+]
+OCR_SERVER_PREBUILD_API_URL = "https://api.github.com/repos/pur1fying/BAAS_Cpp_prebuild/branches/{branch}"
 
 SERVER_INSTALLER_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
+def _android_ocr_branch() -> Optional[str]:
+    if os.getenv("BAAS_ANDROID", "").lower() not in {"1", "true", "yes", "on"}:
+        return None
+    arch = platform.machine().lower()
+    if arch in {"aarch64", "arm64"}:
+        return "android-arm64-v8a"
+    if arch in {"x86_64", "amd64"}:
+        return "android-x86_64"
+    raise Exception("Unsupported Android machine architecture " + arch)
 
 
 branch_map = {
@@ -41,12 +63,17 @@ branch_map = {
     "linux": {"x86_64": "linux-x64"},
     "darwin": {"arm64": "macos-arm64", "x86_64": "macos-x64"},
 }
-arch_map = branch_map[sys.platform]
-arch = platform.machine().lower()
-if arch not in arch_map:
-    raise Exception("Unsupported machine architecture " + arch)
-TARGET_BRANCH = arch_map[arch]
-SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, "bin")
+TARGET_BRANCH = _android_ocr_branch()
+if TARGET_BRANCH is None:
+    arch_map = branch_map[sys.platform]
+    arch = platform.machine().lower()
+    if arch not in arch_map:
+        raise Exception("Unsupported machine architecture " + arch)
+    TARGET_BRANCH = arch_map[arch]
+SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, "bin-android", TARGET_BRANCH) if TARGET_BRANCH.startswith(
+    "android-"
+) else os.path.join(SERVER_INSTALLER_DIR_PATH, "bin")
+ANDROID_VERSION_FILE = os.path.join(SERVER_BIN_DIR, ".baas-ocr-prebuild-sha")
 
 NONINTERACTIVE_GIT_CONFIG = [
     "-c", "credential.helper=",
@@ -67,30 +94,152 @@ def noninteractive_git_env(base_env: Optional[Dict[str, str]] = None) -> Dict[st
     return env
 
 
+def _is_android_runtime() -> bool:
+    return os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}
 
 
+def _android_library_abi_dir() -> str:
+    if TARGET_BRANCH == "android-arm64-v8a":
+        return "arm64-v8a"
+    if TARGET_BRANCH == "android-x86_64":
+        return "x86_64"
+    raise OcrInternalError(f"Unsupported Android OCR branch: {TARGET_BRANCH}")
 
 
 def _server_binary_path() -> str:
+    if TARGET_BRANCH.startswith("android-"):
+        return os.path.join(SERVER_BIN_DIR, "lib", _android_library_abi_dir(), "libBAAS_ocr_server.so")
     return os.path.join(SERVER_BIN_DIR, "BAAS_ocr_server.exe" if sys.platform == "win32" else "BAAS_ocr_server")
 
 
+def _android_internal_runtime_root() -> str:
+    internal_root = os.getenv("BAAS_ANDROID_INTERNAL_FILES_DIR", "").strip()
+    if not internal_root:
+        return ""
+    return os.path.join(internal_root, "ocr-runtime", TARGET_BRANCH)
 
 
+def _android_internal_binary_path() -> str:
+    runtime_root = _android_internal_runtime_root()
+    if not runtime_root:
+        return ""
+    return os.path.join(runtime_root, "lib", _android_library_abi_dir(), "libBAAS_ocr_server.so")
 
 
+def _android_internal_version_file() -> str:
+    runtime_root = _android_internal_runtime_root()
+    if not runtime_root:
+        return ""
+    return os.path.join(runtime_root, ".baas-ocr-prebuild-sha")
 
 
+def _read_android_installed_sha() -> str:
+    try:
+        with open(ANDROID_VERSION_FILE, "r", encoding="utf-8") as fp:
+            return fp.read().strip()
+    except OSError:
+        return ""
 
 
+def _read_android_internal_sha() -> str:
+    version_file = _android_internal_version_file()
+    if not version_file:
+        return ""
+    try:
+        with open(version_file, "r", encoding="utf-8") as fp:
+            return fp.read().strip()
+    except OSError:
+        return ""
 
 
+def _get_android_remote_sha(branch: str) -> Optional[str]:
+    try:
+        response = requests.get(OCR_SERVER_PREBUILD_API_URL.format(branch=branch), timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        sha = data.get("commit", {}).get("sha")
+        return str(sha) if sha else None
+    except Exception:
+        return None
 
 
+def _download_android_archive(branch: str, archive_path: str, logger=None) -> str:
+    last_error: Optional[Exception] = None
+    for template in OCR_SERVER_PREBUILD_ARCHIVE_URLS:
+        url = template.format(branch=branch)
+        try:
+            with requests.get(url, stream=True, timeout=(8, 90)) as response:
+                response.raise_for_status()
+                with open(archive_path, "wb") as fp:
+                    for chunk in response.iter_content(chunk_size=1024 * 256):
+                        if chunk:
+                            fp.write(chunk)
+            return url
+        except Exception as exc:
+            last_error = exc
+            if logger is not None:
+                logger.warning(f"Failed to download Android OCR prebuild from {url}: {exc}")
+    raise OcrInternalError(f"Failed to download Android OCR prebuild archive: {last_error}")
 
 
+def _find_android_archive_root(extract_root: str) -> str:
+    library_name = "libBAAS_ocr_server.so"
+    for current_root, _dirs, files in os.walk(extract_root):
+        if library_name in files and os.path.basename(current_root) == _android_library_abi_dir():
+            return os.path.dirname(os.path.dirname(current_root))
+    candidates = [
+        os.path.join(extract_root, name)
+        for name in os.listdir(extract_root)
+        if os.path.isdir(os.path.join(extract_root, name))
+    ]
+    if len(candidates) == 1:
+        return candidates[0]
+    raise OcrInternalError("Android OCR prebuild archive does not contain libBAAS_ocr_server.so")
 
 
+def _install_android_prebuild(logger) -> None:
+    if not TARGET_BRANCH.startswith("android-"):
+        raise OcrInternalError(f"Invalid Android OCR branch: {TARGET_BRANCH}")
+
+    remote_sha = _get_android_remote_sha(TARGET_BRANCH)
+    local_sha = _read_android_installed_sha()
+    server_binary_path = _server_binary_path()
+    internal_sha = _read_android_internal_sha()
+    internal_binary_path = _android_internal_binary_path()
+    if remote_sha and internal_sha == remote_sha and os.path.exists(internal_binary_path):
+        logger.info("Android Ocr Server runtime already available.")
+        return
+    if not remote_sha and internal_sha and os.path.exists(internal_binary_path):
+        logger.warning("Android OCR remote SHA unavailable; using internal runtime prebuild.")
+        return
+    if remote_sha and local_sha == remote_sha and os.path.exists(server_binary_path):
+        logger.info("Ocr Server No updates available.")
+        return
+    if not remote_sha and local_sha and os.path.exists(server_binary_path):
+        logger.warning("Android OCR remote SHA unavailable; using installed prebuild.")
+        return
+
+    logger.info(f"Installing Android Ocr Server prebuild for {TARGET_BRANCH}.")
+    with tempfile.TemporaryDirectory(prefix="baas-ocr-android-") as tmp:
+        archive_path = os.path.join(tmp, "ocr-prebuild.zip")
+        source_url = _download_android_archive(TARGET_BRANCH, archive_path, logger)
+        extract_root = os.path.join(tmp, "extract")
+        os.makedirs(extract_root, exist_ok=True)
+        with zipfile.ZipFile(archive_path) as archive:
+            archive.extractall(extract_root)
+        source_root = _find_android_archive_root(extract_root)
+        if os.path.exists(SERVER_BIN_DIR):
+            shutil.rmtree(SERVER_BIN_DIR, ignore_errors=True)
+        shutil.copytree(source_root, SERVER_BIN_DIR)
+
+    if os.path.exists(server_binary_path):
+        os.chmod(server_binary_path, os.stat(server_binary_path).st_mode | 0o755)
+    else:
+        raise OcrInternalError("Android OCR prebuild did not install libBAAS_ocr_server.so")
+
+    with open(ANDROID_VERSION_FILE, "w", encoding="utf-8") as fp:
+        fp.write(remote_sha or source_url)
+    logger.info("Ocr Server Install success.")
 
 
 class OcrRepoManager:
@@ -239,6 +388,9 @@ class OcrRepoManager:
 
 def should_skip_installer_managed_update() -> bool:
     """Return whether a valid C++ installer handoff marker owns desktop OCR updates."""
+    if _is_android_runtime():
+        return False
+
     marker_path = os.path.join(SERVER_BIN_DIR, ".baas-installer-managed.json")
     try:
         with open(marker_path, encoding="utf-8") as marker_file:
@@ -267,6 +419,10 @@ def check_git(logger):
     """
     Main entry point to check and update the OCR Server repo.
     """
+    if _is_android_runtime():
+        _install_android_prebuild(logger)
+        return
+
     if should_skip_installer_managed_update():
         logger.info("OCR server was verified by the BAAS installer; skipping legacy network update.")
         return
@@ -324,5 +480,9 @@ def clone_repo(logger):
     Wrapper for cloning the repo.
     """
     logger.info("Installing Ocr Server, please hang on...")
+    if _is_android_runtime():
+        _install_android_prebuild(logger)
+        return
+
     manager = OcrRepoManager(SERVER_BIN_DIR, OCR_SERVER_PREBUILD_URL, TARGET_BRANCH, logger)
     manager.clone()
