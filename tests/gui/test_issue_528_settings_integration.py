@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from core.config.default_config import DEFAULT_CONFIG, STATIC_DEFAULT_CONFIG, SWITCH_DEFAULT_CONFIG
 from gui.components import expand
 from gui.fragments.settings import SettingsFragment
@@ -91,3 +93,66 @@ def test_widgets_round_trip_values_through_real_config_set(
     assert saved["clear_friend_last_login_time_days"] == 14
     assert saved["clear_friend_last_total_assault_rank_limit"] == 100_000
     assert saved["clear_friend_white_list"] == ["ABC1234"]
+
+
+@pytest.mark.parametrize("save", [False, True])
+def test_issue_528_editors_follow_draft_save_and_cancel(
+    qapp, tmp_path, monkeypatch, save
+):
+    from core.config.config_set import ConfigSet
+    from gui.components.expand.finalRestrictionRls import Layout as FinalLayout
+    from gui.components.expand.friendWhiteList import Layout as FriendLayout
+    from gui.util.config_draft import ConfigDraft
+
+    account_root = tmp_path / "config" / "test"
+    account_root.mkdir(parents=True)
+    (account_root.parent / "static.json").write_text(
+        STATIC_DEFAULT_CONFIG, encoding="utf-8"
+    )
+    config_path = account_root / "config.json"
+    config_path.write_text(DEFAULT_CONFIG, encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(ConfigSet, "static_config", None)
+    live = ConfigSet("test")
+    draft = ConfigDraft(live)
+    final = FinalLayout(config=draft)
+    friend = FriendLayout(config=draft)
+
+    final.formation_method_combo._onItemClicked(1)
+    final.max_unavailable_spin.setValue(4)
+    final.max_refresh_spin.setValue(25)
+    friend.level_limit_spin.setValue(80)
+    friend.last_login_days_spin.setValue(14)
+    friend.total_assault_rank_spin.setValue(100_000)
+    friend.to_add_input.setText("abc1234")
+    friend.to_add_input.editingFinished.emit()
+
+    assert friend.table_view.rowCount() == 1
+    assert draft.get("clear_friend_white_list") == ["abc1234"]
+    assert json.loads(config_path.read_text(encoding="utf-8")) == json.loads(
+        DEFAULT_CONFIG
+    )
+
+    if save:
+        draft.commit()
+    else:
+        draft.rollback()
+
+    saved = json.loads(config_path.read_text(encoding="utf-8"))
+    assert saved["clear_friend_white_list"] == (["abc1234"] if save else [])
+    assert saved["clear_friend_level_limit"] == (80 if save else -1)
+    assert saved["clear_friend_last_login_time_days"] == (14 if save else -1)
+    assert saved["clear_friend_last_total_assault_rank_limit"] == (
+        100_000 if save else -1
+    )
+    assert saved["final_restriction_rls_employ_formation_method"] == (
+        "copy_clear_unit" if save else "default"
+    )
+    assert saved[
+        "final_restriction_rls_employ_formation_"
+        "copy_clear_unit_max_unavailable_student_count"
+    ] == (4 if save else 0)
+    assert saved[
+        "final_restriction_rls_employ_formation_"
+        "copy_clear_unit_max_refresh_count"
+    ] == (25 if save else 10)
