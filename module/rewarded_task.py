@@ -5,9 +5,10 @@ from module.clear_special_task_power import get_task_count
 from core.utils import purchase_ticket_times_to_int
 
 def implement(self):
-    count = get_task_count(self, "rewarded_task", 3)
-    if not count:
+    count = get_task_count(self, "rewarded_task", 0)
+    if count is False:
         return True
+    count = count + [0] * max(0, 3 - len(count))
 
     self.to_main_page()
     buy_ticket_times = purchase_ticket_times_to_int(self.config.purchase_rewarded_task_ticket_times, 12)
@@ -15,11 +16,12 @@ def implement(self):
         to_choose_bounty(self)
         purchase_bounty_ticket(self, buy_ticket_times)
 
-    bounty_name = ["OVERPASS", "DESSERT RAILWAY", "CLASSROOM"]
-    self.rewarded_task_status = [False, False, False]
+    bounty_name = ["OVERPASS", "DESSERT RAILWAY", "CLASSROOM", "ROAD", "MANSION"]
+    bounty_count = min(len(count), len(BOUNTY_LOCATION_Y[self.server]) - 1)
+    self.rewarded_task_status = [False] * bounty_count
     just_do_task = False
 
-    for i in range(0, 3):
+    for i in range(bounty_count):
         if just_do_task:
             to_choose_bounty(self)
         if count[i] == "max" or count[i] > 0:
@@ -151,8 +153,14 @@ BOUNTY_BUTTON_Y = {
     "JP": 378
 }
 
+BOUNTY_LOCATION_Y = {
+    "CN": [0, 206, 309, 418],
+    "Global": [0, 206, 309, 418],
+    "JP": [0, 212, 335, 457, 580, 670]
+}
+
 def to_bounty(self, num, skip_first_screenshot=False):
-    bounty_location_y = [0, 206, 309, 418]
+    bounty_location_y = BOUNTY_LOCATION_Y[self.server]
     img_ends = "rewarded_task_level-list"
     img_possibles = {
         "main_page_bus": (731, BOUNTY_BUTTON_Y[self.server]),
