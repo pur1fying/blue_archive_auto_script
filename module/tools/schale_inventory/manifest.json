@@ -1,0 +1,18 @@
+{
+  "id": "schale_inventory",
+  "name": "库存管理计算器",
+  "version": "0.1.0",
+  "summary": "沙勒总决算库存管理概率计算器",
+  "icon": "APPLICATION",
+  "category": "general",
+  "order": 30,
+  "kind": "local",
+  "entry": "module.tools.schale_inventory.tool:SchaleInventoryTool",
+  "ui": "module.tools.schale_inventory.ui:Layout",
+  "permissions": [],
+  "scheduler": null,
+  "config_prefix": "tool_schale_inventory_",
+  "enabled_by_default": true,
+  "show_in_lobby": true,
+  "home_hooks": []
+}
