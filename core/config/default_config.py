@@ -3560,7 +3560,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "iveAlive",
-        "Global": "AFlowerBloomsAmongtheHundred",
+        "Global": "TheCalmAftertheStorm",
         "JP": "HighlanderRailroadExplosionIncident"
     },
     "dailyGameActivity": {
