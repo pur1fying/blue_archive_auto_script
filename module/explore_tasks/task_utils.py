@@ -449,7 +449,7 @@ def employ_units(self, choose_team_method: str, task_data: dict, team_config: di
     for command, info in task_data["start"]:
         if command == "swipe":
             time.sleep(1)
-            self.u2_swipe(info[0], info[1], info[2], info[3], duration=info[4], post_sleep_time=1)
+            self.swipe(info[0], info[1], info[2], info[3], duration=info[4], post_sleep_time=1)
         else:
             # employ command
             column = employ_pos[employed][0]
