@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import subprocess
+import pytest
 
 from deploy.installer.const import GetShaMethod
 from service.update import checks
 
 
-def test_remote_sha_uses_temporary_bare_repo_without_git(monkeypatch, tmp_path):
+def test_remote_sha_uses_temporary_bare_repo(monkeypatch, tmp_path):
     created = {}
 
     class FakeRemote:
-        def ls_remotes(self):
+        def ls_remotes(self, **kwargs):
             return [
                 {"name": "refs/heads/other", "oid": "0" * 40},
                 {"name": "refs/heads/master", "oid": "1" * 40},
@@ -24,6 +24,9 @@ def test_remote_sha_uses_temporary_bare_repo_without_git(monkeypatch, tmp_path):
     class FakeRepo:
         remotes = FakeRemotes()
 
+        def free(self):
+            created["freed"] = True
+
     def fake_repository(_path):
         raise AssertionError("remote SHA probing must not require cwd to be a git repository")
 
@@ -32,7 +35,6 @@ def test_remote_sha_uses_temporary_bare_repo_without_git(monkeypatch, tmp_path):
         created["bare"] = bare
         return FakeRepo()
 
-    monkeypatch.setattr(checks.shutil, "which", lambda _name: None)
     monkeypatch.setattr(checks.pygit2, "Repository", fake_repository)
     monkeypatch.setattr(checks.pygit2, "init_repository", fake_init_repository)
 
@@ -42,6 +44,7 @@ def test_remote_sha_uses_temporary_bare_repo_without_git(monkeypatch, tmp_path):
     assert sha == "1" * 40
     assert created["url"] == "https://example.invalid/repo.git"
     assert created["bare"] is True
+    assert created["freed"] is True
 
 
 def test_android_repo_sha_uses_archive_probe_for_baas_cdn(monkeypatch):
@@ -146,29 +149,18 @@ def test_repo_sha_marks_failed_source_with_disabled_order(monkeypatch):
     assert result["order"] == -1
 
 
-def test_remote_sha_auth_failure_does_not_fallback_to_pygit2(monkeypatch, tmp_path):
-    def fake_run_git_cmd(_self, _args, timeout=None):
-        raise subprocess.CalledProcessError(
-            returncode=128,
-            cmd="git ls-remote",
-            stderr="fatal: could not read Username for 'https://gitee.com': terminal prompts disabled",
-        )
+def test_remote_sha_auth_failure_is_reported_without_retry(monkeypatch, tmp_path):
+    calls = []
 
-    def fail_init_repository(*_args, **_kwargs):
-        raise AssertionError("credential failures should be final for this source")
+    def fail_remote_sha(*args, **kwargs):
+        calls.append(args)
+        raise checks.pygit2.GitError("Git authentication failed: interactive prompts disabled")
 
-    monkeypatch.setattr(checks.shutil, "which", lambda _name: "git")
-    monkeypatch.setattr(checks.GitOperationHandler, "_run_git_cmd", fake_run_git_cmd)
-    monkeypatch.setattr(checks.pygit2, "init_repository", fail_init_repository)
-
+    monkeypatch.setattr(checks, "remote_branch_sha", fail_remote_sha)
     handler = checks.GitOperationHandler(tmp_path)
-
-    try:
+    with pytest.raises(ValueError, match="authentication failed"):
         handler.get_remote_latest_sha("https://gitee.com/kiramei/baas-dev.git", "master")
-    except ValueError as exc:
-        assert "authentication failed" in str(exc).lower()
-    else:
-        raise AssertionError("credential failure should be reported")
+    assert len(calls) == 1
 
 
 def test_check_for_update_switches_failed_saved_sha_method(monkeypatch, tmp_path):

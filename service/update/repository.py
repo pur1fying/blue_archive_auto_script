@@ -5,41 +5,21 @@ import logging
 import os
 import shutil
 import stat
-import subprocess
 import sys
 import tempfile
 import time
 import zipfile
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import pygit2
 import requests
-import tomli_w
-from pygit2.enums import ResetMode
-
-# Per-command Git options keep background update checks from invoking GUI
-# credential helpers such as Git Credential Manager.
-NONINTERACTIVE_GIT_CONFIG = [
-    "-c", "credential.helper=",
-    "-c", "credential.interactive=never",
-    "-c", "core.askPass=echo",
-    "-c", "core.sshCommand=ssh -o BatchMode=yes",
-]
-
-
-def noninteractive_git_env(base_env: Optional[Dict[str, str]] = None) -> Dict[str, str]:
-    """Return a Git environment that fails fast instead of opening credential prompts."""
-    env = (base_env or os.environ).copy()
-    env["GIT_TERMINAL_PROMPT"] = "0"
-    env["GCM_INTERACTIVE"] = "never"
-    env["GCM_MODAL_PROMPT"] = "0"
-    env["GIT_ASKPASS"] = "echo"
-    env["SSH_ASKPASS"] = "echo"
-    return env
 
 # External dependencies (assumed to exist based on context)
+from deploy.installer.git_backend import (
+    clone_repository, ensure_origin, fetch_and_reset_branch, install_staged_repository, remote_branch_sha,
+)
 from deploy.installer.const import (
     GetShaMethod,
     REPO_BRANCH,
@@ -49,6 +29,7 @@ from deploy.installer.const import (
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 from deploy.installer.toml_config import DEFAULT_SETTINGS
 from service.update.setup_schema import legacy_runtime_view, migrate_to_current_schema, setup_channel
+from service.update.setup_io import write_setup_toml
 
 
 # ==============================================================================
@@ -129,214 +110,70 @@ class FileSystemUtils:
             os.remove(".pid")
 
 # ==============================================================================
-# 2. Git Operation Handler (System Git > Pygit2)
+# 2. Git Operation Handler (pygit2)
 # ==============================================================================
 
 class GitOperationHandler:
-    """
-    Encapsulates all Git operations.
-
-    Priority Rule:
-    1. System Git (subprocess): Used for Read/Write/Update if available.
-    2. Pygit2: Used as fallback if System Git is missing.
-    """
+    """Encapsulates repository operations using the shared pygit2 backend."""
 
     def __init__(self, repo_path: Path):
-        self.repo_path = repo_path
-        self.git_executable = shutil.which("git")
-        self.git_dir = repo_path / ".git"
-
-    def _run_git_cmd(self, args: List[str], cwd: Optional[Path] = None) -> str:
-        """
-        Helper to execute system git commands.
-        """
-        if not self.git_executable:
-            raise RuntimeError("System git executable not found.")
-
-        target_cwd = cwd or self.repo_path
-        if not target_cwd.exists():
-            raise FileNotFoundError(f"Directory {target_cwd} does not exist.")
-
-        env = noninteractive_git_env()
-
-        try:
-            result = subprocess.run(
-                [self.git_executable, *NONINTERACTIVE_GIT_CONFIG, *args],
-                cwd=target_cwd,
-                capture_output=True,
-                text=True,
-                check=True,
-                env=env
-            )
-            return result.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            # Pass the stderr up for debugging
-            raise RuntimeError(f"Git command failed: {' '.join(args)}\nStderr: {e.stderr.strip()}")
+        self.repo_path = Path(repo_path)
+        self.git_dir = self.repo_path / ".git"
 
     def is_valid_repo(self) -> bool:
-        """Check if the directory is a valid git repository."""
         if not self.git_dir.exists():
             return False
         try:
-            if self.git_executable:
-                self._run_git_cmd(["rev-parse", "--is-inside-work-tree"])
-                return True
-            else:
-                pygit2.Repository(str(self.repo_path))
-                return True
+            repo = pygit2.Repository(str(self.repo_path))
+            repo.free()
+            return True
         except Exception:
             return False
 
     def get_local_head_sha(self) -> str:
-        """Retrieve the current HEAD SHA."""
-        if self.git_executable:
-            try:
-                return self._run_git_cmd(["rev-parse", "HEAD"])
-            except Exception as e:
-                logging.warning(f"[System Git] Failed to get local SHA: {e}")
-
-        # Fallback
         repo = pygit2.Repository(str(self.repo_path))
-        return str(repo.head.target)
+        try:
+            return str(repo.head.target)
+        finally:
+            repo.free()
 
     def get_remote_head_sha(self, url: str, branch: str) -> Optional[str]:
-        """
-        Retrieve the latest SHA from the remote.
-        Uses ls-remote.
-        """
-        if self.git_executable:
-            try:
-                ref = f"refs/heads/{branch}"
-                output = self._run_git_cmd(["ls-remote", url, ref], cwd=Path.cwd())  # generic cwd
-                if output:
-                    return output.split()[0]
-            except Exception as e:
-                logging.warning(f"[System Git] Failed to ls-remote: {e}")
-
-        # Fallback
         try:
-            # Use a temporary bare repo context to avoid locking/config issues
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                repo = pygit2.init_repository(tmp_dir, bare=True)
-                remote = repo.remotes.create_anonymous(url)
-                target_ref = f"refs/heads/{branch}"
-                for head in remote.ls_remotes():
-                    if head.get("name") == target_ref:
-                        return str(head.get("oid"))
-        except Exception as e:
-            logging.error(f"[PyGit2] Failed to get remote SHA: {e}")
-
-        return None
+            return remote_branch_sha(url, branch)
+        except Exception as exc:
+            logging.error(f"[PyGit2] Failed to get remote SHA: {exc}")
+            return None
 
     def clone(self, url: str) -> None:
-        """Clones the repository."""
-        if self.repo_path.exists() and any(self.repo_path.iterdir()):
-            logging.warning(f"Directory {self.repo_path} is not empty. Cleaning up...")
-            shutil.rmtree(self.repo_path, onerror=FileSystemUtils.on_rm_error)
-
         self.repo_path.mkdir(parents=True, exist_ok=True)
-
-        if self.git_executable:
-            logging.info("Cloning with System Git...")
-            self._run_git_cmd(["clone", url, "."], cwd=self.repo_path)
-        else:
-            logging.info("Cloning with PyGit2...")
-            pygit2.clone_repository(url, str(self.repo_path))
+        logging.info("Cloning with PyGit2...")
+        with tempfile.TemporaryDirectory(prefix="baas-clone-", dir=self.repo_path) as temp_dir:
+            staged_path = Path(temp_dir) / "repo"
+            repo = clone_repository(url, staged_path)
+            repo.free()
+            install_staged_repository(staged_path, self.repo_path)
 
     def ensure_remote_url(self, target_url: str) -> None:
-        """
-        Ensures the 'origin' remote matches the target URL.
-        If not, it updates the remote.
-        """
-        if self.git_executable:
-            try:
-                current_url = self._run_git_cmd(["remote", "get-url", "origin"])
-                if current_url.strip() != target_url:
-                    logging.info(f"Switching remote URL: {current_url} -> {target_url}")
-                    self._run_git_cmd(["remote", "set-url", "origin", target_url])
-                return
-            except Exception as e:
-                logging.warning(f"[System Git] Failed to check remote URL: {e}")
-
-        # Fallback / Pygit2 logic
+        repo = pygit2.Repository(str(self.repo_path))
         try:
-            repo = pygit2.Repository(str(self.repo_path))
-            origin = repo.remotes["origin"]
-            if origin.url != target_url:
-                logging.info(f"Switching remote URL (PyGit2): {origin.url} -> {target_url}")
-                repo.remotes.delete("origin")
-                repo.remotes.create("origin", target_url)
-                # Note: Upstream branch tracking fixup is complex in pygit2,
-                # usually a fetch + checkout handles it in the next step.
-        except Exception as e:
-            logging.error(f"Failed to switch remote URL: {e}")
+            ensure_origin(repo, target_url)
+        finally:
+            repo.free()
 
     def fetch_and_reset(self, branch: str) -> None:
-        """
-        Performs a fetch and hard reset to the remote branch.
-        """
         logging.info("Pulling updates from remote...")
-
-        if self.git_executable:
-            try:
-                self._run_git_cmd(["fetch", "origin"])
-                self._run_git_cmd(["reset", "--hard", f"origin/{branch}"])
-                self._run_git_cmd(["checkout", branch])
-                return
-            except Exception as e:
-                logging.error(f"[System Git] Update failed: {e}")
-                # Fall through to fallback
-
-        # Fallback / Pygit2
+        repo = pygit2.Repository(str(self.repo_path))
         try:
-            repo = pygit2.Repository(str(self.repo_path))
-            origin = repo.remotes["origin"]
-
-            # Simple progress callback
-            class Progress(pygit2.callbacks.RemoteCallbacks):
-                def transfer_progress(self, stats):
-                    pass  # Keep log clean or add logging if needed
-
-            origin.fetch(callbacks=Progress())
-
-            remote_ref_name = f"refs/remotes/origin/{branch}"
-            remote_commit_oid = repo.lookup_reference(remote_ref_name).target
-
-            repo.reset(remote_commit_oid, ResetMode.HARD)
-            repo.checkout(f"refs/heads/{branch}")
-        except Exception as e:
-            raise RuntimeError(f"PyGit2 Update failed: {e}")
+            fetch_and_reset_branch(repo, branch)
+        except Exception as exc:
+            raise RuntimeError(f"PyGit2 update failed: {exc}") from exc
+        finally:
+            repo.free()
 
     def repair_repo(self, url: str) -> None:
-        """
-        Destructive repair: Deletes .git and re-clones into a temp folder, then moves files back.
-        """
+        """Repair metadata after a successful clone, preserving user data."""
         logging.warning("Attempting to repair invalid/corrupted Git repo...")
-
-        # 1. Clean existing .git
-        if self.git_dir.exists():
-            shutil.rmtree(self.git_dir, onerror=FileSystemUtils.on_rm_error)
-
-        # 2. Clone to temp
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            temp_repo_path = Path(tmp_dir) / "temp_clone"
-            temp_repo_path.mkdir()
-
-            # Use self.clone logic (supports system git)
-            temp_handler = GitOperationHandler(temp_repo_path)
-            temp_handler.clone(url)
-
-            # 3. Move files
-            logging.info("Restoring repository files...")
-            for item in temp_repo_path.iterdir():
-                dst = self.repo_path / item.name
-                if dst.exists():
-                    if dst.is_dir():
-                        shutil.rmtree(dst, onerror=FileSystemUtils.on_rm_error)
-                    else:
-                        dst.unlink()
-                shutil.move(str(item), str(dst))
-
+        self.clone(url)
         logging.info("Git repository successfully repaired.")
 
 
@@ -399,8 +236,7 @@ class UpdateManager:
             ref = ref.setdefault(k, {})
         ref[keys[-1]] = value
 
-        with open(self.config_path, "wb") as f:
-            tomli_w.dump(current_data, f)
+        write_setup_toml(current_data, self.config_path)
 
     def determine_update_status(self) -> None:
         """

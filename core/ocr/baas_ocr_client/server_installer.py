@@ -3,16 +3,16 @@ import io
 import shutil
 import os
 import platform
-import subprocess
 import time
 import tempfile
 import zipfile
-from typing import Dict, Optional
+from typing import Optional
 
 import pygit2
 import requests
-from pygit2 import Commit
-from pygit2.enums import ResetMode
+from deploy.installer.git_backend import (
+    clone_repository, ensure_origin, fetch_and_reset_branch, install_staged_repository, remote_branch_sha,
+)
 
 # ================================
 # Check stdio before Git libraries touch it; packaged window builds may leave
@@ -72,25 +72,6 @@ SERVER_BIN_DIR = os.path.join(SERVER_INSTALLER_DIR_PATH, "bin-android", TARGET_B
     "android-"
 ) else os.path.join(SERVER_INSTALLER_DIR_PATH, "bin")
 ANDROID_VERSION_FILE = os.path.join(SERVER_BIN_DIR, ".baas-ocr-prebuild-sha")
-
-NONINTERACTIVE_GIT_CONFIG = [
-    "-c", "credential.helper=",
-    "-c", "credential.interactive=never",
-    "-c", "core.askPass=echo",
-    "-c", "core.sshCommand=ssh -o BatchMode=yes",
-]
-
-
-def noninteractive_git_env(base_env: Optional[Dict[str, str]] = None) -> Dict[str, str]:
-    """Return a Git environment that prevents GUI credential prompts."""
-    env = (base_env or os.environ).copy()
-    env["GIT_TERMINAL_PROMPT"] = "0"
-    env["GCM_INTERACTIVE"] = "never"
-    env["GCM_MODAL_PROMPT"] = "0"
-    env["GIT_ASKPASS"] = "echo"
-    env["SSH_ASKPASS"] = "echo"
-    return env
-
 
 def _is_android_runtime() -> bool:
     return os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}
@@ -241,147 +222,64 @@ def _install_android_prebuild(logger) -> None:
 
 
 class OcrRepoManager:
-    """
-    Manages the OCR Server git repository.
-    Priority: System 'git' > pygit2 (except for rollback).
-    """
+    """Manage the OCR prebuild repository exclusively through pygit2."""
 
     def __init__(self, repo_path: str, remote_url: str, branch: str, logger):
         self.repo_path = repo_path
         self.remote_url = remote_url
         self.branch = branch
         self.logger = logger
-        self.git_executable = shutil.which("git")
         self.git_dir = os.path.join(repo_path, ".git")
 
-    def _run_git_cmd(self, args: list, cwd: Optional[str] = None) -> str:
-        """Executes a system git command."""
-        if not self.git_executable:
-            raise FileNotFoundError("System git not found")
-
-        target_cwd = cwd if cwd else self.repo_path
-
-        # Ensure directory exists before running command if not cloning
-        if cwd is None and not os.path.exists(target_cwd):
-            raise FileNotFoundError(f"Repo directory {target_cwd} does not exist")
-
-        proc = subprocess.run(
-            [self.git_executable, *NONINTERACTIVE_GIT_CONFIG, *args],
-            cwd=target_cwd,
-            capture_output=True,
-            text=True,
-            check=True,
-            env=noninteractive_git_env(),
-        )
-        return proc.stdout.strip()
-
     def get_local_sha(self) -> str:
-        """Returns the SHA of the current local HEAD."""
-        if self.git_executable:
-            try:
-                return self._run_git_cmd(["rev-parse", "HEAD"])
-            except subprocess.CalledProcessError:
-                self.logger.warning("System git failed to get local SHA, falling back to pygit2.")
-
-        # Fallback to pygit2
         repo = pygit2.Repository(self.repo_path)
-        return str(repo.head.target)
+        try:
+            return str(repo.head.target)
+        finally:
+            repo.free()
 
     def get_remote_sha(self) -> Optional[str]:
-        """Returns the SHA of the target branch on the remote."""
-        if self.git_executable:
-            try:
-                # git ls-remote <url> refs/heads/<branch>
-                # Output: <SHA>\trefs/heads/<branch>
-                ref = f"refs/heads/{self.branch}"
-                output = self._run_git_cmd(["ls-remote", self.remote_url, ref], cwd=os.getcwd())
-                if output:
-                    return output.split()[0]
-            except Exception as e:
-                self.logger.warning(f"System git failed to get remote SHA: {e}")
-
-        # Fallback to pygit2
         try:
-            with tempfile.TemporaryDirectory() as tmp:
-                repo = pygit2.init_repository(tmp, bare=True)
-                remote = repo.remotes.create_anonymous(self.remote_url)
-                target_ref_name = f"refs/heads/{self.branch}"
-                for head in remote.ls_remotes():
-                    if head.get("name") == target_ref_name:
-                        return str(head.get("oid"))
-        except Exception as e:
-            self.logger.error(f"pygit2 failed to get remote info: {e}")
+            return remote_branch_sha(self.remote_url, self.branch)
+        except Exception as exc:
+            self.logger.error(f"pygit2 failed to get remote info: {exc}")
             return None
-        return None
 
     def clone(self) -> None:
-        """Clones the repository."""
-        if os.path.exists(self.repo_path):
-            self.logger.warning("Target directory not empty, removing old files...")
-            shutil.rmtree(self.repo_path, ignore_errors=True)
-
-        for i in range(1, 4):
+        for attempt in range(1, 4):
             try:
-                if self.git_executable:
-                    self.logger.info(f"Cloning with system git (Attempt {i})...")
-                    # git clone -b <branch> <url> <path>
-                    self._run_git_cmd(
-                        ["clone", "-b", self.branch, self.remote_url, self.repo_path],
-                        cwd=os.path.dirname(self.repo_path)
-                    )
-                else:
-                    self.logger.info(f"Cloning with pygit2 (Attempt {i})...")
-                    pygit2.clone_repository(
-                        self.remote_url,
-                        self.repo_path,
-                        checkout_branch=self.branch,
-                    )
+                parent = os.path.dirname(os.path.abspath(self.repo_path))
+                os.makedirs(parent, exist_ok=True)
+                self.logger.info(f"Cloning with pygit2 (Attempt {attempt})...")
+                # Stage each attempt separately: a network failure must not
+                # delete the working binary or untracked user configuration.
+                with tempfile.TemporaryDirectory(prefix="baas-ocr-clone-", dir=parent) as temp_dir:
+                    staged_path = os.path.join(temp_dir, "repo")
+                    repo = clone_repository(self.remote_url, staged_path, branch=self.branch)
+                    repo.free()
+                    install_staged_repository(staged_path, self.repo_path)
                 self.logger.info("Ocr Server Install success.")
                 return
-            except Exception as e:
-                self.logger.error(f"Failed to clone (Attempt {i}): {e}")
-                if i == 3:
-                    raise OcrInternalError("Failed to install the BAAS_ocr_server. Please check your network")
+            except Exception as exc:
+                self.logger.error(f"Failed to clone (Attempt {attempt}): {exc}")
+                if attempt == 3:
+                    raise OcrInternalError("Failed to install the BAAS_ocr_server. Please check your network") from exc
                 time.sleep(1)
 
     def update(self) -> None:
-        """Updates the repository to the latest remote state."""
         self.logger.info("Pulling updates from the remote repository...")
-
-        if self.git_executable:
-            try:
-                # 1. Fetch
-                self._run_git_cmd(["fetch", "origin", self.branch])
-                # 2. Reset --hard
-                # We use FETCH_HEAD to ensure we are at the exact state we just fetched
-                self._run_git_cmd(["reset", "--hard", "FETCH_HEAD"])
-                self.logger.info("Ocr Server Update success (System Git).")
-                return
-            except Exception as e:
-                self.logger.error(f"System git update failed: {e}. Falling back to pygit2.")
-
-        # Fallback to pygit2
+        repo = None
         try:
             repo = pygit2.Repository(self.repo_path)
-            # Ensure remote exists
-            remote = repo.remotes["origin"] if "origin" in repo.remotes.names() else repo.remotes.create("origin",
-                                                                                                         self.remote_url)
-
-            refspec = f"refs/heads/{self.branch}:refs/remotes/origin/{self.branch}"
-            remote.fetch(refspecs=[refspec])
-
-            remote_ref = f"refs/remotes/origin/{self.branch}"
-            remote_commit = repo.revparse_single(remote_ref)
-
-            if not isinstance(remote_commit, Commit):
-                remote_commit = repo[remote_commit.target]
-
-            repo.reset(remote_commit.id, ResetMode.HARD)
-            repo.checkout_tree(remote_commit.tree)
+            ensure_origin(repo, self.remote_url)
+            fetch_and_reset_branch(repo, self.branch)
             self.logger.info("Ocr Server Update success (pygit2).")
-        except Exception as e:
+        except Exception as exc:
             self.logger.error("Failed to update the BAAS_ocr_server.")
-            raise OcrInternalError(f"Update failed: {e}")
+            raise OcrInternalError(f"Update failed: {exc}") from exc
+        finally:
+            if repo is not None:
+                repo.free()
 
 
 def check_git(logger):
@@ -428,7 +326,7 @@ def check_git(logger):
         logger.info("Ocr Server No updates available.")
         return
 
-    # Perform update (System git preferred, pygit2 fallback)
+    # Perform update using the same pygit2 backend as installation.
     manager.update()
 
     # Verify update

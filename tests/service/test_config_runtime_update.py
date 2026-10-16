@@ -166,6 +166,7 @@ def test_runtime_remote_connection_skips_package_detection(monkeypatch):
     fake_adbutils.AdbError = RuntimeError
     fake_adbutils.AdbTimeout = TimeoutError
     fake_adbutils.ForwardItem = object
+    fake_adbutils.adb_path = lambda: "adb"
     fake_errors = types.ModuleType("adbutils.errors")
     fake_errors.AdbError = RuntimeError
     fake_errors.AdbTimeout = TimeoutError

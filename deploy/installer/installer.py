@@ -41,10 +41,9 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Optional, List, Any, Union
+from typing import Optional, Any, Union
 
 import psutil
-import pygit2
 import requests
 import tomli_w
 import threading
@@ -53,13 +52,15 @@ from easydict import EasyDict as eDict
 from halo import Halo
 from loguru import logger
 from pygit2 import Repository
-from pygit2.enums import ResetMode
-from pygit2.callbacks import RemoteCallbacks
 
 # Internal imports
 from toml_config import TOML_Config, DEFAULT_SETTINGS
 from mirrorc_update.mirrorc_updater import MirrorC_Updater
 from const import GetShaMethod, get_remote_sha_methods, REPO_BRANCH
+from git_backend import (
+    NonInteractiveCallbacks, clone_repository, ensure_origin,
+    fetch_and_reset_branch, install_staged_repository, remote_branch_sha, rollback_repository,
+)
 
 # ==================== Global Constants & System Checks ====================
 
@@ -73,24 +74,6 @@ if __system__ == "Windows":
     __env__["PYTHONPATH"] = '.env;.venv/Lib;.venv/Scripts;.venv;.;.venv/Lib/site-packages'
 
 os.environ["PDM_IGNORE_ACTIVE_VENV"] = "1"
-
-NONINTERACTIVE_GIT_CONFIG = [
-    "-c", "credential.helper=",
-    "-c", "credential.interactive=never",
-    "-c", "core.askPass=echo",
-    "-c", "core.sshCommand=ssh -o BatchMode=yes",
-]
-
-
-def noninteractive_git_env(base_env: Optional[dict] = None) -> dict:
-    """Return a Git environment that prevents GUI credential prompts."""
-    env = (base_env or os.environ).copy()
-    env["GIT_TERMINAL_PROMPT"] = "0"
-    env["GCM_INTERACTIVE"] = "never"
-    env["GCM_MODAL_PROMPT"] = "0"
-    env["GIT_ASKPASS"] = "echo"
-    env["SSH_ASKPASS"] = "echo"
-    return env
 
 # ==================== Logging Configuration ====================
 
@@ -295,71 +278,32 @@ class FileSystemUtils:
 
 
 class GitOperationHandler:
-    """
-    Handles Git operations with a priority strategy:
-    1. System Git (subprocess) - Preferred for speed and robustness.
-    2. PyGit2 - Fallback if System Git is missing.
-    3. PyGit2 (Strict) - Mandatory for rollback operations.
-    """
+    """Handles all installer Git operations through pygit2."""
 
     def __init__(self, repo_path: Path, remote_url: str):
         self.repo_path = repo_path
         self.remote_url = remote_url
-        self.git_executable = shutil.which("git")
         self.git_dir = repo_path / ".git"
         self.printer = DotPrinter(interval=0.5)
-
-    def _run_git_cmd(self, args: List[str], cwd: Optional[Path] = None) -> str:
-        """Executes a system git command."""
-        if not self.git_executable:
-            raise RuntimeError("System git not found.")
-
-        target_cwd = cwd or self.repo_path
-        if not target_cwd.exists():
-            raise FileNotFoundError(f"Target directory {target_cwd} does not exist.")
-
-        env = noninteractive_git_env(__env__)
-
-        printer = DotPrinter(interval=0.5)
-        printer.start()
-        try:
-            result = subprocess.run(
-                [self.git_executable, *NONINTERACTIVE_GIT_CONFIG, *args],
-                cwd=target_cwd,
-                capture_output=True,
-                text=True,
-                check=True,
-                env=env
-            )
-            return result.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Git command failed: {e.stderr}")
-        finally:
-            printer.stop()
 
     def is_valid_repo(self) -> bool:
         """Checks if the directory is a valid git repository."""
         if not self.git_dir.exists():
             return False
         try:
-            if self.git_executable:
-                self._run_git_cmd(["rev-parse", "--is-inside-work-tree"])
-            else:
-                Repository(str(self.repo_path))
+            repo = Repository(str(self.repo_path))
+            repo.free()
             return True
         except Exception:
             return False
 
     def get_local_sha(self) -> str:
         """Gets the current HEAD SHA."""
-        if self.git_executable:
-            try:
-                return self._run_git_cmd(["rev-parse", "HEAD"])
-            except Exception:
-                pass
-
         repo = Repository(str(self.repo_path))
-        return str(repo.head.target)
+        try:
+            return str(repo.head.target)
+        finally:
+            repo.free()
 
     def get_remote_sha(self, cfg, mirrorc):
         logger.info("<<< Get Remote SHA >>>")
@@ -392,7 +336,7 @@ class GitOperationHandler:
         if method["method"] == GetShaMethod.GITHUB_API:
             return self.github_api_get_latest_sha(method)
         elif method["method"] == GetShaMethod.PYGIT2:
-            return self.git_get_remote_sha()
+            return self.git_get_remote_sha(method["branch"], url=method["url"])
         elif method["method"] == GetShaMethod.MIRRORC_API:
             return self.mirrorc_api_get_latest_sha(mirrorc)
         else:
@@ -423,34 +367,15 @@ class GitOperationHandler:
             if latest_mirrorc_return.has_data:
                 return latest_mirrorc_return.latest_version_name
             else:
-                logger.error(
-                    f"[MirrorC Api] get SHA error: code={latest_mirrorc_return.code}; cdk=**"
-                )
+                logger.error(f"[MirrorC Api] get SHA error: {latest_mirrorc_return.message}")
         except Exception as e:
-            logger.error(f"[MirrorC Api] get SHA error: {type(e).__name__}; cdk=**")
+            logger.error(f"[MirrorC Api] get SHA error: {e}")
             return None
 
-    def git_get_remote_sha(self, branch: str = REPO_BRANCH) -> Optional[str]:
-        """Gets the latest SHA from the remote using ls-remote."""
-        # 1. Try System Git
-        if self.git_executable:
-            try:
-                ref = f"refs/heads/{branch}"
-                out = self._run_git_cmd(["ls-remote", self.remote_url, ref], cwd=Path.cwd())
-                if out:
-                    return out.split()[0]
-            except Exception as e:
-                logger.warning(f"[System Git] ls-remote failed: {e}")
-
-        # 2. Fallback to PyGit2 (Anonymous)
+    def git_get_remote_sha(self, branch: str = REPO_BRANCH, *, url: Optional[str] = None) -> Optional[str]:
+        """Gets a branch SHA using the configured source through pygit2."""
         try:
-            with tempfile.TemporaryDirectory() as tmp:
-                repo = pygit2.init_repository(tmp, bare=True)
-                remote = repo.remotes.create_anonymous(self.remote_url)
-                target_ref = f"refs/heads/{branch}"
-                for head in remote.list_heads():
-                    if head.name == target_ref:
-                        return str(head.oid)
+            return remote_branch_sha(url or self.remote_url, branch)
         except Exception as e:
             logger.error(f"[PyGit2] ls-remote failed: {e}")
 
@@ -467,25 +392,17 @@ class GitOperationHandler:
         with tempfile.TemporaryDirectory(dir=self.repo_path) as temp_dir:
             temp_repo_path = Path(temp_dir)
 
-            if self.git_executable:
-                # Use System Git to clone into the temporary directory
-                self._run_git_cmd(["clone", "-b", branch, self.remote_url, "."], cwd=temp_repo_path)
-                logger.success("Clone successful (System Git).")
-            else:
-                # Use PyGit2 to clone into the temporary directory with progress
-                bar_ref = {"bar": None}
-                callbacks = BAASGitCallbacks(bar_ref)
-                pygit2.clone_repository(self.remote_url, str(temp_repo_path), checkout_branch=branch,
-                                        callbacks=callbacks)
-                callbacks.spinner.stop()
-                logger.success("Clone successful (PyGit2).")
+            callbacks = BAASGitCallbacks({"bar": None})
+            try:
+                repo = clone_repository(self.remote_url, temp_repo_path, branch=branch, callbacks=callbacks)
+                repo.free()  # Release Windows handles before moving .git.
+            finally:
+                callbacks.close()
+            logger.success("Clone successful (PyGit2).")
 
             gc.collect()
 
-            # Move the content from the temp directory to the actual target directory
-            for item in temp_repo_path.iterdir():
-                # Move each item from temp directory to the actual target directory
-                shutil.move(str(item), str(self.repo_path / item.name))
+            install_staged_repository(temp_repo_path, self.repo_path)
 
     def update(self, branch: str = REPO_BRANCH):
         """Updates the repository to the latest remote state."""
@@ -493,75 +410,31 @@ class GitOperationHandler:
 
         self.ensure_remote_url()
 
-        if self.git_executable:
-            try:
-                self._run_git_cmd(["fetch", "origin"])
-                self._run_git_cmd(["reset", "--hard", f"origin/{branch}"])
-                self._run_git_cmd(["checkout", branch])
-                logger.success("Update successful (System Git).")
-                gc.collect()
-                return
-            except Exception as e:
-                logger.error(f"System Git update failed: {e}. Falling back to PyGit2.")
-
-        # Fallback to PyGit2
+        repo = None
+        callbacks = BAASGitCallbacks({"bar": None})
         try:
             repo = Repository(str(self.repo_path))
-            remote = repo.remotes["origin"]
-            remote.fetch()
-            remote_master_ref = repo.lookup_reference(f"refs/remotes/origin/{branch}")
-            repo.reset(remote_master_ref.target, ResetMode.HARD)
-            repo.checkout(f"refs/heads/{branch}")
+            fetch_and_reset_branch(repo, branch, callbacks=callbacks)
             logger.success("Update successful (PyGit2).")
-            gc.collect()
         except Exception as e:
-            raise RuntimeError(f"Update failed: {e}")
+            raise RuntimeError(f"Update failed: {e}") from e
+        finally:
+            callbacks.close()
+            if repo is not None:
+                repo.free()
 
     def ensure_remote_url(self):
         """Ensures the remote 'origin' matches the configuration."""
-        target_url = self.remote_url
-        if self.git_executable:
-            try:
-                current = self._run_git_cmd(["remote", "get-url", "origin"])
-                if current.strip() != target_url:
-                    logger.info(f"Switching remote URL: {current} -> {target_url}")
-                    self._run_git_cmd(["remote", "set-url", "origin", target_url])
-                return
-            except Exception:
-                pass  # Fallback to pygit2 logic
-
+        repo = Repository(str(self.repo_path))
         try:
-            repo = Repository(str(self.repo_path))
-            origin = repo.remotes["origin"]
-            if origin.url != target_url:
-                logger.info(f"Switching remote URL (PyGit2) -> {target_url}")
-                repo.remotes.delete("origin")
-                repo.remotes.create("origin", target_url)
-                repo.remotes["origin"].fetch()
-        except Exception as e:
-            logger.warning(f"Failed to check/switch remote URL: {e}")
+            ensure_origin(repo, self.remote_url)
+        finally:
+            repo.free()
 
     def repair_repo(self):
-        """Destructive repair: Re-clones the repo."""
+        """Stage a replacement clone before replacing repository metadata."""
         logger.warning("Repository is corrupted. Initiating repair...")
-
-        # Use a temp directory for safe cloning
-        with tempfile.TemporaryDirectory(dir=self.repo_path) as tmp_dir:
-            temp_path = Path(tmp_dir) / "temp_repo"
-            temp_path.mkdir()
-
-            # Helper to clone into temp
-            temp_handler = GitOperationHandler(temp_path, self.remote_url)
-            temp_handler.clone()
-
-            # Clean original
-            if self.git_dir.exists():
-                shutil.rmtree(self.git_dir, onerror=FileSystemUtils.on_rm_error)
-
-            # Restore files
-            logger.info("Restoring files...")
-            FileSystemUtils.copy_directory_structure(temp_path, self.repo_path)
-
+        self.clone()
         logger.success("Repository repaired.")
 
     def rollback(self, target_sha: str):
@@ -571,13 +444,14 @@ class GitOperationHandler:
         """
         logger.info(f"Rolling back to {target_sha} using PyGit2...")
         repo = Repository(str(self.repo_path))
-        commit = repo.revparse_single(target_sha)
-        repo.reset(commit.id, ResetMode.HARD)
-        repo.checkout_tree(commit.tree)
+        try:
+            rollback_repository(repo, target_sha)
+        finally:
+            repo.free()
         logger.success("Rollback successful.")
 
 
-class BAASGitCallbacks(RemoteCallbacks):
+class BAASGitCallbacks(NonInteractiveCallbacks):
     """Callback handler for PyGit2 clone progress."""
 
     def __init__(self, bar_ref):
@@ -600,9 +474,16 @@ class BAASGitCallbacks(RemoteCallbacks):
             self.bar_ref["bar"](self.received_count - self.current_count)
             self.current_count = self.received_count
 
-        if self.received_count == stats.total_objects:
-            self.bar_ref["bar_gen"].__exit__(None, None, None)
+        if self.received_count == stats.total_objects and self.bar_ref.get("bar_gen"):
+            self.bar_ref.pop("bar_gen").__exit__(None, None, None)
+            self.bar_ref["bar"] = None
             self.spinner.start()
+
+    def close(self):
+        if self.bar_ref.get("bar_gen"):
+            self.bar_ref.pop("bar_gen").__exit__(None, None, None)
+            self.bar_ref["bar"] = None
+        self.spinner.stop()
 
 
 class EnvironmentManager:
@@ -611,6 +492,17 @@ class EnvironmentManager:
     def __init__(self, config: GlobalConfig):
         self.cfg = config
         self.baas_root = config.baas_root
+
+    def prepare_runtime(self):
+        """Only bootstrap the managed runtime when no custom interpreter is set."""
+        if self.cfg.General.runtime_path != "default":
+            return
+        if self.cfg.General.package_manager == "pdm":
+            raise NotImplementedError("PDM currently not supported.")
+        self.check_python()
+        self.check_pip()
+        self.check_pth()
+        self.check_env_patch()
 
     def check_pip(self):
         logger.info("Checking pip installation...")
@@ -682,7 +574,9 @@ class EnvironmentManager:
         logger.info("Installing requirements...")
         try:
             # Determine pip executable
-            if __system__ == "Windows":
+            if self.cfg.General.runtime_path != "default":
+                pip_exec = [str(self.cfg.General.runtime_path), "-m", "pip"]
+            elif __system__ == "Windows":
                 python_exc = str(self.baas_root / ".env/python.exe")
                 pip_exec = [python_exc, "-m", "pip"]
 
@@ -758,7 +652,7 @@ class UpdateOrchestrator:
 
     def run(self):
         """Main update execution flow."""
-        if self.cfg.General.dev:
+        if self.cfg.General.dev or self.cfg.General.no_update:
             return
 
         local_sha = self._get_local_version()
@@ -955,17 +849,13 @@ class AppLauncher:
         self.baas_root = config.baas_root
 
     def run_app(self):
-
-        if self.cfg.General.use_dynamic_update:
-            self.dynamic_update_installer()
-
         """Starts window.py."""
         logger.info("Launching App...")
 
         python_exec = self._get_python_executable()
         env = __env__.copy()
 
-        if __system__ == "Linux":
+        if __system__ == "Linux" and self.cfg.General.runtime_path == "default":
             env["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(
                 self.baas_root / ".env/lib/python3.9/site-packages/PyQt5/Qt5/plugins/platforms")
 
@@ -977,13 +867,12 @@ class AppLauncher:
         try:
             if __system__ == "Windows":
                 # Detached process
-                subprocess.Popen(cmd, cwd=self.baas_root, env=env)
+                proc = subprocess.Popen(cmd, cwd=self.baas_root, env=env)
+                (self.baas_root / "pid").write_text(str(proc.pid), encoding="ascii")
             else:
                 subprocess.run(cmd, cwd=self.baas_root, env=env)
 
             logger.success("App started.")
-            # Record PID
-            # (Simplified for brevity - logic remains similar to original)
 
         except Exception as e:
             logger.error(f"Failed to launch app: {e}")
@@ -998,12 +887,12 @@ class AppLauncher:
                     with tempfile.TemporaryDirectory(dir=self.baas_root) as tmpdir:
                         temp_path = Path(tmpdir)
                         filepath = FileSystemUtils.download_file(self.cfg.URLs.GET_UPX_URL, temp_path)
-                        FileSystemUtils.unzip_file(filepath, self.cfg.Paths.TOOL_KIT_PATH)
+                        FileSystemUtils.unzip_file(filepath, self.cfg.toolkit_path)
 
                 def create_executable():
                     PyInstaller.__main__.run(
                         [
-                            str(self.cfg.Paths.BAAS_ROOT_PATH / "installer.py"),
+                            str(self.baas_root / "installer.py"),
                             "--name=BlueArchiveAutoScript",
                             "--onefile",
                             "--icon=gui/assets/logo.ico",
@@ -1013,13 +902,13 @@ class AppLauncher:
                         ]
                     )
 
-                if os.path.exists(self.cfg.Paths.BAAS_ROOT_PATH / "backup.exe") and not os.path.exists(
-                    self.cfg.Paths.BAAS_ROOT_PATH / "no_build"
+                if os.path.exists(self.baas_root / "backup.exe") and not os.path.exists(
+                    self.baas_root / "no_build"
                 ):
                     create_executable()
                     logger.info("try to remove the backup executable file.")
                     try:
-                        os.remove(self.cfg.Paths.BAAS_ROOT_PATH / "backup.exe")
+                        os.remove(self.baas_root / "backup.exe")
                     except:
                         logger.info("remove backup.exe failed.")
                     else:
@@ -1034,13 +923,13 @@ class AppLauncher:
 
     def dynamic_update_installer(self) -> None:
         # Define paths for the installer and Python interpreter
-        installer_path = Path(self.cfg.Paths.BAAS_ROOT_PATH) / "deploy/installer/installer.py"
+        installer_path = self.baas_root / "deploy/installer/installer.py"
 
         # Use platform-independent way to determine Python executable
         if __system__ == "Windows":
-            python_path = Path(self.cfg.Paths.BAAS_ROOT_PATH) / ".venv/Scripts/python.exe"
+            python_path = self.baas_root / ".venv/Scripts/python.exe"
         else:  # Linux/Unix
-            python_path = Path(self.cfg.Paths.BAAS_ROOT_PATH) / ".env/bin/python"
+            python_path = self.baas_root / ".env/bin/python"
 
         # Prepare the command arguments
         launch_exec_args = sys.argv.copy()
@@ -1056,7 +945,7 @@ class AppLauncher:
             try:
                 subprocess.run(launch_exec_args)
             except:
-                logger.exception(f"Error running installer updater...")
+                logger.exception("Error running installer updater...")
                 self.run_app()
         elif self.cfg.General.internal_launch:  # Internal launch fallback
             self.run_app()
@@ -1079,8 +968,11 @@ class AppLauncher:
             return Path(self.cfg.General.runtime_path)
 
         if __system__ == "Windows":
-            return self.baas_root / ".venv/Scripts/pythonw.exe"
+            executable = "python.exe" if self.cfg.General.debug else "pythonw.exe"
+            return self.baas_root / ".venv/Scripts" / executable
         else:
+            if self.cfg.General.package_manager == "pdm":
+                return self.baas_root / ".venv/bin/python3"
             return self.baas_root / ".env/bin/python3"
 
     def _kill_existing_process(self):
@@ -1130,10 +1022,7 @@ def main():
         if not config.General.launch:
             # Environment Setup
             env_mgr = EnvironmentManager(config)
-            env_mgr.check_python()
-            env_mgr.check_pip()
-            env_mgr.check_pth()
-            env_mgr.check_env_patch()
+            env_mgr.prepare_runtime()
 
             # Repo Update
             updater = UpdateOrchestrator(config, env_mgr)
@@ -1145,7 +1034,10 @@ def main():
 
         # 5. Launch
         launcher = AppLauncher(config)
-        launcher.run_app()
+        if config.General.use_dynamic_update:
+            launcher.dynamic_update_installer()
+        else:
+            launcher.run_app()
 
     except Exception:
         logger.exception("Critical error during setup/launch.")

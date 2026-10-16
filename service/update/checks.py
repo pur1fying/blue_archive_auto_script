@@ -4,7 +4,6 @@ import time
 import os
 import pygit2
 import shutil
-import subprocess
 import tempfile
 import zipfile
 from pathlib import Path
@@ -14,7 +13,6 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from types import SimpleNamespace
 from typing import Any, Dict, Optional
-from pygit2.enums import ResetMode
 
 import requests
 
@@ -22,150 +20,38 @@ from deploy.installer.const import GetShaMethod, get_remote_sha_methods_for_chan
 from deploy.installer.mirrorc_update.const import MirrorCErrorCode
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 
+from deploy.installer.git_backend import remote_branch_sha, rollback_repository
 from service.update.repository import update_repo_to_latest
 from service.update.setup_io import read_setup_toml, write_setup_toml
 from service.update.setup_schema import migrate_to_current_schema, setup_channel
 
 RepositoryResult = Dict[str, Any]
 
-NONINTERACTIVE_GIT_CONFIG = [
-    "-c", "credential.helper=",
-    "-c", "credential.interactive=never",
-    "-c", "core.askPass=echo",
-    "-c", "core.sshCommand=ssh -o BatchMode=yes",
-]
-
-
-def noninteractive_git_env(base_env: Optional[Dict[str, str]] = None) -> Dict[str, str]:
-    """Return a Git environment that prevents GUI credential prompts."""
-    env = (base_env or os.environ).copy()
-    env["GIT_TERMINAL_PROMPT"] = "0"
-    env["GCM_INTERACTIVE"] = "never"
-    env["GCM_MODAL_PROMPT"] = "0"
-    env["GIT_ASKPASS"] = "echo"
-    env["SSH_ASKPASS"] = "echo"
-    return env
-
-
-def _is_noninteractive_auth_failure(exc: Exception) -> bool:
-    """Return true when Git failed because credentials cannot be requested."""
-    stderr = getattr(exc, "stderr", "") or ""
-    stdout = getattr(exc, "stdout", "") or ""
-    message = f"{stderr}\n{stdout}\n{exc}".lower()
-    auth_markers = (
-        "authentication failed",
-        "terminal prompts disabled",
-        "could not read username",
-        "credential",
-        "gcm",
-    )
-    return any(marker in message for marker in auth_markers)
-
-
 class GitOperationHandler:
-    """
-    Encapsulates Git operations.
-    Priority:
-    1. If system 'git' executable exists, use it for read operations (ls-remote, rev-parse).
-    2. If not, fall back to 'pygit2'.
-    3. For critical state changes like rollback, 'pygit2' is preferred/enforced.
-    """
+    """Read and roll back repositories exclusively through pygit2."""
 
     def __init__(self, repo_path: Union[str, Path] = "."):
         self.repo_path = Path(repo_path)
-        self.git_executable = shutil.which("git")
-
-    def _run_git_cmd(self, args: List[str], timeout: Optional[float] = None) -> str:
-        """Helper to run system git commands."""
-        if not self.git_executable:
-            raise FileNotFoundError("Git executable not found.")
-
-        # Ensure we run in an existing directory. `ls-remote` does not require
-        # the current BAAS directory to be a Git repository.
-        cwd = self.repo_path if self.repo_path.exists() else Path.cwd()
-        env = noninteractive_git_env()
-        result = subprocess.run(
-            [self.git_executable, *NONINTERACTIVE_GIT_CONFIG, *args],
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=timeout,
-            env=env,
-        )
-        return result.stdout.strip()
 
     def get_remote_latest_sha(self, url: str, branch: str, timeout: Optional[float] = None) -> str:
-        """
-        Get the SHA of a remote branch.
-        Uses `git ls-remote` if available, otherwise uses pygit2 anonymous remote.
-        """
-        last_error: Optional[Exception] = None
-        if self.git_executable:
-            try:
-                # Command: git ls-remote <url> refs/heads/<branch>
-                # Output format: <SHA>\trefs/heads/<branch>
-                ref = f"refs/heads/{branch}"
-                output = self._run_git_cmd(["ls-remote", url, ref], timeout=timeout)
-                if output:
-                    return output.split()[0]
-                raise ValueError(f"Branch '{branch}' not found at {url} (System Git)")
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, IndexError, ValueError) as e:
-                if _is_noninteractive_auth_failure(e):
-                    raise ValueError(f"Git authentication failed without prompting: {e}") from e
-                last_error = e
-
-        # Fallback to pygit2 in a temporary bare repository. Android installs
-        # may be copied from an archive and have no .git directory, so using
-        # Path.cwd() as a Repository causes an immediate 0.000s local failure.
         try:
-            with tempfile.TemporaryDirectory(prefix="baas-sha-test-") as tmp_dir:
-                repo = pygit2.init_repository(tmp_dir, bare=True)
-                remote = repo.remotes.create_anonymous(url)
-                target_ref = f"refs/heads/{branch}"
-                for head in remote.ls_remotes():
-                    if head.get("name") == target_ref:
-                        return str(head.get("oid"))
+            return remote_branch_sha(url, branch, timeout=timeout)
         except Exception as exc:
-            last_error = exc
-
-        reason = f": {last_error}" if last_error else ""
-        raise ValueError(f"Branch '{branch}' not found at {url} (pygit2){reason}")
+            raise ValueError(f"Unable to read remote branch '{branch}' at {url}: {exc}") from exc
 
     def get_local_head_info(self) -> Tuple[str, str]:
-        """
-        Get the current local SHA and branch name.
-        Returns: (sha, branch_name)
-        """
-        if self.git_executable:
-            try:
-                # Get SHA: git rev-parse HEAD
-                sha = self._run_git_cmd(["rev-parse", "HEAD"])
-
-                # Get Branch: git rev-parse --abbrev-ref HEAD
-                # Note: Returns "HEAD" if detached
-                branch = self._run_git_cmd(["rev-parse", "--abbrev-ref", "HEAD"])
-                return sha, branch
-            except subprocess.CalledProcessError:
-                # Likely empty repo or error
-                raise RuntimeError("Failed to retrieve local git info via system git.")
-
-        # Fallback to pygit2
-        repo = pygit2.Repository(self.repo_path)
-        sha = str(repo.revparse_single("HEAD").id)
-        branch = repo.head.shorthand
-        return sha, branch
+        repo = pygit2.Repository(str(self.repo_path))
+        try:
+            return str(repo.head.target), "HEAD" if repo.head_is_detached else repo.head.shorthand
+        finally:
+            repo.free()
 
     def rollback(self, target_sha: str):
-        """
-        Rollback the repository to a specific SHA.
-        Per requirements, this strictly uses pygit2.
-        """
-        repo = pygit2.Repository(self.repo_path)
-        # Logic for rollback using pygit2 (e.g., reset --hard)
-        # This is a placeholder for where the rollback logic would go.
-        commit = repo.revparse_single(target_sha)
-        repo.reset(commit.id, ResetMode.HARD)
+        repo = pygit2.Repository(str(self.repo_path))
+        try:
+            rollback_repository(repo, target_sha)
+        finally:
+            repo.free()
 
 
 @dataclass
@@ -213,10 +99,7 @@ def _mirrorc_api_get_latest_sha(timeout: float, channel: str = "stable") -> Tupl
 
 
 def _git_wrapper_get_latest_sha(config: Dict[str, Any], timeout: Optional[float] = None) -> Tuple[bool, str]:
-    """
-    Replaces the direct pygit2 call.
-    Uses GitOperationHandler to determine whether to use system git or pygit2.
-    """
+    """Read a remote SHA with the shared pygit2 backend."""
     url = config["url"]
     branch = config["branch"]
 
@@ -350,7 +233,6 @@ def test_repo_sha(config: dict[str, Union[str, GetShaMethod]], timeout: float) -
     elif _is_android_runtime():
         success, value = _android_http_get_latest_sha(config, timeout)
     else:
-        # Renamed to indicate it uses the wrapper logic
         success, value = _git_wrapper_get_latest_sha(config, timeout)
     elapsed = time.perf_counter() - start
     result: RepositoryResult = {
@@ -456,7 +338,6 @@ def validate_cdk(cdk: str, timeout: float = 3.0, channel: Optional[str] = None) 
 def get_local_version(setup_path: Optional[Path] = None) -> Tuple["VersionInfo", Dict[str, Any], str]:
     data, path = read_setup_toml(setup_path)
 
-    # Use GitOperationHandler to abstract system git vs pygit2
     git_ops = GitOperationHandler(Path.cwd())
 
     try:
