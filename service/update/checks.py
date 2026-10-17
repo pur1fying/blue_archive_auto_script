@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import time
 import os
-import pygit2
 import shutil
 import tempfile
 import zipfile
@@ -20,38 +19,11 @@ from deploy.installer.const import GetShaMethod, get_remote_sha_methods_for_chan
 from deploy.installer.mirrorc_update.const import MirrorCErrorCode
 from deploy.installer.mirrorc_update.mirrorc_updater import MirrorC_Updater
 
-from deploy.installer.git_backend import remote_branch_sha, rollback_repository
-from service.update.repository import update_repo_to_latest
+from service.update.repository import GitOperationHandler, update_repo_to_latest
 from service.update.setup_io import read_setup_toml, write_setup_toml
 from service.update.setup_schema import migrate_to_current_schema, setup_channel
 
 RepositoryResult = Dict[str, Any]
-
-class GitOperationHandler:
-    """Read and roll back repositories exclusively through pygit2."""
-
-    def __init__(self, repo_path: Union[str, Path] = "."):
-        self.repo_path = Path(repo_path)
-
-    def get_remote_latest_sha(self, url: str, branch: str, timeout: Optional[float] = None) -> str:
-        try:
-            return remote_branch_sha(url, branch, timeout=timeout)
-        except Exception as exc:
-            raise ValueError(f"Unable to read remote branch '{branch}' at {url}: {exc}") from exc
-
-    def get_local_head_info(self) -> Tuple[str, str]:
-        repo = pygit2.Repository(str(self.repo_path))
-        try:
-            return str(repo.head.target), "HEAD" if repo.head_is_detached else repo.head.shorthand
-        finally:
-            repo.free()
-
-    def rollback(self, target_sha: str):
-        repo = pygit2.Repository(str(self.repo_path))
-        try:
-            rollback_repository(repo, target_sha)
-        finally:
-            repo.free()
 
 
 @dataclass

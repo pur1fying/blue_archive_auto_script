@@ -1,11 +1,7 @@
 import json
 import os
 
-from core.ocr import ocr
 from core.utils import Logger
-from core.Baas_thread import Baas_thread
-from core.config.config_set import ConfigSet
-from core.ocr.baas_ocr_client.server_installer import check_git
 
 class Main:
     def __init__(self, logger_signal=None, ocr_needed=None):
@@ -25,6 +21,9 @@ class Main:
         self.logger.info("-- All Data Initialization Complete Script ready--")
 
     def init_ocr(self):
+        from core.ocr import ocr
+        from core.ocr.baas_ocr_client.server_installer import check_git
+
         try:
             check_git(self.logger)
         except Exception as e:
@@ -50,6 +49,8 @@ class Main:
             update_signal=None,
             exit_signal=None
     ):
+        from core.Baas_thread import Baas_thread
+
         t = Baas_thread(config, logger_signal, button_signal, update_signal, exit_signal)
         t.set_ocr(self.ocr)
         self.threads.setdefault(name, t)
@@ -115,6 +116,9 @@ class Main:
 
 
 if __name__ == '__main__':
+    from core.Baas_thread import Baas_thread
+    from core.config.config_set import ConfigSet
+
     ocr_needed = ["en-us"]
     INSTANCE = Main(ocr_needed=ocr_needed)
     config = ConfigSet(config_dir="global")

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from deploy.installer.const import GetShaMethod
-from service.update import checks
+from service.update import checks, repository
 
 
 def test_remote_sha_uses_temporary_bare_repo(monkeypatch, tmp_path):
@@ -35,8 +35,8 @@ def test_remote_sha_uses_temporary_bare_repo(monkeypatch, tmp_path):
         created["bare"] = bare
         return FakeRepo()
 
-    monkeypatch.setattr(checks.pygit2, "Repository", fake_repository)
-    monkeypatch.setattr(checks.pygit2, "init_repository", fake_init_repository)
+    monkeypatch.setattr(repository.pygit2, "Repository", fake_repository)
+    monkeypatch.setattr(repository.pygit2, "init_repository", fake_init_repository)
 
     handler = checks.GitOperationHandler(tmp_path / "not-a-repo")
     sha = handler.get_remote_latest_sha("https://example.invalid/repo.git", "master")
@@ -154,9 +154,9 @@ def test_remote_sha_auth_failure_is_reported_without_retry(monkeypatch, tmp_path
 
     def fail_remote_sha(*args, **kwargs):
         calls.append(args)
-        raise checks.pygit2.GitError("Git authentication failed: interactive prompts disabled")
+        raise repository.pygit2.GitError("Git authentication failed: interactive prompts disabled")
 
-    monkeypatch.setattr(checks, "remote_branch_sha", fail_remote_sha)
+    monkeypatch.setattr(repository, "remote_branch_sha", fail_remote_sha)
     handler = checks.GitOperationHandler(tmp_path)
     with pytest.raises(ValueError, match="authentication failed"):
         handler.get_remote_latest_sha("https://gitee.com/kiramei/baas-dev.git", "master")

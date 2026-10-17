@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import queue
 import sys
+import threading
 import traceback
 import types
 from datetime import datetime
@@ -12,6 +13,8 @@ from typing import Any
 
 
 _APPLIED = False
+_STARTUP_APPLIED = False
+_INJECTION_LOCK = threading.RLock()
 
 
 def _supports_parameter(callable_obj: Any, name: str) -> bool:
@@ -137,10 +140,7 @@ def _patch_main() -> None:
     _install_gui_stubs()
     _install_android_ocr_modules()
     import main as main_module
-    from core.ocr import ocr
-    from core.ocr.baas_ocr_client.server_installer import check_git
     from core.utils import Logger
-    from core.config.config_set import ConfigSet
 
     main_cls = main_module.Main
     if getattr(main_cls, "_baas_service_injected", False):
@@ -168,8 +168,12 @@ def _patch_main() -> None:
         return True
 
     def init_ocr(self, need_ocr_update_check=True):
+        from core.ocr import ocr
+
         if need_ocr_update_check:
             try:
+                from core.ocr.baas_ocr_client.server_installer import check_git
+
                 check_git(self.logger)
             except Exception:
                 self.logger.error("OCR Update Failed.")
@@ -184,6 +188,8 @@ def _patch_main() -> None:
             return False
 
     def init_static_config(self):
+        from core.config.config_set import ConfigSet
+
         try:
             if ConfigSet.static_config is None:
                 ConfigSet._init_static_config()
@@ -606,15 +612,35 @@ def _patch_cafe_reward() -> None:
     cafe_reward._baas_service_injected = True
 
 
+def apply_startup_injections() -> None:
+    """Prepare logging and Main without importing device/task/image engines."""
+    global _STARTUP_APPLIED
+    with _INJECTION_LOCK:
+        if _STARTUP_APPLIED:
+            return
+        prepare_service_imports()
+        _patch_logger()
+        _patch_main()
+        _STARTUP_APPLIED = True
+
+
 def apply_service_injections() -> None:
+    """Install task patches once, before any service task is constructed."""
     global _APPLIED
-    if _APPLIED:
-        return
-    _install_gui_stubs()
-    _install_android_ocr_modules()
-    _patch_logger()
-    _patch_main()
-    _patch_device_modules()
-    _patch_baas_thread()
-    _patch_cafe_reward()
-    _APPLIED = True
+    with _INJECTION_LOCK:
+        if _APPLIED:
+            return
+        apply_startup_injections()
+        _patch_device_modules()
+        _patch_baas_thread()
+        _patch_cafe_reward()
+        from service.image_compat import install_popup_image_compat
+        from service.shop_compat import install_shop_compat
+        from service.gesture_compat import install_gesture_compat
+        from service.asset_compat import install_asset_compat
+
+        install_popup_image_compat()
+        install_shop_compat()
+        install_gesture_compat()
+        install_asset_compat()
+        _APPLIED = True

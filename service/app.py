@@ -16,19 +16,29 @@ from .api.ws_remote import router as remote_router
 from .api.ws_sync import router as sync_router
 from .api.ws_trigger import router as trigger_router
 from .transport.pipe_server import PipeTransportServer
+from .transport.shm_server import SharedMemoryTransportServer
 
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
     await context.startup()
     pipe_server = None
+    shm_server = None
     pipe_name = os.getenv("BAAS_PIPE_NAME", "").strip()
-    if pipe_name:
-        pipe_server = PipeTransportServer(pipe_name, context)
-        await pipe_server.start()
+    shm_name = os.getenv("BAAS_SHM_NAME", "").strip()
     try:
+        if pipe_name and shm_name:
+            raise ValueError("Named-pipe and shared-memory transport cannot share a service process")
+        if pipe_name:
+            pipe_server = PipeTransportServer(pipe_name, context)
+            await pipe_server.start()
+        if shm_name:
+            shm_server = SharedMemoryTransportServer(shm_name, context)
+            await shm_server.start()
         yield
     finally:
+        if shm_server is not None:
+            await shm_server.close()
         if pipe_server is not None:
             await pipe_server.close()
         await context.shutdown()

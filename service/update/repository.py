@@ -11,7 +11,7 @@ import time
 import zipfile
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import pygit2
 import requests
@@ -19,6 +19,7 @@ import requests
 # External dependencies (assumed to exist based on context)
 from deploy.installer.git_backend import (
     clone_repository, ensure_origin, fetch_and_reset_branch, install_staged_repository, remote_branch_sha,
+    rollback_repository,
 )
 from deploy.installer.const import (
     GetShaMethod,
@@ -104,11 +105,6 @@ class FileSystemUtils:
             elif item.is_file():
                 shutil.copy2(item, target_path)
 
-    @staticmethod
-    def delete_pid_file():
-        if os.path.exists(".pid"):
-            os.remove(".pid")
-
 # ==============================================================================
 # 2. Git Operation Handler (pygit2)
 # ==============================================================================
@@ -116,7 +112,7 @@ class FileSystemUtils:
 class GitOperationHandler:
     """Encapsulates repository operations using the shared pygit2 backend."""
 
-    def __init__(self, repo_path: Path):
+    def __init__(self, repo_path: Union[str, Path] = "."):
         self.repo_path = Path(repo_path)
         self.git_dir = self.repo_path / ".git"
 
@@ -131,18 +127,34 @@ class GitOperationHandler:
             return False
 
     def get_local_head_sha(self) -> str:
+        return self.get_local_head_info()[0]
+
+    def get_local_head_info(self) -> Tuple[str, str]:
         repo = pygit2.Repository(str(self.repo_path))
         try:
-            return str(repo.head.target)
+            return str(repo.head.target), "HEAD" if repo.head_is_detached else repo.head.shorthand
         finally:
             repo.free()
 
+    def get_remote_latest_sha(self, url: str, branch: str, timeout: Optional[float] = None) -> str:
+        try:
+            return remote_branch_sha(url, branch, timeout=timeout)
+        except Exception as exc:
+            raise ValueError(f"Unable to read remote branch '{branch}' at {url}: {exc}") from exc
+
     def get_remote_head_sha(self, url: str, branch: str) -> Optional[str]:
         try:
-            return remote_branch_sha(url, branch)
+            return self.get_remote_latest_sha(url, branch)
         except Exception as exc:
             logging.error(f"[PyGit2] Failed to get remote SHA: {exc}")
             return None
+
+    def rollback(self, target_sha: str) -> None:
+        repo = pygit2.Repository(str(self.repo_path))
+        try:
+            rollback_repository(repo, target_sha)
+        finally:
+            repo.free()
 
     def clone(self, url: str) -> None:
         self.repo_path.mkdir(parents=True, exist_ok=True)

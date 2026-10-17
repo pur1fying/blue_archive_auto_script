@@ -216,9 +216,10 @@ class ConfigManager:
         channel: Optional[str] = projection.get("channel", None)
         transport: Optional[str] = projection.get("transport", None)
         if transport is not None:
-            if transport not in ("websocket", "pipe"):
+            if transport not in ("websocket", "pipe", "shm"):
                 raise ValueError(f"Unsupported backend transport: {transport}")
             merged["general"]["transport"] = transport
+            merged["general"]["transport_version"] = 1
         if channel is not None:
             normalized_channel = normalize_update_channel(channel)
             merged["general"]["channel"] = normalized_channel
