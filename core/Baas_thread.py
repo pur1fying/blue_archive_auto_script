@@ -531,7 +531,8 @@ class Baas_thread:
         """
             execute the task by call the corresponding function in func_dict
         """
-        for i in range(0, 3):
+        max_attempts = 3
+        for i in range(max_attempts):
             if i != 0:
                 self.logger.info("Retry Task " + activity + " " + str(i))
             try:
@@ -551,6 +552,8 @@ class Baas_thread:
                     self.push_and_log_error_msg("Script Error Occurred", traceback.format_exc())
                     return False
                 return True  # Human take over
+        self.logger.error(f"Task '{activity}' failed after {max_attempts} attempts; stopping execution.")
+        return False
 
     def deal_with_package_incorrect(self, curr_pkg):
         """
@@ -641,6 +644,7 @@ class Baas_thread:
             'normal_task_task-operating-round-over-notice': (888, 163),
             'momo_talk_momotalk-peach': (1123, 122),
             'cafe_students-arrived': (922, 189),
+            'cafe_quick-home': (1236, 31),
             'pass_menu': (1247, 40),
             'pass_mission-menu': (1247, 40),
             'group_sign-up-reward': (920, 159),

@@ -16,6 +16,8 @@ LEVEL_MAP = {
     4: "CRITICAL",
 }
 
+_LOG_BATCH_SIZE = 128
+
 
 class LogManager:
     """Consumes logger queues and republishes entries tagged by scope."""
@@ -104,14 +106,30 @@ class LogManager:
 
     async def _pump_async(self, source: queue.Queue, scope: str, sentinel: object) -> None:
         while True:
-            record = await asyncio.to_thread(source.get)
-            if record is sentinel:
+            records = await asyncio.to_thread(self._read_batch, source, sentinel)
+            for record in records:
+                if record is sentinel:
+                    return
+                entry = self._normalize_record(record, scope)
+                with self._history_lock:
+                    self._history_all.append(entry)
+                    self._history_per_scope[scope].append(entry)
+                await self._broadcast.publish(entry)
+                # Keep provider consumers responsive and preserve bounded
+                # subscriber capacity when several log sources burst at once.
+                await asyncio.sleep(0)
+
+    @staticmethod
+    def _read_batch(source: queue.Queue, sentinel: object) -> list[Any]:
+        # Only the first record waits. Drain an existing burst in one executor
+        # round trip without delaying a single live log to fill a batch.
+        records = [source.get()]
+        while records[-1] is not sentinel and len(records) < _LOG_BATCH_SIZE:
+            try:
+                records.append(source.get_nowait())
+            except queue.Empty:
                 break
-            entry = self._normalize_record(record, scope)
-            with self._history_lock:
-                self._history_all.append(entry)
-                self._history_per_scope[scope].append(entry)
-            await self._broadcast.publish(entry)
+        return records
 
     def _normalize_record(self, record: Dict[str, Any], scope: str) -> Dict[str, Any]:
         timestamp = record.get("time")

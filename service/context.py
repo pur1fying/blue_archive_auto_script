@@ -75,7 +75,7 @@ class ServiceContext:
         self.runtime.set_loop(loop)
         self.log_manager.set_loop(loop)
 
-        await self.runtime.ensure_ready()  # ensures OCR server is ready
+        await self.runtime.ensure_ready()  # logging/runtime ready; OCR initializes below
         main_queue = self.runtime.get_main_log_queue()
         self.log_manager.register_queue(main_queue, scope="global")
         await self.log_manager.start()

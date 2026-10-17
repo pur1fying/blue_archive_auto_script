@@ -33,7 +33,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port to bind (default: %(default)s)")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload (development only)")
     parser.add_argument("--log-level", default="info", help="Uvicorn log level")
-    parser.add_argument("--pipe-name", default="", help="Enable named-pipe transport at this path")
+    local_transport = parser.add_mutually_exclusive_group()
+    local_transport.add_argument("--pipe-name", default="", help="Enable named-pipe transport at this path")
+    local_transport.add_argument("--shm-name", default="", help="Open the managed Windows shared-memory session")
     ocr_update_check_default = _env_bool(OCR_UPDATE_CHECK_ENV, True)
     parser.add_argument(
         "--ocr-update-check",
@@ -65,6 +67,10 @@ def main() -> None:
         os.environ[OCR_UPDATE_CHECK_ENV] = "1" if args.ocr_update_check else "0"
         if args.pipe_name:
             os.environ["BAAS_PIPE_NAME"] = args.pipe_name
+            os.environ.pop("BAAS_SHM_NAME", None)
+        if args.shm_name:
+            os.environ["BAAS_SHM_NAME"] = args.shm_name
+            os.environ.pop("BAAS_PIPE_NAME", None)
         config = uvicorn.Config(
             "service.app:app",
             host=args.host,

@@ -26,6 +26,9 @@ class BroadcastChannel:
             self._subscribers.discard(queue)
 
     async def publish(self, message: Any) -> None:
+        self._publish(message)
+
+    def _publish(self, message: Any) -> None:
         with self._lock:
             subscribers: List[asyncio.Queue] = list(self._subscribers)
         for queue in subscribers:
@@ -45,4 +48,6 @@ class BroadcastChannel:
     def publish_threadsafe(self, message: Any) -> None:
         if self._loop is None:
             raise RuntimeError("Event loop is not set for BroadcastChannel")
-        asyncio.run_coroutine_threadsafe(self.publish(message), self._loop)
+        # Publishing only enqueues messages; a Task and concurrent Future per
+        # status update add overhead without providing any asynchronous work.
+        self._loop.call_soon_threadsafe(self._publish, message)

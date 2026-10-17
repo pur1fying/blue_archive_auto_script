@@ -4,6 +4,7 @@ import asyncio
 import copy
 import io
 import json
+import logging
 import os
 import shutil
 import threading
@@ -15,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from .conf import ConfigInitializer
 from .conf import resolve_config_dir
-from .injection import apply_service_injections
+from .injection import apply_service_injections, apply_startup_injections
 from .utils.broadcast import BroadcastChannel
 from .utils.timestamps import unix_timestamp_ms
 from .update import (
@@ -202,11 +203,7 @@ class ServiceRuntime:
         self._statuses: Dict[str, Dict[str, Any]] = {}
         self._lock: Optional[asyncio.Lock] = None
         self._main: Optional["Main"] = None
-        self._baas: Optional["Baas_thread"] = None
-        self._baas_thread: Optional[threading.Thread] = None
-        self._active_config_id: Optional[str] = None
-        self._update_signal: Optional[_SignalHook] = None
-        self._exit_signal: Optional[_SignalHook] = None
+        self._main_lock = threading.Lock()
         self._event_map_inv: Dict[str, Dict[str, str]] = {}
         self._android_active_config_id: Optional[str] = None
         self._android_display_guard = _AndroidDisplayResizeGuard()
@@ -238,14 +235,22 @@ class ServiceRuntime:
 
     def init_all_data(self, need_ocr_update_check=True):
         """Initialize shared BAAS data and publish readiness when complete."""
+        started = time.perf_counter()
         assert self._main is not None
         self._ensure_config()
+        config_ready = time.perf_counter()
         status = self._main.init_all_data(need_ocr_update_check=need_ocr_update_check)
+        logging.getLogger(__name__).info(
+            "Runtime initialization ready=%s config_ms=%.1f ocr_and_static_ms=%.1f total_ms=%.1f",
+            bool(status), (config_ready - started) * 1000,
+            (time.perf_counter() - config_ready) * 1000,
+            (time.perf_counter() - started) * 1000,
+        )
         if status:
+            self.is_all_data_initialized = True
             self._status_bus.publish_threadsafe({
                 "is_all_data_initialized": True
             })
-            self.is_all_data_initialized = True
 
     def get_log_sources(self) -> List[Tuple[Any, str]]:
         """Return per-session logger queues with their provider scopes."""
@@ -282,10 +287,13 @@ class ServiceRuntime:
     def _ensure_main_sync(self) -> None:
         if self._main is not None:
             return
-        apply_service_injections()
-        from main import Main
+        with self._main_lock:
+            if self._main is not None:
+                return
+            apply_startup_injections()
+            from main import Main
 
-        self._main = Main(ocr_needed=["en-us", "zh-cn"], jsonify=True, lazy_data=True)
+            self._main = Main(ocr_needed=["en-us", "zh-cn"], jsonify=True, lazy_data=True)
 
     async def _ensure_main(self) -> None:
         await run_blocking(self._ensure_main_sync)
@@ -363,6 +371,25 @@ class ServiceRuntime:
                 session = self._get_or_create_session(config_id)
         return session
 
+    async def _initialize_baas(self, config_id: str, baas: "Baas_thread") -> None:
+        await run_blocking(self._android_display_guard.activate, baas.logger)
+        try:
+            initialized = await run_blocking(baas.init_all_data)
+            if initialized is False:
+                raise RuntimeError(
+                    f"BAAS initialization failed for '{config_id}'; task was not started. "
+                    "Check the device initialization logs before retrying."
+                )
+        except Exception:
+            # init_all_data creates its scheduler before device initialization.
+            # Discard that partial readiness marker so the next run retries init.
+            baas.scheduler = None
+            baas.flag_run = False
+            self._update_status(config_id, running=False, is_flag_run=False, exit_code=1,
+                                current_task=None, waiting_tasks=[])
+            await run_blocking(self._android_display_guard.release, baas.logger)
+            raise
+
     async def start_scheduler(self, config_id: str, set_log=None) -> Dict[str, Any]:
         """Start the scheduler thread for a config.
 
@@ -378,15 +405,7 @@ class ServiceRuntime:
             if set_log: set_log()
             if session.thread and session.thread.is_alive():
                 return {"status": "already-running", "config_id": config_id}
-            await run_blocking(self._android_display_guard.activate, session.baas.logger)
-            try:
-                init_ok = await run_blocking(session.baas.init_all_data)
-            except Exception:
-                await run_blocking(self._android_display_guard.release, session.baas.logger)
-                raise
-            if not init_ok:
-                await run_blocking(self._android_display_guard.release, session.baas.logger)
-                raise RuntimeError("Baas_thread initialization failed")
+            await self._initialize_baas(config_id, session.baas)
 
             def runner() -> None:
                 failed = False
@@ -486,8 +505,8 @@ class ServiceRuntime:
         Returns:
             Command result payload with normalized task name.
         """
+        _original_task_name = task_name
         if task_name in _TASK_ALIAS:
-            _original_task_name = task_name
             task_name = _TASK_ALIAS[task_name]
         async with self._async_lock():
             session = self._sessions.get(config_id)
@@ -500,12 +519,7 @@ class ServiceRuntime:
             needs_init = session.baas.scheduler is None
 
             if needs_init:
-                await run_blocking(self._android_display_guard.activate, baas.logger)
-                try:
-                    await run_blocking(baas.init_all_data)
-                except Exception:
-                    await run_blocking(self._android_display_guard.release, baas.logger)
-                    raise
+                await self._initialize_baas(config_id, baas)
             elif _is_android_runtime():
                 await run_blocking(self._android_display_guard.activate, baas.logger)
 
@@ -568,7 +582,6 @@ class ServiceRuntime:
         session = await self.get_session(config_id)
         if session.scrcpy_client is not None:
             return session.scrcpy_client
-        session = await self.get_session(config_id)
         connection = Connection(session.baas, skip_package_detection=True)
         connection = adb.device(connection.serial)
         session.scrcpy_client = await ScrcpyClient(connection).init()
