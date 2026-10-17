@@ -638,9 +638,11 @@ def apply_service_injections() -> None:
         from service.shop_compat import install_shop_compat
         from service.gesture_compat import install_gesture_compat
         from service.asset_compat import install_asset_compat
+        from service.login_compat import install_login_compat
 
         install_popup_image_compat()
         install_shop_compat()
         install_gesture_compat()
         install_asset_compat()
+        install_login_compat()
         _APPLIED = True
