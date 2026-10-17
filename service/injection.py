@@ -639,10 +639,12 @@ def apply_service_injections() -> None:
         from service.gesture_compat import install_gesture_compat
         from service.asset_compat import install_asset_compat
         from service.login_compat import install_login_compat
+        from service.sweep_compat import install_scrimmage_sweep_compat
 
         install_popup_image_compat()
         install_shop_compat()
         install_gesture_compat()
         install_asset_compat()
         install_login_compat()
+        install_scrimmage_sweep_compat()
         _APPLIED = True
