@@ -130,16 +130,29 @@ class BaasOcrClient:
                 creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
                 text=True
             )
-        # wait for server start
-        for _ in range(0, 30):
+        self._wait_for_server()
+
+    def _wait_for_server(self, timeout=30.0):
+        # The shipped OCR server has no GET / route and returns 404 once it
+        # is listening. Model initialization and inference below validate OCR
+        # itself; repeatedly probing this missing route cannot do that.
+        deadline = time.monotonic() + timeout
+        detail = "no HTTP response"
+        while time.monotonic() < deadline:
+            if self.server_process.poll() is not None:
+                raise RuntimeError("OCR server exited before becoming ready.")
             try:
-                ret = requests.get(self.config.base_url)
-                if ret.status_code == 200:
-                    break
-            except requests.exceptions.ConnectionError as e:
-                if _ == 29:
-                    raise RuntimeError("Fail to start ocr server. " + e.__str__())
-                time.sleep(0.1)
+                ret = requests.get(self.config.base_url, timeout=(0.02, 0.2))
+                try:
+                    if ret.status_code in (200, 404):
+                        return
+                    detail = "HTTP " + str(ret.status_code)
+                finally:
+                    ret.close()
+            except requests.exceptions.RequestException as exc:
+                detail = str(exc)
+            time.sleep(0.02)
+        raise RuntimeError("Fail to start ocr server: " + detail)
 
     def stop_server(self):
         self.server_process.stdin.write("exit\n")
