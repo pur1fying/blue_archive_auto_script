@@ -35,7 +35,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--log-level", default="info", help="Uvicorn log level")
     local_transport = parser.add_mutually_exclusive_group()
     local_transport.add_argument("--pipe-name", default="", help="Enable named-pipe transport at this path")
-    local_transport.add_argument("--shm-name", default="", help="Open the managed Windows shared-memory session")
+    local_transport.add_argument("--shm-name", default="", help="Open the managed native shared-memory session")
     ocr_update_check_default = _env_bool(OCR_UPDATE_CHECK_ENV, True)
     parser.add_argument(
         "--ocr-update-check",

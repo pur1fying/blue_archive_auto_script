@@ -1,11 +1,21 @@
-"""Windows shared slots. Semaphores transfer slot ownership between processes."""
+"""Native shared slots. Semaphores transfer slot ownership between processes."""
 from __future__ import annotations
 
 import ctypes
+import ctypes.util
+import errno
+import mmap
 import os
+import select
 import struct
-from ctypes import wintypes
+import sys
+import threading
+import time
 from typing import Callable
+from types import SimpleNamespace
+
+if os.name == "nt":
+    from ctypes import wintypes
 
 from .base import ChannelClosed
 
@@ -20,15 +30,18 @@ MAPPING_BYTES = HEADER_BYTES + 2 * SLOT_COUNT * SLOT_BYTES
 HEADER = struct.Struct("<8sIIIIII")
 PACKET_HEADER = struct.Struct("<IBI")
 _U32 = struct.Struct("<I")
+SUPPORTED_PLATFORMS = ("win32", "linux")
 
 
 def object_name(base: str, suffix: str = "") -> str:
-    identifier = base.removeprefix("Local\\")
+    identifier = base.removeprefix("Local\\") if os.name == "nt" else base.removeprefix("/")
     if not identifier or len(identifier) > 120 or not all(
         ch.isascii() and (ch.isalnum() or ch in "-_") for ch in identifier
     ):
         raise ValueError("Shared-memory base must be a short local object name")
-    return (base if base.startswith("Local\\") else f"Local\\{base}") + suffix
+    if os.name == "nt":
+        return (base if base.startswith("Local\\") else f"Local\\{base}") + suffix
+    return f"/{identifier}{suffix}"
 
 
 class PacketDecoder:
@@ -248,3 +261,254 @@ class SharedMemorySession:
         for handle in reversed(self._handles):
             self._api.dll.CloseHandle(handle)
         self._handles.clear()
+
+
+class _Timespec(ctypes.Structure):
+    _fields_ = [("tv_sec", ctypes.c_long), ("tv_nsec", ctypes.c_long)]
+
+
+def _posix_api(signatures: dict) -> SimpleNamespace:
+    """Older glibc exposes shm/sem through librt/libpthread instead of libc."""
+    libraries = [ctypes.CDLL(None, use_errno=True)]
+    functions = {}
+    candidates = iter(("rt", "pthread"))
+    for name, (arguments, result) in signatures.items():
+        function = next((getattr(library, name) for library in libraries if hasattr(library, name)), None)
+        while function is None:
+            candidate = next(candidates, None)
+            if candidate is None:
+                raise RuntimeError(f"POSIX shared-memory function is unavailable: {name}")
+            soname = "librt.so.1" if candidate == "rt" else "libpthread.so.0"
+            try:
+                library = ctypes.CDLL(ctypes.util.find_library(candidate) or soname, use_errno=True)
+            except OSError:
+                continue
+            libraries.append(library)
+            function = getattr(library, name, None)
+        function.argtypes = arguments
+        function.restype = result
+        functions[name] = function
+    return SimpleNamespace(**functions, _libraries=libraries)
+
+
+class _PosixSharedMemorySession(SharedMemorySession):
+    """Linux POSIX shm/sem peer using the same immutable v1 slot layout.
+
+    The creating process owns the names. Attaching processes only close their
+    mappings and semaphore handles; they never unlink another process's names.
+    A latched stop semaphore and pidfd cancel waits within 50 milliseconds.
+    """
+
+    def __init__(self, base: str, *, create: bool = False, owner_pid: int | None = None) -> None:
+        if ctypes.sizeof(ctypes.c_void_p) != 8:
+            raise RuntimeError("Shared-memory transport requires a 64-bit Linux desktop runtime")
+        self.base = base
+        self._closed = False
+        self._view = None
+        self._stop = None
+        self._creator = create
+        self._created_names: list[tuple[str, bytes]] = []
+        self._semaphores: dict[str, int] = {}
+        self._pidfd: int | None = None
+        self._watched_pid = 0
+        self._watched_start_time: str | None = None
+        self._peer_lock = threading.Lock()
+        self._stop_lock = threading.Lock()
+        self._stop_requested = False
+        self._indices = {(direction, role): 0 for direction in ("r2p", "p2r") for role in ("read", "write")}
+        signatures = {
+            "shm_open": ([ctypes.c_char_p, ctypes.c_int, ctypes.c_uint], ctypes.c_int),
+            "shm_unlink": ([ctypes.c_char_p], ctypes.c_int),
+            "sem_open": ([ctypes.c_char_p, ctypes.c_int, ctypes.c_uint, ctypes.c_uint], ctypes.c_void_p),
+            "sem_close": ([ctypes.c_void_p], ctypes.c_int),
+            "sem_unlink": ([ctypes.c_char_p], ctypes.c_int),
+            "sem_trywait": ([ctypes.c_void_p], ctypes.c_int),
+            "sem_timedwait": ([ctypes.c_void_p, ctypes.POINTER(_Timespec)], ctypes.c_int),
+            "sem_post": ([ctypes.c_void_p], ctypes.c_int),
+            "sem_getvalue": ([ctypes.c_void_p, ctypes.POINTER(ctypes.c_int)], ctypes.c_int),
+        }
+        self._libc = _posix_api(signatures)
+        try:
+            name = object_name(base).encode("ascii")
+            flags = os.O_RDWR | (os.O_CREAT | os.O_EXCL if create else 0)
+            descriptor = self._libc.shm_open(name, flags, 0o600)
+            if descriptor < 0:
+                self._raise_oserror(name)
+            if create:
+                self._created_names.append(("shm", name))
+            try:
+                if create:
+                    os.ftruncate(descriptor, MAPPING_BYTES)
+                elif os.fstat(descriptor).st_size != MAPPING_BYTES:
+                    raise ValueError("Shared-memory mapping size does not match protocol version 1")
+                self._view = mmap.mmap(descriptor, MAPPING_BYTES, flags=mmap.MAP_SHARED,
+                                       prot=mmap.PROT_READ | mmap.PROT_WRITE)
+            finally:
+                os.close(descriptor)
+            if create:
+                self._write(0, HEADER.pack(MAGIC, VERSION, HEADER_BYTES, SLOT_COUNT, SLOT_BYTES,
+                                           MAX_PAYLOAD_BYTES, owner_pid or os.getpid()))
+            header = HEADER.unpack(self._read(0, HEADER.size))
+            if header[:6] != (MAGIC, VERSION, HEADER_BYTES, SLOT_COUNT, SLOT_BYTES, MAX_PAYLOAD_BYTES):
+                raise ValueError("Shared-memory header does not match protocol version 1")
+            self.owner_pid = header[6]
+            if self.owner_pid <= 0:
+                raise ValueError("Shared-memory owner PID must be positive")
+            for direction in ("r2p", "p2r"):
+                for role, initial in (("free", SLOT_COUNT), ("used", 0)):
+                    key = f"{direction}_{role}"
+                    self._semaphores[key] = self._open_semaphore(f"_{key}", create, initial)
+            self._stop = self._open_semaphore("_stop", create, 0)
+            self._check_peer()
+        except BaseException:
+            self.close()
+            raise
+
+    @staticmethod
+    def _raise_oserror(name: bytes | None = None) -> None:
+        code = ctypes.get_errno()
+        raise OSError(code, os.strerror(code), name.decode("ascii") if name else None)
+
+    def _open_semaphore(self, suffix: str, create: bool, initial: int) -> int:
+        name = object_name(self.base, suffix).encode("ascii")
+        handle = self._libc.sem_open(name, os.O_CREAT | os.O_EXCL if create else 0, 0o600, initial)
+        # glibc uses NULL for SEM_FAILED; accept the conventional -1 as well.
+        if handle in (None, ctypes.c_void_p(-1).value):
+            self._raise_oserror(name)
+        if create:
+            self._created_names.append(("sem", name))
+        return handle
+
+    def _read(self, offset: int, length: int) -> bytes:
+        return self._view[offset:offset + length]
+
+    def _write(self, offset: int, payload: bytes) -> None:
+        self._view[offset:offset + len(payload)] = payload
+
+    def new_wake_event(self) -> threading.Semaphore:
+        return threading.Semaphore(0)
+
+    def wake(self, event: threading.Semaphore) -> None:
+        event.release()
+
+    def wait_for_wake(self, event: threading.Semaphore) -> None:
+        while True:
+            self._check_cancelled()
+            if event.acquire(timeout=0.05):
+                self._check_cancelled()
+                return
+
+    def _check_cancelled(self) -> None:
+        if self._closed:
+            raise ChannelClosed("Shared-memory session closed")
+        if self._stop is not None:
+            value = ctypes.c_int()
+            if self._libc.sem_getvalue(self._stop, ctypes.byref(value)) != 0:
+                self._raise_oserror()
+            if value.value > 0:
+                raise ChannelClosed("Shared-memory session stopped")
+        with self._peer_lock:
+            self._check_peer()
+
+    def _check_peer(self) -> None:
+        pid = _U32.unpack(self._read(32, 4))[0] if self._creator else self.owner_pid
+        if not pid:
+            return  # The Python peer has not attached/published its PID yet.
+        if pid != self._watched_pid:
+            if self._pidfd is not None:
+                os.close(self._pidfd)
+                self._pidfd = None
+            self._watched_pid = pid
+            self._watched_start_time = None
+            if hasattr(os, "pidfd_open"):
+                try:
+                    self._pidfd = os.pidfd_open(pid)
+                except ProcessLookupError:
+                    raise ChannelClosed("Shared-memory session owner exited") from None
+                except OSError as exc:
+                    if exc.errno not in (errno.ENOSYS, errno.EINVAL, errno.EPERM, errno.EACCES):
+                        raise
+        if self._pidfd is not None:
+            poller = select.poll()
+            poller.register(self._pidfd, select.POLLIN)
+            if poller.poll(0):
+                raise ChannelClosed("Shared-memory session owner exited")
+        else:
+            # A process may remain a zombie until its parent calls wait(), and
+            # kill(pid, 0) also accepts a PID that has been recycled. Linux proc
+            # state/starttime distinguishes both when pidfd is unavailable.
+            try:
+                with open(f"/proc/{pid}/stat", encoding="ascii") as process:
+                    fields = process.read().rsplit(")", 1)[1].split()
+                if fields[0] in ("Z", "X"):
+                    raise ChannelClosed("Shared-memory session owner exited")
+                if self._watched_start_time is None:
+                    self._watched_start_time = fields[19]
+                elif self._watched_start_time != fields[19]:
+                    raise ChannelClosed("Shared-memory session owner exited")
+            except FileNotFoundError:
+                raise ChannelClosed("Shared-memory session owner exited") from None
+            except PermissionError:
+                pass
+            try:
+                os.kill(pid, 0)
+            except ProcessLookupError:
+                raise ChannelClosed("Shared-memory session owner exited") from None
+            except PermissionError:
+                pass
+
+    def _acquire(self, semaphore: int, timeout: int) -> bool:
+        deadline = None if timeout == 0xFFFFFFFF else time.monotonic() + timeout / 1000
+        while True:
+            self._check_cancelled()
+            if timeout == 0:
+                result = self._libc.sem_trywait(semaphore)
+            else:
+                remaining = 0.05 if deadline is None else max(0, min(0.05, deadline - time.monotonic()))
+                absolute_ns = time.time_ns() + int(remaining * 1_000_000_000)
+                absolute = _Timespec(*divmod(absolute_ns, 1_000_000_000))
+                result = self._libc.sem_timedwait(semaphore, ctypes.byref(absolute))
+            if result == 0:
+                self._check_cancelled()
+                return True
+            error = ctypes.get_errno()
+            if error not in (errno.EAGAIN, errno.EINTR, errno.ETIMEDOUT):
+                self._raise_oserror()
+            if timeout == 0 or (deadline is not None and time.monotonic() >= deadline):
+                return False
+
+    def _release(self, key: str) -> None:
+        if self._libc.sem_post(self._semaphores[key]) != 0:
+            self._raise_oserror()
+
+    def stop(self) -> None:
+        with self._stop_lock:
+            if not self._closed and self._stop is not None and not self._stop_requested:
+                if self._libc.sem_post(self._stop) != 0:
+                    self._raise_oserror()
+                self._stop_requested = True
+
+    def close(self) -> None:
+        """Close only after all session reader/writer workers have stopped."""
+        if self._closed:
+            return
+        self._closed = True
+        if self._view is not None:
+            self._view.close()
+            self._view = None
+        if self._pidfd is not None:
+            os.close(self._pidfd)
+            self._pidfd = None
+        if self._stop is not None:
+            self._libc.sem_close(self._stop)
+            self._stop = None
+        for handle in self._semaphores.values():
+            self._libc.sem_close(handle)
+        self._semaphores.clear()
+        for kind, name in reversed(self._created_names):
+            getattr(self._libc, f"{kind}_unlink")(name)
+        self._created_names.clear()
+
+
+if sys.platform.startswith("linux"):
+    SharedMemorySession = _PosixSharedMemorySession

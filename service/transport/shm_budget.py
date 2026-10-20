@@ -65,8 +65,9 @@ class InboundBudget:
             lease = self.try_acquire(stream, payload_bytes)
             if lease is not None:
                 return lease
-            # Auto-reset event retains a release racing this wait. Native stop
-            # and owner-process handles cancel the wait without polling.
+            # The native wake primitive retains a release racing this wait.
+            # Windows waits on process/event handles; Linux also checks its
+            # latched stop semaphore and owner PID between bounded waits.
             self._session.wait_for_wake(self._wake)
 
     def release(self, stream: int, size: int) -> None:

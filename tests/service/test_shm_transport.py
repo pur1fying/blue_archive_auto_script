@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import asyncio
+import ctypes
+import errno
 import json
+import os
 import runpy
 import subprocess
 import sys
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -19,8 +23,24 @@ from service.transport.shm_native import (
     CHUNK_BYTES, HEADER_BYTES, MAX_PAYLOAD_BYTES, PACKET_HEADER, SLOT_COUNT, PacketDecoder, SharedMemorySession,
 )
 
-_WINDOWS = pytest.mark.skipif(sys.platform != "win32", reason="Windows shared memory only")
+_NATIVE = pytest.mark.skipif(sys.platform not in ("win32", "linux"), reason="Windows/Linux shared memory only")
+_LINUX = pytest.mark.skipif(sys.platform != "linux", reason="Linux POSIX resource lifecycle")
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _unlink_orphaned_posix_names(base):
+    """Test owners killed before normal close cannot unlink their names."""
+    if sys.platform != "linux":
+        return
+    from service.transport.shm_native import _posix_api
+
+    libc = _posix_api({
+        "shm_unlink": ([ctypes.c_char_p], ctypes.c_int),
+        "sem_unlink": ([ctypes.c_char_p], ctypes.c_int),
+    })
+    libc.shm_unlink(f"/{base}".encode())
+    for suffix in ("_r2p_free", "_r2p_used", "_p2r_free", "_p2r_used", "_stop"):
+        libc.sem_unlink(f"/{base}{suffix}".encode())
 
 
 def _packet(stream: int, kind: int, payload: bytes) -> bytes:
@@ -129,7 +149,7 @@ def test_transport_schema_normalizes_without_losing_legacy_choices(transport):
     assert normalized["general"]["transport"] == expected
 
 
-@_WINDOWS
+@_NATIVE
 def test_shm_native_slots_wrap_and_apply_backpressure_without_dropping():
     owner = SharedMemorySession.create("baas-test-" + uuid.uuid4().hex)
     peer = SharedMemorySession(owner.base)
@@ -149,7 +169,7 @@ def test_shm_native_slots_wrap_and_apply_backpressure_without_dropping():
         owner.close()
 
 
-@_WINDOWS
+@_NATIVE
 def test_shm_corrupt_slot_stops_session_instead_of_reusing_its_bytes():
     owner = SharedMemorySession.create("baas-test-" + uuid.uuid4().hex)
     peer = SharedMemorySession(owner.base)
@@ -165,7 +185,7 @@ def test_shm_corrupt_slot_stops_session_instead_of_reusing_its_bytes():
         owner.close()
 
 
-@_WINDOWS
+@_NATIVE
 @pytest.mark.parametrize("loop_busy,consumer_delay", [(0.5, 0), (0, 0.002)])
 def test_shm_inbound_byte_budget_backpressures_busy_loop_and_slow_consumer(loop_busy, consumer_delay):
     async def scenario():
@@ -216,7 +236,7 @@ def test_shm_inbound_byte_budget_backpressures_busy_loop_and_slow_consumer(loop_
     asyncio.run(scenario())
 
 
-@_WINDOWS
+@_NATIVE
 def test_shm_stop_unblocks_a_reader_waiting_for_inbound_byte_budget():
     async def scenario():
         owner = SharedMemorySession.create("baas-test-" + uuid.uuid4().hex)
@@ -259,7 +279,7 @@ def test_shm_stop_unblocks_a_reader_waiting_for_inbound_byte_budget():
     asyncio.run(scenario())
 
 
-@_WINDOWS
+@_NATIVE
 def test_shm_echo_peer_preserves_large_json_binary_empty_payload_and_reopen():
     async def scenario():
         owner = SharedMemorySession.create("baas-test-" + uuid.uuid4().hex)
@@ -307,7 +327,7 @@ def test_shm_echo_peer_preserves_large_json_binary_empty_payload_and_reopen():
     asyncio.run(scenario())
 
 
-@_WINDOWS
+@_NATIVE
 def test_retired_stream_close_is_idempotent_and_keeps_other_streams_usable():
     async def scenario():
         owner = SharedMemorySession.create("baas-test-" + uuid.uuid4().hex)
@@ -356,7 +376,7 @@ def test_retired_stream_close_is_idempotent_and_keeps_other_streams_usable():
     asyncio.run(scenario())
 
 
-@_WINDOWS
+@_NATIVE
 def test_cancelling_shm_sender_cannot_truncate_an_inflight_large_packet():
     async def scenario():
         owner = SharedMemorySession.create("baas-test-" + uuid.uuid4().hex)
@@ -387,7 +407,7 @@ def test_cancelling_shm_sender_cannot_truncate_an_inflight_large_packet():
     asyncio.run(scenario())
 
 
-@_WINDOWS
+@_NATIVE
 def test_shm_budget_admits_one_maximum_packet_before_allocating_its_body():
     owner = SharedMemorySession.create("baas-test-" + uuid.uuid4().hex)
     peer = SharedMemorySession(owner.base)
@@ -413,7 +433,7 @@ def test_shm_budget_admits_one_maximum_packet_before_allocating_its_body():
         owner.close()
 
 
-@_WINDOWS
+@_NATIVE
 @pytest.mark.parametrize("waiting_for", ["slot", "byte_budget"])
 def test_shm_wait_detects_owner_process_death(waiting_for):
     base = "baas-test-" + uuid.uuid4().hex
@@ -428,7 +448,7 @@ def test_shm_wait_detects_owner_process_death(waiting_for):
     budget = None
     lease = None
     try:
-        assert process.stdout.readline() == b"ready\r\n"
+        assert process.stdout.readline().strip() == b"ready"
         peer = SharedMemorySession(base)
         with ThreadPoolExecutor(max_workers=1) as pool:
             if waiting_for == "byte_budget":
@@ -451,3 +471,101 @@ def test_shm_wait_detects_owner_process_death(waiting_for):
             budget.close()
         if peer is not None:
             peer.close()
+        _unlink_orphaned_posix_names(base)
+
+
+@_LINUX
+def test_posix_names_are_private_collision_safe_and_owned_by_the_creator():
+    base = "baas-test-" + uuid.uuid4().hex
+    mapping = Path("/dev/shm") / base
+    semaphores = [Path("/dev/shm") / f"sem.{base}_{suffix}"
+                  for suffix in ("r2p_free", "r2p_used", "p2r_free", "p2r_used", "stop")]
+    owner = SharedMemorySession.create(base)
+    peer = SharedMemorySession(base)
+    try:
+        for resource in [mapping, *semaphores]:
+            assert resource.stat().st_mode & 0o077 == 0
+        with pytest.raises(FileExistsError):
+            SharedMemorySession.create(base)
+        peer.close()
+        assert all(resource.exists() for resource in [mapping, *semaphores])
+        peer = SharedMemorySession(base)
+        owner.write_chunk("r2p", b"existing session survives collision")
+        assert peer.read_chunk("r2p") == b"existing session survives collision"
+    finally:
+        peer.close()
+        owner.close()
+    assert not any(resource.exists() for resource in [mapping, *semaphores])
+
+
+@_LINUX
+def test_posix_partial_creation_failure_unlinks_only_resources_it_created():
+    base = "baas-test-" + uuid.uuid4().hex
+    owner = SharedMemorySession.create(base)
+    try:
+        # Leave existing semaphores but remove the old mapping's name. A new
+        # creator must fail at the semaphore collision and remove its new shm.
+        assert owner._libc.shm_unlink(f"/{base}".encode()) == 0
+        with pytest.raises(FileExistsError):
+            SharedMemorySession.create(base)
+        assert not (Path("/dev/shm") / base).exists()
+        assert (Path("/dev/shm") / f"sem.{base}_r2p_free").exists()
+    finally:
+        owner.close()
+
+
+@_LINUX
+def test_posix_runtime_loads_librt_on_older_glibc(monkeypatch):
+    real_cdll = ctypes.CDLL
+    loaded = []
+
+    def without_global_posix_symbols(name, *args, **kwargs):
+        if name is None:
+            return SimpleNamespace()
+        loaded.append(name)
+        return real_cdll(name, *args, **kwargs)
+
+    monkeypatch.setattr(ctypes, "CDLL", without_global_posix_symbols)
+    owner = SharedMemorySession.create("baas-test-" + uuid.uuid4().hex)
+    peer = SharedMemorySession(owner.base)
+    try:
+        owner.write_chunk("r2p", b"librt-backed mapping")
+        assert peer.read_chunk("r2p") == b"librt-backed mapping"
+        assert any("librt" in library for library in loaded)
+    finally:
+        peer.close()
+        owner.close()
+
+
+@_LINUX
+def test_posix_wait_detects_zombie_owner_when_pidfd_is_unavailable(monkeypatch):
+    base = "baas-test-" + uuid.uuid4().hex
+    code = (
+        "from service.transport.shm_native import SharedMemorySession; "
+        f"session=SharedMemorySession.create({base!r}); "
+        "print('ready',flush=True); input()"
+    )
+    process = subprocess.Popen([sys.executable, "-c", code], cwd=ROOT, stdin=subprocess.PIPE,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    peer = None
+
+    def no_pidfd(_pid):
+        raise OSError(errno.ENOSYS, "pidfd unavailable")
+
+    monkeypatch.setattr(os, "pidfd_open", no_pidfd, raising=False)
+    try:
+        assert process.stdout.readline().strip() == b"ready"
+        peer = SharedMemorySession(base)
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            waiting = pool.submit(peer.read_chunk, "r2p")
+            process.kill()
+            # Deliberately do not reap the child before the wait detects it.
+            with pytest.raises(ChannelClosed, match="owner exited"):
+                waiting.result(timeout=2)
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.communicate(timeout=5)
+        if peer is not None:
+            peer.close()
+        _unlink_orphaned_posix_names(base)

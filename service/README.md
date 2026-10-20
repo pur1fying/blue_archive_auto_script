@@ -33,6 +33,16 @@
 
 ## Testing
 
+The managed `--shm-name BASE` transport supports Windows and Linux with the same
+version 1 slot and packet layout. Linux desktop requires a 64-bit Python runtime
+(x86_64/aarch64) and opens POSIX shared memory `/BASE` and
+named semaphores `/BASE_{r2p,p2r}_{free,used}` plus `/BASE_stop`, all mode `0600`.
+The creator owns resource names; attaching peers close handles without unlinking
+them. After READY the creator may unlink names because both peers retain their
+open mappings/handles. Stop and process exit cancel blocked readers, writers,
+and inbound byte-budget waits. Linux uses pidfd when available and `/proc` state
+and start time otherwise.
+
 Run service tests with:
 
 ```bash
