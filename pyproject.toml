@@ -70,7 +70,7 @@ service = [
     "tomli_w == 1.2.0",
     "mss == 10.0.0",
     "PyAutoGUI == 0.9.54",
-    "pygit2",
+    "pygit2==1.19.3; python_version >= '3.11'",
     "fastapi",
     "uvicorn",
     "websockets",
