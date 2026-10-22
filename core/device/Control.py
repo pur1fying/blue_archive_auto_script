@@ -20,7 +20,7 @@ class Control:
 
     def init_control_instance(self):
         self.method = self.config.control_method
-        self.logger.info("Control method : " + self.method)
+        self.logger.debug("Control method : " + self.method)
 
         if self.Baas_instance.is_android_device:
             if self.method == "nemu":

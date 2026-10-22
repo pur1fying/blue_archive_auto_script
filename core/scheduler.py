@@ -116,6 +116,20 @@ class Scheduler:
         _valid_event = [x for x in self._event_config if x['enabled'] and x['next_tick'] <= time_since_epoch and \
                         not self.is_disable_period(x, time_since_midnight)]  # filter out event not ready
         _valid_event = sorted(_valid_event, key=lambda x: x['priority'])  # sort by priority
+        # tools_task_gate_v2 (generic plugin intercept; self-contained)
+        try:
+            import os as _gate_os
+            from module.tools.gate import filter_events as _gate_filter
+            _valid_event = _gate_filter(
+                _valid_event, _gate_os.path.dirname(self.event_config_path),
+                getattr(self, 'config_set', None))
+        except Exception as _gate_err:
+            try:
+                import logging as _gate_logging
+                _gate_logging.getLogger('baas.tools.gate').warning(
+                    'task gate filter failed, queue unfiltered: %r', _gate_err)
+            except Exception:
+                pass
 
         self._valid_task_queue = []
         for i in range(0, len(_valid_event)):
