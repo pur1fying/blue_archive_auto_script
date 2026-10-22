@@ -23,8 +23,16 @@ class PyautoguiControl:
         self._ensure_window()
         x1, y1 = self._convert_screen_p_to_window_p(x1, y1)
         x2, y2 = self._convert_screen_p_to_window_p(x2, y2)
+        
         pyautogui.moveTo(x1, y1)
-        pyautogui.dragTo(x2, y2, duration=duration)
+        pyautogui.mouseDown(button=pyautogui.PRIMARY)
+        time.sleep(0.1)
+        
+        drag_duration = duration if duration is not None else 0.5
+        pyautogui.moveTo(x2, y2, duration=drag_duration)
+        
+        time.sleep(0.1)
+        pyautogui.mouseUp(button=pyautogui.PRIMARY)
 
     def scroll(self, x, y, clicks):
         self._ensure_window()
