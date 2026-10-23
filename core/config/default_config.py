@@ -3559,7 +3559,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "iveAlive",
+        "CN": "SayBing",
         "Global": "TheCalmAftertheStorm",
         "JP": "HighlanderRailroadExplosionIncident"
     },
