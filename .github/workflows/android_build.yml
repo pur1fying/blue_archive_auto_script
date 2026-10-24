@@ -15,6 +15,7 @@ on:
 
 jobs:
   BAAS-Android-apk:
+    if: github.repository == 'pur1fying/blue_archive_auto_script'
     env:
       JAVA_HOME: /opt/java/openjdk-17
     strategy:

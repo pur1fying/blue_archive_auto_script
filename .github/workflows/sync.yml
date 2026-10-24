@@ -1,0 +1,199 @@
+# # Upstream synchronization
+
+# The fork merges upstream `master` into its own `master`. Original upstream commit
+# objects, hashes, and ancestry are preserved, alongside the fork's own commits.
+# When the histories have diverged, synchronization creates a normal merge commit.
+# When a fast-forward is possible, no extra merge commit is needed.
+
+# GitHub and CNB updates use ordinary pushes. Synchronization never rebases the
+# published fork or force-pushes either repository. A concurrent update or divergent
+# mirror is rejected.
+
+# The workflow fetches both repositories, checks out the current fork snapshot, and
+# runs `.github/scripts/sync_upstream.py`. The helper uses Git's normal merge
+# operation. It does not copy changes into replacement upstream commits or use a
+# separate synchronization checkpoint. Git ancestry and GitHub's ahead/behind
+# counts describe synchronization progress directly.
+
+# If upstream is already an ancestor of the fork, synchronization is a no-op.
+# Otherwise, the workflow verifies that both the previous fork commit and the exact
+# upstream commit remain ancestors of the result. Tests must pass before pushing.
+# Conflicts are aborted; failed merges, failed tests, and rejected pushes leave the
+# remote branch unchanged.
+
+# Create an isolated branch from the current fork `master`, fetch upstream, and
+# merge its latest `master`. Review and resolve conflicts while preserving the
+# intended fork behavior, then run the backend and synchronization tests. Commit
+# the merge and push normally. Do not replace the merge with copied patches if the
+# upstream commit hashes are to remain part of the fork's history.
+
+# Upstream contributions should continue to use focused branches based directly on
+# upstream, with only the intended feature commits. This keeps fork synchronization
+# merge commits out of unrelated upstream pull requests.
+
+# Earlier content-copy synchronization commits remain in published history. The
+# transition merge connects the original upstream history without rewriting those
+# existing commits; subsequent synchronizations preserve original hashes directly.
+
+name: Repository Sync
+
+on:
+  push:
+    branches:
+      - master
+  repository_dispatch:
+    types:
+      - upstream-master-push
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Synchronization operation to run
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - upstream
+          - cnb
+
+permissions: {}
+
+jobs:
+  notify-fork:
+    name: Notify fork
+    if: github.event_name == 'push' && github.repository == 'pur1fying/blue_archive_auto_script'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger fork sync
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT }}
+          FORK_REPO: Kiramei/baas-dev
+        run: |
+          set -euo pipefail
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${FORK_REPO}/dispatches" \
+            -f event_type=upstream-master-push \
+            -F "client_payload[upstream_sha]=${GITHUB_SHA}" \
+            -F "client_payload[upstream_ref]=${GITHUB_REF_NAME}"
+
+  sync-upstream:
+    name: Merge upstream into fork
+    if: >-
+      github.repository == 'Kiramei/baas-dev' &&
+      (github.event_name == 'repository_dispatch' ||
+       (github.event_name == 'workflow_dispatch' &&
+        (inputs.operation == 'all' || inputs.operation == 'upstream')))
+    permissions:
+      contents: write
+    concurrency:
+      group: sync-upstream-master-merge
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Merge upstream commits and advance master
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT || github.token }}
+          HAS_WORKFLOW_TOKEN: ${{ secrets.UPSTREAM_TO_KIRAMEI_DEV_PAT != '' }}
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/pur1fying/blue_archive_auto_script.git
+          git fetch --no-tags upstream +refs/heads/master:refs/remotes/upstream/master
+          git fetch --no-tags origin +refs/heads/master:refs/remotes/origin/master
+          fork_sha="$(git rev-parse refs/remotes/origin/master)"
+          upstream_sha="$(git rev-parse refs/remotes/upstream/master)"
+
+          git checkout --detach "${fork_sha}"
+          if ! python .github/scripts/sync_upstream.py refs/remotes/upstream/master; then
+            echo "::error::Upstream merge failed. Resolve the conflicting changes locally; no remote refs were changed."
+            exit 1
+          fi
+
+          if [ "$(git rev-parse HEAD)" = "${fork_sha}" ]; then
+            echo "Fork master already contains upstream master. Nothing to do."
+            exit 0
+          fi
+
+          if ! git merge-base --is-ancestor "${fork_sha}" HEAD; then
+            echo "::error::Upstream merge would rewrite master. No remote refs were changed."
+            exit 1
+          fi
+
+          if ! git merge-base --is-ancestor "${upstream_sha}" HEAD; then
+            echo "::error::The original upstream commit is missing from the merge result. No remote refs were changed."
+            exit 1
+          fi
+
+          if [ "${HAS_WORKFLOW_TOKEN}" != "true" ] && ! git diff --quiet "${fork_sha}" HEAD -- .github/workflows; then
+            echo "::error::The merge changes workflow files. Configure UPSTREAM_TO_KIRAMEI_DEV_PAT with repository write and workflow permissions; no remote refs were changed."
+            exit 1
+          fi
+
+          python -m pip install -e ".[service,test]"
+          python -m pytest tests/service tests/core tests/module tests/ci -q
+
+          auth_header="$(printf 'x-access-token:%s' "${GH_TOKEN}" | base64 -w0)"
+          echo "::add-mask::${auth_header}"
+          if ! git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
+            push origin HEAD:refs/heads/master; then
+            echo "::error::Push rejected. Master may have changed since it was fetched, or the token/branch rules may not allow updating it. No history was rewritten."
+            exit 1
+          fi
+
+          echo "Merged original upstream commit ${upstream_sha}."
+
+  sync-cnb:
+    name: Sync to CNB
+    needs: sync-upstream
+    # Explicitly run after successful synchronization: GITHUB_TOKEN pushes do not trigger workflows.
+    if: >-
+      !cancelled() &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'cnb') ||
+       needs.sync-upstream.result == 'success') &&
+      (github.repository == 'Kiramei/baas-dev' ||
+       github.repository == 'pur1fying/blue_archive_auto_script')
+    permissions:
+      contents: read
+    concurrency:
+      group: sync-cnb-master-${{ github.repository }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Sync Dev
+        if: github.repository == 'Kiramei/baas-dev'
+        uses: ./.github/actions/sync-to-cnb
+        with:
+          target-url: https://cnb.cool/kiramei/baas-dev.git
+          password: ${{ secrets.CNB_SYNC_TOKEN }}
+
+      - name: Sync Stable
+        if: github.repository == 'pur1fying/blue_archive_auto_script'
+        uses: ./.github/actions/sync-to-cnb
+        with:
+          target-url: https://cnb.cool/pur1fying/blue_archive_auto_script.git
+          password: ${{ secrets.CNB_SYNC_TOKEN }}
