@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import secrets
 import time
 from types import SimpleNamespace
 
-from fastapi import FastAPI
+import pytest
+from fastapi import FastAPI, WebSocketDisconnect
 from fastapi.testclient import TestClient
 
-from service.api import http
-from service.auth import AuthenticationError, b64e
+from service.api import http, security, ws_control
+from service.auth import AuthenticationError, ServiceAuthManager, b64e
 
 
 class _PasswordState:
@@ -62,7 +64,34 @@ def test_health_contract(monkeypatch):
         "initialized": True,
         "pwd_epoch": 7,
         "server_sign_public_key": "server-key",
+        "key_reset_supported": True,
     }
+
+
+def test_public_key_reset_capability_does_not_authorize_key_changes(monkeypatch, tmp_path):
+    manager = ServiceAuthManager(tmp_path)
+    manager.initialize_password(secrets.token_urlsafe(24))
+    state = manager.password_state
+    context = SimpleNamespace(auth_manager=manager, runtime=_Runtime())
+    for module in (http, security, ws_control):
+        monkeypatch.setattr(module, "context", context)
+    app = FastAPI()
+    app.include_router(http.router)
+    app.include_router(ws_control.router)
+    with TestClient(app) as client:
+        response = client.get("/health")
+        assert response.status_code == 200
+        assert response.json()["auth"]["key_reset_supported"] is True
+        assert "set-cookie" not in response.headers
+        payload = {"type": "change_password", "new_password": secrets.token_urlsafe(24)}
+        assert client.post("/health", json=payload).status_code == 405
+        with client.websocket_connect("/ws/control") as websocket:
+            websocket.send_json(payload)
+            with pytest.raises(WebSocketDisconnect) as exc:
+                websocket.receive_json()
+            assert exc.value.code == 4401
+    assert manager.password_state is state
+    assert manager.password_state.pwd_epoch == 1
 
 
 def test_remember_auth_sets_cookie(monkeypatch):
