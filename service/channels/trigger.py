@@ -17,7 +17,7 @@ class TriggerChannelHandler:
         while True:
             command = CommandMessage(**(await endpoint.recv_json()))
             binary = None
-            if command.command == "import_config" and command.payload.get("binary") is True:
+            if command.command in {"import_config", "install_plugin"} and command.payload.get("binary") is True:
                 binary = await endpoint.recv_bytes()
             await self._dispatch(endpoint, send_lock, command, binary)
 

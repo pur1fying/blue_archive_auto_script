@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from service.types import CommandMessage
+from service.plugins import PluginError
 
 from .state import context
 
@@ -14,6 +15,39 @@ def _require_config_id(cmd: CommandMessage) -> str:
 
 
 async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = None) -> Dict[str, Any]:
+    if cmd.command in {
+        "get_plugin_catalog", "get_plugin_settings", "update_plugin_settings", "set_plugin_enabled",
+        "run_plugin_action", "get_plugin_job", "cancel_plugin_job", "install_plugin", "uninstall_plugin",
+    }:
+        try:
+            plugins = context.runtime.plugins
+            if cmd.command == "get_plugin_catalog":
+                result = await plugins.catalog(cmd.config_id)
+            elif cmd.command == "install_plugin":
+                result = await plugins.install(binary_payload)
+            elif cmd.command == "uninstall_plugin":
+                result = await plugins.uninstall(cmd.payload.get("plugin_id"))
+            else:
+                if not cmd.config_id:
+                    raise PluginError("INVALID_CONFIG", "A valid config ID is required.")
+                if cmd.command == "get_plugin_settings":
+                    result = await plugins.settings(cmd.config_id, cmd.payload.get("plugin_id"))
+                elif cmd.command == "update_plugin_settings":
+                    result = await plugins.update_settings(cmd.config_id, cmd.payload)
+                elif cmd.command == "set_plugin_enabled":
+                    result = await plugins.set_enabled(cmd.config_id, cmd.payload)
+                elif cmd.command == "run_plugin_action":
+                    result = await plugins.run(cmd.config_id, cmd.payload, set_log=context.ensure_runtime_logger_attached)
+                elif cmd.command == "get_plugin_job":
+                    result = await plugins.get_job(cmd.config_id, cmd.payload.get("job_id"))
+                else:
+                    result = await plugins.cancel(cmd.config_id, cmd.payload.get("job_id"))
+            return {"status": "ok", "data": result}
+        except PluginError as exc:
+            return {"status": "error", "code": exc.code, "error": str(exc)}
+        except Exception:
+            return {"status": "error", "code": "PLUGIN_HOST_ERROR", "error": "The plugin host could not complete this request."}
+
     if cmd.command == "start_scheduler":
         if not cmd.config_id:
             raise ValueError("config_id is required for start_scheduler")

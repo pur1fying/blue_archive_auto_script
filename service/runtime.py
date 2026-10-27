@@ -210,6 +210,15 @@ class ServiceRuntime:
         self._android_display_guard = _AndroidDisplayResizeGuard()
         self._android_restart_scheduled = False
         self.is_all_data_initialized: bool = False
+        self._plugin_manager = None
+
+    @property
+    def plugins(self):
+        from .plugins import PluginManager
+
+        if self._plugin_manager is None:
+            self._plugin_manager = PluginManager(self._project_root, self)
+        return self._plugin_manager
 
     def set_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         """Attach the FastAPI event loop used for runtime status broadcasts.
@@ -446,13 +455,18 @@ class ServiceRuntime:
             thread.start()
             return {"status": "started", "config_id": config_id}
 
-    async def stop_scheduler(self, config_id: str) -> Dict[str, Any]:
+    async def stop_scheduler(self, config_id: str, *, _plugin_owned_thread=None) -> Dict[str, Any]:
         """Stop the scheduler thread for a config if it is running."""
         logger = None
         async with self._async_lock():
             session = self._sessions.get(config_id)
             if session is None:
                 return {"status": "unknown-config", "config_id": config_id}
+            if _plugin_owned_thread is not None and session.thread is not _plugin_owned_thread:
+                return {"status": "ownership-ended", "config_id": config_id}
+            plugin_owner = getattr(session, "plugin_owner", None)
+            if plugin_owner is not None and plugin_owner.get("thread") is session.thread:
+                plugin_owner["stopped"] = True
             logger = session.baas.logger
             if not session.thread:
                 self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
@@ -460,11 +474,16 @@ class ServiceRuntime:
                 return {"status": "stopped", "config_id": config_id}
             session.baas.send("stop")
             thread = session.thread
-            session.thread = None
         if thread and thread.is_alive():
-            thread.join(timeout=10.0)
-        await run_blocking(self._android_display_guard.force_restore, logger)
-        self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
+            await run_blocking(thread.join, 10.0)
+        if thread and thread.is_alive():
+            # Keep ownership while a cooperative core task is still winding down.
+            return {"status": "stopping", "config_id": config_id}
+        async with self._async_lock():
+            if session.thread is not None and session.thread is not thread:
+                return {"status": "ownership-ended", "config_id": config_id}
+            await run_blocking(self._android_display_guard.force_restore, logger)
+            self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
         return {"status": "stopped", "config_id": config_id}
 
     def set_android_active_config(self, config_id: str) -> Dict[str, Any]:
@@ -488,6 +507,8 @@ class ServiceRuntime:
 
     async def stop_all_tasks(self) -> Dict[str, Any]:
         """Stop every running BAAS scheduler/solver session before installation work."""
+        if self._plugin_manager is not None:
+            await self._plugin_manager.stop_all()
         config_ids = list(self._sessions.keys())
         results = []
         for config_id in config_ids:
@@ -495,7 +516,7 @@ class ServiceRuntime:
         await run_blocking(self._android_display_guard.force_restore, None)
         return {"status": "stopped", "results": results}
 
-    async def solve_task(self, config_id: str, task_name: str, set_log=None) -> Dict[str, Any]:
+    async def solve_task(self, config_id: str, task_name: str, set_log=None, *, _plugin_cancel=None, _plugin_owner=None) -> Dict[str, Any]:
         """Run one BAAS task in a daemon worker thread.
 
         Args:
@@ -510,6 +531,8 @@ class ServiceRuntime:
         if task_name in _TASK_ALIAS:
             task_name = _TASK_ALIAS[task_name]
         async with self._async_lock():
+            if _plugin_cancel is not None and _plugin_cancel.is_set():
+                raise asyncio.CancelledError
             session = self._sessions.get(config_id)
             if session is None:
                 session = self._get_or_create_session(config_id)
@@ -523,6 +546,10 @@ class ServiceRuntime:
                 await self._initialize_baas(config_id, baas)
             elif _is_android_runtime():
                 await run_blocking(self._android_display_guard.activate, baas.logger)
+
+            if _plugin_cancel is not None and _plugin_cancel.is_set():
+                await run_blocking(self._android_display_guard.release, baas.logger)
+                raise asyncio.CancelledError
 
             def _call() -> None:
                 failed = False
@@ -543,6 +570,8 @@ class ServiceRuntime:
                     raise
                 finally:
                     self._android_display_guard.release(baas.logger)
+                    if _plugin_owner is not None:
+                        _plugin_owner["failed"] = failed
                     session.thread = None
                     assert session is not None
                     changes = {"exit_code": 1} if failed else {}
@@ -561,9 +590,51 @@ class ServiceRuntime:
                 daemon=True,
             )
             session.thread = thread
+            if _plugin_owner is not None:
+                _plugin_owner.update(session=session, thread=thread)
+            session.plugin_owner = _plugin_owner
             thread.start()
 
         return {"status": "ok", "task": task_name, "result": 0}
+
+    async def run_plugin_device_task(self, config_id: str, task_name: str, set_log=None) -> Dict[str, Any]:
+        """Run an allowed task and follow the exact owned thread until it exits."""
+        from .plugins.errors import PluginError
+        from .plugins.schema import DEVICE_TASKS
+
+        if task_name not in DEVICE_TASKS:
+            raise PluginError("UNSUPPORTED_TASK", "Device task is not supported by the plugin host.")
+        cancelled = threading.Event()
+        owner = {}
+        # Do not cancel an executor-backed device initialization halfway through:
+        # its lock remains held until initialization finishes, then the cancellation
+        # gate prevents the solver thread from starting.
+        starting = asyncio.create_task(self.solve_task(config_id, task_name, set_log=set_log,
+                                                      _plugin_cancel=cancelled, _plugin_owner=owner))
+        try:
+            result = await asyncio.shield(starting)
+            if result.get("status") == "already-running":
+                raise PluginError("DEVICE_BUSY", "A scheduler or another device task is already running for this config.")
+            owned_thread = owner.get("thread")
+            while owned_thread is not None and owned_thread.is_alive():
+                await asyncio.sleep(0.1)
+            if owner.get("stopped"):
+                raise asyncio.CancelledError
+            if owner.get("failed"):
+                raise PluginError("DEVICE_TASK_FAILED", "The host device task did not complete successfully.")
+            return {"task": task_name, "completed": True}
+        except asyncio.CancelledError:
+            cancelled.set()
+            if not starting.done():
+                def consume_result(task):
+                    if not task.cancelled():
+                        task.exception()
+                starting.add_done_callback(consume_result)
+            session = owner.get("session")
+            owned_thread = owner.get("thread")
+            if session is not None and session.thread is owned_thread and owned_thread is not None:
+                await self.stop_scheduler(config_id, _plugin_owned_thread=owned_thread)
+            raise
 
     async def require_remote_(self, config_id: str) -> Union["ScrcpyClient", None]:
         """Return a cached or newly initialized scrcpy client for a config.
@@ -813,13 +884,20 @@ class ServiceRuntime:
     @staticmethod
     def _safe_zip_members(archive: ZipFile) -> List[str]:
         members: List[str] = []
+        canonical_names = set()
         for info in archive.infolist():
-            name = info.filename.replace("\\", "/")
-            parts = [part for part in name.split("/") if part]
-            if not parts or any(part == ".." for part in parts):
+            name = info.filename
+            parts = name.rstrip("/").split("/")
+            if (not parts or len(parts) > 32 or len(name.encode()) > 512
+                    or any(part in {"", ".", ".."} or part.rstrip(" .") != part for part in parts)
+                    or "\\" in name or ":" in name or "\0" in info.orig_filename):
                 raise ValueError(f"unsafe archive path: {info.filename}")
             if Path(name).is_absolute():
                 raise ValueError(f"unsafe archive path: {info.filename}")
+            canonical = "/".join(parts).casefold()
+            if canonical in canonical_names:
+                raise ValueError("duplicate archive path")
+            canonical_names.add(canonical)
             if not info.is_dir():
                 members.append(name)
         return members
@@ -846,6 +924,21 @@ class ServiceRuntime:
                 if not config_name:
                     raise ValueError("imported config.json must contain name")
 
+                plugin_state = None
+                plugin_member = next((member for member in members if member.casefold() == f"{prefix}plugins.json".casefold()), None)
+                if plugin_member is not None:
+                    if archive.getinfo(plugin_member).file_size > 2 * 1024 * 1024:
+                        raise ValueError("plugin settings in config archive exceed the size limit")
+                    plugin_state = json.loads(archive.read(plugin_member).decode("utf-8"))
+                    if not isinstance(plugin_state, dict) or plugin_state.get("schema_version") != 1 or not isinstance(plugin_state.get("plugins"), dict):
+                        raise ValueError("invalid plugin settings in config archive")
+                    # Imported profiles carry settings, never someone else's code trust.
+                    for record in plugin_state["plugins"].values():
+                        if not isinstance(record, dict):
+                            raise ValueError("invalid plugin settings in config archive")
+                        record.pop("trusted_digest", None)
+                        record["enabled"] = False
+
                 target_id = self._new_config_id()
                 target = self._config_path(target_id)
                 target.mkdir(parents=True)
@@ -858,6 +951,8 @@ class ServiceRuntime:
                     target_file = target / Path(relative)
                     target_file.parent.mkdir(parents=True, exist_ok=True)
                     target_file.write_bytes(archive.read(member))
+                if plugin_state is not None:
+                    (target / "plugins.json").write_text(json.dumps(plugin_state, ensure_ascii=False), encoding="utf-8")
         except BadZipFile as exc:
             raise ValueError("invalid config archive") from exc
         except json.JSONDecodeError as exc:
@@ -955,6 +1050,12 @@ class ServiceRuntime:
     async def remove_config(self, _id):
         """Remove a config directory after resolving it inside project config root."""
         target = resolve_config_dir(self._project_root / "config", _id)
+        if self._plugin_manager is not None:
+            await self._plugin_manager.stop_config(_id)
+        if _id in self._sessions:
+            result = await self.stop_scheduler(_id)
+            if result.get("status") == "stopping":
+                raise ValueError("config device task is still stopping; retry removal after it exits")
         if target.exists():
             if not target.is_dir():
                 raise ValueError(f"config path is not a directory: {_id}")

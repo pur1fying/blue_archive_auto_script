@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "api_version": 1,
+  "id": "example.notes",
+  "version": "1.0.0",
+  "name": {
+    "en": "Notes formatter example",
+    "zh": "笔记格式化示例"
+  },
+  "description": {
+    "en": "External plugin template with per-profile settings and a pure JSON compute action.",
+    "zh": "带有按配置存储的设置和纯 JSON 计算动作的外部插件模板。"
+  },
+  "author": "BAAS contributors",
+  "permissions": [
+    "compute"
+  ],
+  "settings_schema": {
+    "type": "object",
+    "properties": {
+      "prefix": {
+        "type": "string",
+        "title": {
+          "en": "Heading",
+          "zh": "标题"
+        },
+        "default": "BAAS",
+        "maxLength": 80
+      },
+      "uppercase": {
+        "type": "boolean",
+        "title": {
+          "en": "Uppercase",
+          "zh": "转为大写"
+        },
+        "default": false
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "actions": [
+    {
+      "id": "format",
+      "name": {
+        "en": "Format note",
+        "zh": "格式化笔记"
+      },
+      "execution": "compute",
+      "entrypoint": "main:run",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "title": {
+              "en": "Note",
+              "zh": "笔记"
+            },
+            "default": "Collect cafe AP",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "note"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": {
+              "en": "Formatted note",
+              "zh": "格式化笔记"
+            },
+            "maxLength": 8192
+          },
+          "characters": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Characters",
+              "zh": "字符数"
+            }
+          },
+          "lines": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Lines",
+              "zh": "行数"
+            }
+          }
+        },
+        "required": [
+          "text",
+          "characters",
+          "lines"
+        ],
+        "additionalProperties": false
+      },
+      "timeout_seconds": 5
+    }
+  ]
+}

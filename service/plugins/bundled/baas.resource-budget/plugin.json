@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "api_version": 1,
+  "id": "baas.resource-budget",
+  "version": "1.0.0",
+  "name": {
+    "en": "Event resource budget",
+    "zh": "活动资源预算"
+  },
+  "description": {
+    "en": "Estimate runs and AP needed for a resource target from your actual per-run yield. Excludes random drops and unused AP below one run; no device actions.",
+    "zh": "根据实际每次收益估算资源目标所需次数与体力。不计算随机掉落，不将不足一次的体力计入收益，不操作设备。"
+  },
+  "author": "BAAS contributors",
+  "permissions": [
+    "compute"
+  ],
+  "settings_schema": {
+    "type": "object",
+    "properties": {
+      "ap_per_run": {
+        "type": "integer",
+        "title": {
+          "en": "AP per run",
+          "zh": "每次消耗体力"
+        },
+        "default": 20,
+        "minimum": 1,
+        "maximum": 100
+      },
+      "tokens_per_run": {
+        "type": "integer",
+        "title": {
+          "en": "Base tokens per run",
+          "zh": "每次基础代币收益"
+        },
+        "default": 40,
+        "minimum": 1,
+        "maximum": 100000
+      },
+      "bonus_percent": {
+        "type": "number",
+        "title": {
+          "en": "Yield bonus (%)",
+          "zh": "收益加成（%）"
+        },
+        "default": 0,
+        "minimum": 0,
+        "maximum": 1000,
+        "description": {
+          "en": "Bonus is rounded down for each individual run.",
+          "zh": "每次收益应用加成后向下取整。"
+        }
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "actions": [
+    {
+      "id": "calculate",
+      "name": {
+        "en": "Calculate resource plan",
+        "zh": "计算资源计划"
+      },
+      "description": {
+        "en": "Spread affordable runs evenly across the available days while respecting both total and daily AP limits.",
+        "zh": "在总量与每日体力限制内，将可负担次数尽量均匀分配到可用天数。"
+      },
+      "execution": "compute",
+      "entrypoint": "main:run",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "current_tokens": {
+            "type": "integer",
+            "title": {
+              "en": "Current tokens",
+              "zh": "当前代币"
+            },
+            "default": 100,
+            "minimum": 0,
+            "maximum": 10000000
+          },
+          "target_tokens": {
+            "type": "integer",
+            "title": {
+              "en": "Target tokens",
+              "zh": "目标代币"
+            },
+            "default": 1000,
+            "minimum": 0,
+            "maximum": 10000000
+          },
+          "days_remaining": {
+            "type": "integer",
+            "title": {
+              "en": "Days available",
+              "zh": "可用天数"
+            },
+            "default": 3,
+            "minimum": 1,
+            "maximum": 90
+          },
+          "free_tokens_daily": {
+            "type": "integer",
+            "title": {
+              "en": "Free tokens per day",
+              "zh": "每日免费代币"
+            },
+            "default": 50,
+            "minimum": 0,
+            "maximum": 1000000,
+            "description": {
+              "en": "Only include free income you will actually collect on every supplied day.",
+              "zh": "仅填写每个可用日都会实际领取的免费收益。"
+            }
+          },
+          "available_ap": {
+            "type": "integer",
+            "title": {
+              "en": "Total AP available",
+              "zh": "总可用体力"
+            },
+            "default": 400,
+            "minimum": 0,
+            "maximum": 10000000
+          },
+          "daily_ap_budget": {
+            "type": "integer",
+            "title": {
+              "en": "Maximum AP per day",
+              "zh": "每日体力上限"
+            },
+            "default": 160,
+            "minimum": 0,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "current_tokens",
+          "target_tokens",
+          "days_remaining",
+          "free_tokens_daily",
+          "available_ap",
+          "daily_ap_budget"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": {
+              "en": "Plan status",
+              "zh": "计划状态"
+            },
+            "enum": [
+              "covered",
+              "planned",
+              "shortfall"
+            ]
+          },
+          "tokens_per_run_after_bonus": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Tokens per run including bonus",
+              "zh": "含加成的每次收益"
+            }
+          },
+          "free_tokens_total": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Total free tokens",
+              "zh": "免费代币合计"
+            }
+          },
+          "required_runs": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Runs needed",
+              "zh": "达到目标所需次数"
+            }
+          },
+          "required_ap": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "AP needed",
+              "zh": "达到目标所需体力"
+            }
+          },
+          "affordable_runs": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Runs allowed by AP budgets",
+              "zh": "体力预算允许的次数"
+            }
+          },
+          "planned_runs": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Planned runs",
+              "zh": "计划次数"
+            }
+          },
+          "planned_ap": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Planned AP consumption",
+              "zh": "计划体力消耗"
+            }
+          },
+          "projected_tokens": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Estimated final tokens",
+              "zh": "预计最终代币"
+            }
+          },
+          "remaining_shortfall": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Remaining token shortfall",
+              "zh": "剩余代币缺口"
+            }
+          },
+          "surplus_tokens": {
+            "type": "integer",
+            "minimum": 0,
+            "title": {
+              "en": "Tokens above target",
+              "zh": "超过目标的代币"
+            }
+          },
+          "days": {
+            "type": "array",
+            "title": {
+              "en": "Daily plan",
+              "zh": "每日计划"
+            },
+            "maxItems": 90,
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "title": {
+                    "en": "Day",
+                    "zh": "天数"
+                  }
+                },
+                "runs": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "title": {
+                    "en": "Runs",
+                    "zh": "次数"
+                  }
+                },
+                "ap": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "title": {
+                    "en": "AP",
+                    "zh": "体力"
+                  }
+                },
+                "tokens": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "title": {
+                    "en": "Tokens including free income",
+                    "zh": "含免费收益的代币"
+                  }
+                }
+              },
+              "required": [
+                "day",
+                "runs",
+                "ap",
+                "tokens"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "status",
+          "tokens_per_run_after_bonus",
+          "free_tokens_total",
+          "required_runs",
+          "required_ap",
+          "affordable_runs",
+          "planned_runs",
+          "planned_ap",
+          "projected_tokens",
+          "remaining_shortfall",
+          "surplus_tokens",
+          "days"
+        ],
+        "additionalProperties": false
+      },
+      "timeout_seconds": 5
+    }
+  ],
+  "contributions": {
+    "home": [
+      {
+        "id": "open",
+        "title": {
+          "en": "Event resource budget",
+          "zh": "活动资源预算"
+        },
+        "description": {
+          "en": "Estimate runs and AP needed for a resource target from your actual per-run yield. Excludes random drops and unused AP below one run; no device actions.",
+          "zh": "根据实际每次收益估算资源目标所需次数与体力。不计算随机掉落，不将不足一次的体力计入收益，不操作设备。"
+        },
+        "action_id": "calculate"
+      }
+    ]
+  }
+}
