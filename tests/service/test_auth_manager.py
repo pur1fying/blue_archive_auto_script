@@ -33,7 +33,8 @@ def _cleanup(path: Path) -> None:
 def test_auth_manager_password_change_revokes_sessions(monkeypatch):
     root = _workspace_tmp()
     monkeypatch.setattr(auth_manager_module, "argon2", lambda password, salt: (password.encode("utf-8") + b"0" * 32)[:32])
-    try:
+
+    async def scenario():
         manager = ServiceAuthManager(root)
         state = manager.initialize_password("secret")
         session = manager._new_session_from_secrets(
@@ -43,12 +44,15 @@ def test_auth_manager_password_change_revokes_sessions(monkeypatch):
         )
         queue = manager.subscribe_control(session.session_id)
 
-        new_state = asyncio.run(manager.change_password(session_id=session.session_id, new_password="new-secret"))
+        new_state = await manager.change_password(session_id=session.session_id, new_password="new-secret")
 
         assert new_state.pwd_epoch == 2
         assert queue.get_nowait()["type"] == "auth_revoked"
         with pytest.raises(AuthenticationError, match="Unknown or revoked"):
             manager.get_session(session.session_id)
+
+    try:
+        asyncio.run(scenario())
     finally:
         _cleanup(root)
 

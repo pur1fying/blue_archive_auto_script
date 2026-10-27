@@ -22,10 +22,21 @@ router = APIRouter()
 _logger = logging.getLogger(__name__)
 
 
+async def _stop_control_senders(*tasks: Optional[asyncio.Task]) -> None:
+    for task in tasks:
+        if task is not None:
+            task.cancel()
+    for task in tasks:
+        if task is not None:
+            with suppress(asyncio.CancelledError):
+                await task
+
+
 @router.websocket("/ws/control")
 async def websocket_control(websocket: WebSocket) -> None:
     revoke_queue = None
     sender_task = heartbeat_task = None
+    write_lock = asyncio.Lock()
     session: Optional[ActiveSession] = None
     try:
         _logger.debug("Control websocket connection started")
@@ -48,6 +59,7 @@ async def websocket_control(websocket: WebSocket) -> None:
                 websocket,
                 control_channel=control_channel,
                 revoke_queue=revoke_queue,
+                write_lock=write_lock,
             )
         )
         heartbeat_task = asyncio.create_task(
@@ -55,17 +67,46 @@ async def websocket_control(websocket: WebSocket) -> None:
                 websocket,
                 control_channel=control_channel,
                 interval=3.0,
+                write_lock=write_lock,
             )
         )
         while True:
             message = control_channel.decrypt(await websocket.receive_json())
             msg_type = message.get("type")
             if msg_type == "ping":
-                await websocket.send_json(control_channel.encrypt({"type": "pong", "timestamp": unix_timestamp_ms()}))
+                async with write_lock:
+                    await websocket.send_json(control_channel.encrypt({"type": "pong", "timestamp": unix_timestamp_ms()}))
             elif msg_type == "change_password":
-                _logger.warning("Password change requested session_id=%s", session.session_id)
-                new_password = str(message.get("new_password", ""))
-                await context.auth_manager.change_password(session_id=session.session_id, new_password=new_password)
+                new_password = message.get("new_password")
+                if not isinstance(new_password, str) or not new_password.strip():
+                    raise AuthenticationError("New key is required")
+                request_id = message.get("request_id")
+                if request_id is not None and (
+                    not isinstance(request_id, str) or not request_id.strip() or len(request_id) > 128
+                ):
+                    raise AuthenticationError("Invalid key change request ID")
+
+                # Finish any in-flight write before cancelling senders, preserving
+                # encrypted frame order and ownership through acknowledgement/close.
+                async with write_lock:
+                    await _stop_control_senders(sender_task, heartbeat_task)
+                    sender_task = heartbeat_task = None
+                    _logger.info("Key change requested session_id=%s", session.session_id)
+                    state = await context.auth_manager.change_password(
+                        session_id=session.session_id, new_password=new_password
+                    )
+                    if request_id is not None:
+                        await websocket.send_json(control_channel.encrypt({
+                            "type": "key_changed",
+                            "request_id": request_id,
+                            "pwd_epoch": state.pwd_epoch,
+                        }))
+                    await websocket.send_json(control_channel.encrypt({
+                        "type": "auth_revoked",
+                        "reason": "password_changed",
+                        "pwd_epoch": state.pwd_epoch,
+                    }))
+                    await websocket.close(code=4401, reason="password_changed")
                 return
             else:
                 raise AuthenticationError(f"Unsupported control message: {msg_type}")
@@ -82,9 +123,5 @@ async def websocket_control(websocket: WebSocket) -> None:
     finally:
         if session is not None and revoke_queue is not None:
             context.auth_manager.unsubscribe_control(session.session_id, revoke_queue)
-        for task in (sender_task, heartbeat_task):
-            if task:
-                task.cancel()
-                with suppress(asyncio.CancelledError):
-                    await task
+        await _stop_control_senders(sender_task, heartbeat_task)
         _logger.debug("Control websocket closed")
