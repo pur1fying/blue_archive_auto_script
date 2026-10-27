@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 import requests
+import setuptools  # noqa: F401 - initialize the distutils shim for legacy adbutils on Python 3.12
 
 from core.Baas_thread import Baas_thread
 from core.config.default_config import DEFAULT_CONFIG
