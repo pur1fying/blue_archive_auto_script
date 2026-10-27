@@ -1,0 +1,43 @@
+name: Telegram notification configuration
+
+on:
+  pull_request:
+    paths:
+      - 'core/Baas_thread.py'
+      - 'core/pushkit.py'
+      - 'tests/service/test_telegram_config.py'
+      - 'develop_tools/test/test_telegram_push.py'
+      - '.github/workflows/telegram-config.yml'
+  push:
+    branches: [master, 'codex/fix-telegram-identifiers']
+    paths:
+      - 'core/Baas_thread.py'
+      - 'core/pushkit.py'
+      - 'tests/service/test_telegram_config.py'
+      - 'develop_tools/test/test_telegram_push.py'
+      - '.github/workflows/telegram-config.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  telegram:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python: ['3.9', '3.12']
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install service test dependencies
+        run: python -m pip install -e ".[service,test]"
+      - name: Verify exact chat IDs and task behavior without network messages
+        run: >-
+          python -m pytest -q tests/service/test_telegram_config.py
+          develop_tools/test/test_telegram_push.py tests/core/test_task_retry.py
