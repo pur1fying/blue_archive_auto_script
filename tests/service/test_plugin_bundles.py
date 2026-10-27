@@ -174,10 +174,13 @@ def test_examples_run_in_the_actual_isolated_worker(plugin_id, external):
         "input": with_defaults(action["input_schema"], {}),
     }
     worker = ROOT / "service/plugins/worker.py"
+    environment = {key: os.environ[key] for key in (
+        "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "LANG", "LC_ALL",
+    ) if key in os.environ}
     process = subprocess.run(
         [sys.executable, "-I", "-B", str(worker), str(directory)],
-        input=json.dumps(request), text=True, capture_output=True, timeout=5,
-        env={"PATH": os.defpath, "LANG": "C.UTF-8"},
+        input=json.dumps(request, ensure_ascii=False).encode("utf-8"), capture_output=True, timeout=5,
+        env=environment,
     )
-    assert process.returncode == 0 and process.stderr == ""
-    assert json.loads(process.stdout) == {"ok": True, "result": call(plugin_id, external=external)}
+    assert process.returncode == 0 and process.stderr == b""
+    assert json.loads(process.stdout.decode("utf-8")) == {"ok": True, "result": call(plugin_id, external=external)}
