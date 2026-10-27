@@ -717,7 +717,8 @@ class Baas_thread:
             self.config = copy.deepcopy(self.config_set.config)
             for field in fields(self.config):
                 value = getattr(self.config, field.name)
-                if type(value) is not str:
+                # Telegram IDs are strings; signed/large IDs must not become lossy floats.
+                if type(value) is not str or field.name == "push_telegram_chat_id":
                     continue
                 if value.isdigit():
                     setattr(self.config, field.name, int(value))
