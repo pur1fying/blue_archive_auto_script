@@ -213,6 +213,26 @@ def test_later_page_failure_preserves_rows_and_does_not_cache_them_as_complete(m
     assert call(tmp_path)["source"] == "github"
 
 
+def test_partial_refresh_preserves_larger_cache_without_reusing_old_tip_as_fresh(monkeypatch, tmp_path):
+    previous = [entry(i) for i in range(1000, 1500)]
+    cache(tmp_path, previous, has_more=True)
+    def page(repository, reference, number, timeout, token=None):
+        if number > 1:
+            raise history.HistoryUnavailable("offline")
+        return [{"sha": entry(i)["hash"], "commit": {"author": {"name": "Author"}, "message": "Subject"}}
+                for i in range(100)]
+    monkeypatch.setattr(history, "_github_page", page)
+    result = call(tmp_path, limit=200, refresh=True)
+    assert len(result["entries"]) == 100 and result["partial"] is True
+    path = tmp_path / "config/commit-history/dev.json"
+    saved = json.loads(path.read_text())
+    assert saved["entries"] == previous and saved["partial"] is True
+    # The old, larger cache still has a live TTL; it must not hide the known
+    # changed tip on the next ordinary history request.
+    monkeypatch.setattr(history, "_fetch_github", lambda *_: ([entry(8)], False, False, None))
+    assert call(tmp_path)["entries"] == [entry(8)]
+
+
 def test_empty_author_is_normalized_without_adding_email_or_body(monkeypatch, tmp_path):
     monkeypatch.setattr(history, "_github_page", lambda *_: [{
         "sha": entry()["hash"], "commit": {"author": {"name": "  "}, "message": "Subject"}}])

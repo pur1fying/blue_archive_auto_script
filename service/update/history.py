@@ -279,6 +279,13 @@ def get_commit_history(channel: Optional[str] = None, limit: int = 100, refresh:
             document = {"schema": 1, "repository": repository, "reference": REFERENCE,
                         "fetched_at": time.time(), "has_more": has_more, "entries": entries,
                         "partial": partial}
+            if partial and cached and len(cached["entries"]) > len(entries):
+                # Keep the larger offline snapshot. A failed refresh may have
+                # discovered a newer tip, so it must no longer pass the fresh
+                # cache shortcut, even if its original TTL has not expired.
+                document = {"schema": 1, "repository": repository, "reference": REFERENCE,
+                            "fetched_at": cached["fetched_at"], "has_more": cached["has_more"],
+                            "entries": cached["entries"], "partial": True}
             try:
                 _write_json(cache_path, document)
             except (OSError, ValueError):
