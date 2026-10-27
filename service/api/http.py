@@ -61,6 +61,7 @@ async def health() -> Dict[str, Any]:
     auth_state = context.auth_manager.password_state
     return {
         "ok": True,
+        "plugins_api_version": 1,
         "statuses": statuses,
         "auth": {
             "initialized": auth_state.initialized,

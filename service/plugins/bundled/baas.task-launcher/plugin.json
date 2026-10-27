@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "api_version": 1,
+  "id": "baas.task-launcher",
+  "version": "1.0.0",
+  "name": {"en": "Task launcher", "zh": "单项任务"},
+  "description": {
+    "en": "Run an existing automation task using the selected profile's stages and teams. Edit its options in Configuration before starting.",
+    "zh": "使用当前配置中的关卡和编队执行已有自动化任务。开始前可在配置页调整任务参数。"
+  },
+  "author": "BAAS contributors",
+  "permissions": ["device.tasks"],
+  "settings_schema": {"type": "object", "properties": {}, "additionalProperties": false},
+  "actions": [
+    {
+      "id": "normal",
+      "name": {"en": "Normal missions", "zh": "普通关卡推图"},
+      "description": {"en": "Uses the normal mission settings of the current profile.", "zh": "使用当前配置中的普通关卡推图设置。"},
+      "execution": "device_task",
+      "task_name": "explore_normal_task",
+      "input_schema": {"type": "object", "properties": {}, "additionalProperties": false}
+    },
+    {
+      "id": "hard",
+      "name": {"en": "Hard missions", "zh": "困难关卡推图"},
+      "execution": "device_task",
+      "task_name": "explore_hard_task",
+      "input_schema": {"type": "object", "properties": {}, "additionalProperties": false}
+    },
+    {
+      "id": "story",
+      "name": {"en": "Main story", "zh": "主线剧情"},
+      "execution": "device_task",
+      "task_name": "main_story",
+      "input_schema": {"type": "object", "properties": {}, "additionalProperties": false}
+    }
+  ],
+  "contributions": {
+    "home": [
+      {
+        "id": "normal-missions",
+        "title": {"en": "Normal missions", "zh": "普通关卡推图"},
+        "description": {"en": "Open the task launcher", "zh": "打开单项任务插件"},
+        "action_id": "normal"
+      }
+    ]
+  }
+}
