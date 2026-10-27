@@ -112,6 +112,14 @@ async def execute_command(cmd: CommandMessage, binary_payload: bytes | None = No
         result = await context.runtime.check_for_update()
         return {"status": "ok", "data": result}
 
+    if cmd.command == "get_commit_history":
+        result = await context.runtime.get_commit_history(
+            cmd.payload.get("channel"),
+            cmd.payload.get("limit", 100),
+            cmd.payload.get("refresh", False),
+        )
+        return {"status": "ok", "data": result}
+
     if cmd.command == "update_setup_toml":
         result = await context.runtime.update_setup_toml(cmd.payload)
         return {"status": "ok", "data": result}
