@@ -26,6 +26,11 @@ jobs:
           echo "version=$version" | tee -a "$GITHUB_OUTPUT"
           echo "release_note=$release_note" | tee -a "$GITHUB_OUTPUT"
 
+      - name: Package commit metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 develop_tools/package_commit_history.py --repository pur1fying/blue_archive_auto_script
+
       - name: Remove .git
         run: |
           rm -rf .git

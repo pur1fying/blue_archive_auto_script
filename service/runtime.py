@@ -31,6 +31,7 @@ from .update import (
     write_setup_toml,
 )
 from .update.setup_schema import migrate_to_current_schema
+from .update.history import get_commit_history
 
 if TYPE_CHECKING:
     from core.Baas_thread import Baas_thread
@@ -680,6 +681,10 @@ class ServiceRuntime:
         all_update_res = await run_blocking(check_for_update)
         self.publish_version_update(all_update_res)
         return all_update_res
+
+    @staticmethod
+    async def get_commit_history(channel=None, limit=100, refresh=False):
+        return await run_blocking(get_commit_history, channel, limit, refresh)
 
     @staticmethod
     async def update_setup_toml(payload: Dict[str, Any]) -> Dict[str, Any]:

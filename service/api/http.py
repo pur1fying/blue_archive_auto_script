@@ -66,6 +66,7 @@ async def health() -> Dict[str, Any]:
             "initialized": auth_state.initialized,
             "pwd_epoch": auth_state.pwd_epoch,
             "server_sign_public_key": context.auth_manager.server_public_key_b64(),
+            "key_reset_supported": True,
         },
     }
 

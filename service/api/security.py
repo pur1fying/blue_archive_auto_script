@@ -169,14 +169,17 @@ async def control_sender(
     *,
     control_channel: JsonChaChaChannel,
     revoke_queue: asyncio.Queue,
+    write_lock: Optional[asyncio.Lock] = None,
 ) -> None:
+    write_lock = write_lock or asyncio.Lock()
     try:
         while True:
             payload = await revoke_queue.get()
-            await websocket.send_json(control_channel.encrypt(payload))
-            if payload.get("type") == "auth_revoked":
-                await websocket.close(code=4401, reason=payload.get("reason", "revoked"))
-                return
+            async with write_lock:
+                await websocket.send_json(control_channel.encrypt(payload))
+                if payload.get("type") == "auth_revoked":
+                    await websocket.close(code=4401, reason=payload.get("reason", "revoked"))
+                    return
     except asyncio.CancelledError:
         pass
     except WebSocketDisconnect:
@@ -188,17 +191,20 @@ async def control_heartbeat_sender(
     *,
     control_channel: JsonChaChaChannel,
     interval: float,
+    write_lock: Optional[asyncio.Lock] = None,
 ) -> None:
+    write_lock = write_lock or asyncio.Lock()
     try:
         while True:
-            await websocket.send_json(
-                control_channel.encrypt(
-                    {
-                        "type": "heartbeat",
-                        "timestamp": unix_timestamp_ms(),
-                    }
+            async with write_lock:
+                await websocket.send_json(
+                    control_channel.encrypt(
+                        {
+                            "type": "heartbeat",
+                            "timestamp": unix_timestamp_ms(),
+                        }
+                    )
                 )
-            )
             await asyncio.sleep(interval)
     except asyncio.CancelledError:
         pass
