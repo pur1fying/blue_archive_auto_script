@@ -71,6 +71,7 @@ class PluginManager:
         self._processes: dict[str, asyncio.subprocess.Process] = {}
         self._requests: dict[tuple[str, str], tuple[str, bytes]] = {}
         self._cancelling: set[str] = set()
+        self._android_workers = None
 
     @property
     def _lock(self):
@@ -400,6 +401,13 @@ class PluginManager:
     async def _compute(self, job: dict, package: dict, action: dict, inputs: dict, settings: dict) -> Any:
         request = json_size({"entrypoint": action["entrypoint"], "input": inputs,
                              "context": {"api_version": 1, "plugin_id": job["plugin_id"], "config_id": job["config_id"], "settings": settings}}, 131072)
+        if os.getenv("BAAS_ANDROID", "").lower() in {"1", "true", "yes", "on"}:
+            from .android import AndroidWorkerPool
+
+            if self._android_workers is None:
+                self._android_workers = AndroidWorkerPool()
+            content = await self._android_workers.run(job["id"], package["directory"], request, self._processes)
+            return self._worker_result(content)
         # Keep OS essentials for supported Windows/Python installations, never BAAS secrets.
         environment = {k: os.environ[k] for k in ("SYSTEMROOT", "WINDIR", "TEMP", "TMP", "LANG", "LC_ALL") if k in os.environ}
         launching = asyncio.create_task(asyncio.create_subprocess_exec(
@@ -436,17 +444,7 @@ class PluginManager:
             content = b"".join(chunks)
             await process.wait()
             require(process.returncode == 0, "WORKER_EXITED", "Plugin worker exited unexpectedly.")
-            try:
-                response = json.loads(content)
-            except (ValueError, RecursionError):
-                raise PluginError("INVALID_RESULT", "Plugin worker returned invalid JSON.") from None
-            require(isinstance(response, dict), "INVALID_RESULT", "Plugin worker returned invalid data.")
-            if response.get("ok") is not True:
-                code = "RESULT_TOO_LARGE" if response.get("code") == "RESULT_TOO_LARGE" else "ACTION_FAILED"
-                raise PluginError(code, "Plugin result exceeds 64 KiB." if code == "RESULT_TOO_LARGE" else "Plugin action failed.")
-            result = response.get("result")
-            json_size(result)
-            return result
+            return self._worker_result(content)
         finally:
             # Own process group is stopped even when a plugin left child processes.
             if close_windows_job is not None:
@@ -461,6 +459,21 @@ class PluginManager:
                     process.kill()
                 await process.wait()
             self._processes.pop(job["id"], None)
+
+    @staticmethod
+    def _worker_result(content: bytes) -> Any:
+        require(len(content) <= 131072, "RESULT_TOO_LARGE", "Plugin worker output exceeds its limit.")
+        try:
+            response = json.loads(content)
+        except (ValueError, RecursionError):
+            raise PluginError("INVALID_RESULT", "Plugin worker returned invalid JSON.") from None
+        require(isinstance(response, dict), "INVALID_RESULT", "Plugin worker returned invalid data.")
+        if response.get("ok") is not True:
+            code = "RESULT_TOO_LARGE" if response.get("code") == "RESULT_TOO_LARGE" else "ACTION_FAILED"
+            raise PluginError(code, "Plugin result exceeds 64 KiB." if code == "RESULT_TOO_LARGE" else "Plugin action failed.")
+        result = response.get("result")
+        json_size(result)
+        return result
 
     async def install(self, archive: bytes | None) -> dict:
         async with self._lock:
