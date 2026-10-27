@@ -206,15 +206,16 @@ def test_timeout_and_cancel_reap_real_worker_and_its_children(tmp_path, cancel):
  with open({str(marker)!r}, 'w') as stream: json.dump([os.getpid(),child.pid],stream)
  time.sleep(30)
 """
-    package(tmp_path, source, manifest(timeout=3 if cancel else 0.3))
+    # The action deadline includes Python cold startup. Allow startup under a
+    # busy native build, while still observing a real child before testing reap.
+    package(tmp_path, source, manifest(timeout=8 if cancel else 3))
     manager = host(tmp_path)
 
     async def scenario():
         await enabled(manager)
         job = await run(manager)
-        for _ in range(100):
-            if marker.exists():
-                break
+        deadline = asyncio.get_running_loop().time() + 5
+        while not marker.exists() and asyncio.get_running_loop().time() < deadline:
             await asyncio.sleep(0.01)
         assert marker.exists()
         if cancel:

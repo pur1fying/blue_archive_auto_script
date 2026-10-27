@@ -52,4 +52,5 @@ jobs:
           tests/service/test_plugins.py
           tests/service/test_plugins_transport.py
           tests/service/test_plugins_runtime.py
+          tests/service/test_plugins_android.py
           tests/service/test_plugin_bundles.py
