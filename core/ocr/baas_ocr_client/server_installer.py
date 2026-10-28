@@ -30,7 +30,6 @@ if sys.platform not in ["win32", "linux", "darwin"]:
 
 OCR_SERVER_PREBUILD_URL = "https://gitee.com/pur1fy/baas_-cpp_prebuild.git"
 OCR_SERVER_PREBUILD_ARCHIVE_URLS = [
-    "https://baas-cdn.kiramei.workers.dev/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
     "https://codeload.github.com/pur1fying/BAAS_Cpp_prebuild/zip/refs/heads/{branch}",
     "https://v4.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",
     "https://v6.gh-proxy.org/https://github.com/pur1fying/BAAS_Cpp_prebuild/archive/refs/heads/{branch}.zip",

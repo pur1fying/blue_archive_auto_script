@@ -4,7 +4,10 @@ import copy
 from pathlib import Path
 from typing import Any, Dict
 
-from deploy.installer.const import method_for_repo_url, normalize_update_channel, repo_url_for_method
+from deploy.installer.const import (
+    is_retired_repo_url, method_for_repo_url, normalize_repo_method,
+    normalize_update_channel, repo_url_for_method,
+)
 from deploy.installer.toml_config import DEFAULT_SETTINGS as LEGACY_DEFAULT_SETTINGS
 
 CURRENT_SCHEMA_VERSION = 1
@@ -108,12 +111,12 @@ def migrate_to_current_schema(data: Dict[str, Any]) -> Dict[str, Any]:
         legacy_general.get("current_baas_cpp_version"),
         legacy_general.get("current_BAAS_Cpp_version"),
     )
-    current_general["get_remote_sha_method"] = _first_string(
+    current_general["get_remote_sha_method"] = normalize_repo_method(_first_string(
         general.get("get_remote_sha_method"),
         general.get("getRemoteShaMethod"),
         legacy_general.get("get_remote_sha_method"),
         method_for_repo_url(legacy_urls.get("REPO_URL_HTTP")),
-    )
+    ))
     current_general["launch"] = _first_bool(current_general["launch"], general.get("launch"), legacy_general.get("launch"))
     current_general["force_launch"] = _first_bool(
         current_general["force_launch"],
@@ -179,6 +182,14 @@ def migrate_to_current_schema(data: Dict[str, Any]) -> Dict[str, Any]:
         current_repositories["main_sources"] = repositories["mainSources"]
     if isinstance(repositories.get("cppSources"), list):
         current_repositories["cpp_sources"] = repositories["cppSources"]
+    for key, sources in current_repositories.items():
+        if isinstance(sources, list):
+            current_repositories[key] = [
+                source for source in sources
+                if not (isinstance(source, dict) and (
+                    source.get("name") == "baas_cdn" or is_retired_repo_url(source.get("url"))
+                ))
+            ]
     return current
 
 

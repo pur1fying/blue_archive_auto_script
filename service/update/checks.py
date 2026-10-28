@@ -127,8 +127,6 @@ def _github_archive_url_for_config(config: Dict[str, Any]) -> Optional[str]:
         return f"{scheme}://{host}/{github_archive_url}"
     if host == "githubfast.com":
         return f"{scheme}://{host}/{owner}/{repo}/archive/refs/heads/{branch}.zip"
-    if host == "baas-cdn.kiramei.workers.dev":
-        return f"{scheme}://{host}/{github_archive_url}"
     return f"https://codeload.github.com/{owner}/{repo}/zip/refs/heads/{branch}"
 
 

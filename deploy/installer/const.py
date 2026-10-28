@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from urllib.parse import urlparse
 
 REPO_BRANCH = "master"
 DEFAULT_UPDATE_CHANNEL = "stable"
@@ -71,12 +72,6 @@ CHANNEL_REPO_SHA_METHODS = {
             "url": "https://githubfast.com/pur1fying/blue_archive_auto_script.git",
             "branch": REPO_BRANCH,
         },
-        {
-            "name": "baas_cdn",
-            "method": GetShaMethod.PYGIT2,
-            "url": "https://baas-cdn.kiramei.workers.dev/https://github.com/pur1fying/blue_archive_auto_script.git",
-            "branch": REPO_BRANCH,
-        },
     ],
     "dev": [
         {
@@ -133,12 +128,6 @@ CHANNEL_REPO_SHA_METHODS = {
             "url": "https://githubfast.com/Kiramei/baas-dev.git",
             "branch": REPO_BRANCH,
         },
-        {
-            "name": "baas_cdn",
-            "method": GetShaMethod.PYGIT2,
-            "url": "https://baas-cdn.kiramei.workers.dev/https://github.com/Kiramei/baas-dev.git",
-            "branch": REPO_BRANCH,
-        },
     ],
 }
 
@@ -152,7 +141,22 @@ def get_remote_sha_methods_for_channel(channel=DEFAULT_UPDATE_CHANNEL):
     return [dict(item) for item in CHANNEL_REPO_SHA_METHODS[normalize_update_channel(channel)]]
 
 
+def normalize_repo_method(method_name):
+    """Migrate the retired source without advertising it as an update candidate."""
+    return "github" if method_name == "baas_cdn" else method_name
+
+
+def is_retired_repo_url(url):
+    if not isinstance(url, str):
+        return False
+    try:
+        return urlparse(url).hostname == "baas-cdn.kiramei.workers.dev"
+    except ValueError:
+        return False
+
+
 def repo_url_for_method(method_name, channel=DEFAULT_UPDATE_CHANNEL):
+    method_name = normalize_repo_method(method_name)
     for method in get_remote_sha_methods_for_channel(channel):
         if method.get("name") == method_name and method.get("url"):
             return method["url"]
@@ -160,6 +164,8 @@ def repo_url_for_method(method_name, channel=DEFAULT_UPDATE_CHANNEL):
 
 
 def method_for_repo_url(url):
+    if is_retired_repo_url(url):
+        return "github"
     for methods in CHANNEL_REPO_SHA_METHODS.values():
         for method in methods:
             if method.get("url") == url:

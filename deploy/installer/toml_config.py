@@ -1,6 +1,11 @@
 import os
 import tomli_w
 
+if __package__:
+    from .const import is_retired_repo_url, normalize_repo_method, repo_url_for_method
+else:
+    from const import is_retired_repo_url, normalize_repo_method, repo_url_for_method
+
 # The service schema and the desktop UI share one setup.toml. Keep these
 # aliases here so reading desktop settings never imports the service runtime.
 _SETUP_KEY_ALIASES = {
@@ -85,6 +90,22 @@ class TOML_Config:
     def _init_config(self):
         with open(self.config_path, 'rb') as f:
             self.config = tomllib.load(f)
+        # Legacy launchers read setup.toml directly, without service schema migration.
+        for section_name in ("General", "general"):
+            section = self.config.get(section_name, {})
+            if isinstance(section, dict):
+                for key in ("get_remote_sha_method", "getRemoteShaMethod"):
+                    if key in section:
+                        previous = section[key]
+                        section[key] = normalize_repo_method(previous)
+                        if section[key] != previous and not section.get("get_remote_sha_method"):
+                            section["get_remote_sha_method"] = section[key]
+        urls = self.config.get("URLs", {})
+        if isinstance(urls, dict) and is_retired_repo_url(urls.get("REPO_URL_HTTP")):
+            general = self.config.get("general", {})
+            legacy = self.config.get("General", {})
+            channel = general.get("channel") or legacy.get("channel") or ("dev" if legacy.get("dev") else "stable")
+            urls["REPO_URL_HTTP"] = repo_url_for_method("github", channel)
 
     def get(self, key, default=None):
         if "general" in self.config:
@@ -102,10 +123,6 @@ class TOML_Config:
             if key == "General.dev" and "channel" in self.config["general"]:
                 return self.config["general"].get("channel", "stable") == "dev"
             if key == "URLs.REPO_URL_HTTP":
-                try:
-                    from .const import repo_url_for_method
-                except ImportError:  # Standalone installer.py
-                    from const import repo_url_for_method
                 general = self.config["general"]
                 url = repo_url_for_method(
                     general.get("get_remote_sha_method"), general.get("channel", "stable")
