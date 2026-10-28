@@ -43,12 +43,6 @@ open mappings/handles. Stop and process exit cancel blocked readers, writers,
 and inbound byte-budget waits. Linux uses pidfd when available and `/proc` state
 and start time otherwise.
 
-Run service tests with:
-
-```bash
-python -m pytest tests/service
-```
-
 Run a basic import/compile check with:
 
 ```bash

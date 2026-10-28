@@ -10,7 +10,7 @@ A package contains `plugin.json` at its root and, for computation, ordinary Pyth
 
 `schema_version` describes the manifest format, `api_version` describes the host contract, and `version` is the plugin's own version. All three are separate. API v1 accepts schema/API integer `1`; incompatible versions are reported in the catalog. A stable, lowercase plugin ID may use namespaced dots, underscores or hyphens. IDs are never paths. Duplicate IDs cannot replace a bundled plugin or another installed plugin.
 
-See `examples/plugins/example.notes/` for a complete installable package. Its computation entry point is `main:run`:
+A computation entry point uses `module:function` syntax, for example `main:run`:
 
 ```python
 def run(context, inputs):

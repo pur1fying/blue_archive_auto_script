@@ -62,10 +62,7 @@ Business websockets share the same resume pattern:
 
 ```bash
 python -m compileall -q service
-python -m pytest tests/service
 ```
-
-The service test suite uses lightweight fake contexts for protocol contracts so OCR, devices, and emulator state are not required for normal route tests.
 
 Compatibility checks should continue to cover these imports:
 

@@ -53,14 +53,23 @@ from halo import Halo
 from loguru import logger
 from pygit2 import Repository
 
-# Internal imports
-from toml_config import TOML_Config, DEFAULT_SETTINGS
-from mirrorc_update.mirrorc_updater import MirrorC_Updater
-from const import GetShaMethod, get_remote_sha_methods, REPO_BRANCH
-from git_backend import (
-    NonInteractiveCallbacks, clone_repository, ensure_origin,
-    fetch_and_reset_branch, install_staged_repository, remote_branch_sha, rollback_repository,
-)
+# The same entry point is imported as a package or executed/frozen on its own.
+if __package__:
+    from .toml_config import TOML_Config, DEFAULT_SETTINGS
+    from .mirrorc_update.mirrorc_updater import MirrorC_Updater
+    from .const import GetShaMethod, get_remote_sha_methods, REPO_BRANCH
+    from .git_backend import (
+        NonInteractiveCallbacks, clone_repository, ensure_origin,
+        fetch_and_reset_branch, install_staged_repository, remote_branch_sha, rollback_repository,
+    )
+else:
+    from toml_config import TOML_Config, DEFAULT_SETTINGS
+    from mirrorc_update.mirrorc_updater import MirrorC_Updater
+    from const import GetShaMethod, get_remote_sha_methods, REPO_BRANCH
+    from git_backend import (
+        NonInteractiveCallbacks, clone_repository, ensure_origin,
+        fetch_and_reset_branch, install_staged_repository, remote_branch_sha, rollback_repository,
+    )
 
 # ==================== Global Constants & System Checks ====================
 
@@ -892,7 +901,7 @@ class AppLauncher:
                 def create_executable():
                     PyInstaller.__main__.run(
                         [
-                            str(self.baas_root / "installer.py"),
+                            str(self.baas_root / "deploy/installer/installer.py"),
                             "--name=BlueArchiveAutoScript",
                             "--onefile",
                             "--icon=gui/assets/logo.ico",

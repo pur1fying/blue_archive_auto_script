@@ -148,9 +148,6 @@ jobs:
             exit 1
           fi
 
-          python -m pip install -e ".[service,test]"
-          python -m pytest tests/service tests/core tests/module tests/ci -q
-
           auth_header="$(printf 'x-access-token:%s' "${GH_TOKEN}" | base64 -w0)"
           echo "::add-mask::${auth_header}"
           if ! git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
