@@ -10,7 +10,7 @@ from typing import Any
 from .errors import PluginError, require
 
 API_VERSION = 1
-CAPABILITIES = ["compute", "device.tasks", "home.cards", "settings.schema.v1", "install", "uninstall"]
+CAPABILITIES = ["compute", "device.tasks", "home.cards", "settings.schema.v1", "install", "uninstall", "host.automation.v1"]
 PERMISSIONS = {"compute", "device.tasks"}
 ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$")
 ENTRY_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*:[a-zA-Z_][a-zA-Z0-9_]*$")
@@ -73,7 +73,7 @@ _COMMON = {"type", "title", "description", "default", "enum"}
 _KEYS = {
     "object": _COMMON | {"properties", "required", "additionalProperties"},
     "array": _COMMON | {"items", "minItems", "maxItems"},
-    "string": _COMMON | {"minLength", "maxLength"},
+    "string": _COMMON | {"minLength", "maxLength", "format"},
     "integer": _COMMON | {"minimum", "maximum"},
     "number": _COMMON | {"minimum", "maximum"},
     "boolean": _COMMON,
@@ -89,6 +89,9 @@ def validate_schema(schema: Any, depth: int = 0, budget: list[int] | None = None
     require(isinstance(schema, dict) and schema.get("type") in _KEYS,
             "INVALID_SCHEMA", "Each schema must declare a supported type.")
     kind = schema["type"]
+    if "format" in schema:
+        require(kind == "string" and schema["format"] == "date-time",
+                "INVALID_SCHEMA", "Only string date-time input hints are supported.")
     require(set(schema) <= _KEYS[kind], "INVALID_SCHEMA", "Unsupported schema keyword.")
     for field in ("title", "description"):
         if field in schema:
@@ -209,17 +212,21 @@ def validate_manifest(data: Any) -> dict:
         if "output_schema" in action:
             validate_schema(action["output_schema"])
         execution = action.get("execution")
-        require(execution in {"compute", "device_task"}, "UNSUPPORTED_CAPABILITY", "Unsupported action execution mode.")
+        require(execution in {"compute", "device_task", "host_automation"}, "UNSUPPORTED_CAPABILITY", "Unsupported action execution mode.")
         permission = "compute" if execution == "compute" else "device.tasks"
         require(permission in perms, "MISSING_PERMISSION", "An action lacks its required permission.")
         if execution == "compute":
             require(isinstance(action.get("entrypoint"), str) and ENTRY_RE.fullmatch(action["entrypoint"]) is not None
                     and "task_name" not in action, "INVALID_ENTRYPOINT", "Invalid compute entrypoint.")
+        elif execution == "host_automation":
+            from .automation import HOST_ACTIONS
+            require(action_id in HOST_ACTIONS.get(data["id"], ()) and "entrypoint" not in action and "task_name" not in action,
+                    "UNSUPPORTED_AUTOMATION", "Host automation is reserved for declared bundled tools.")
         else:
             require(action.get("task_name") in DEVICE_TASKS and "entrypoint" not in action,
                     "UNSUPPORTED_TASK", "Device actions must reference a supported host task.")
         timeout = action.get("timeout_seconds", 30 if execution == "compute" else 1800)
-        require(finite(timeout) and 0.1 <= timeout <= (120 if execution == "compute" else 3600),
+        require(finite(timeout) and 0.1 <= timeout <= (120 if execution == "compute" else 604800 if execution == "host_automation" else 3600),
                 "INVALID_MANIFEST", "Invalid action timeout.")
     contributions = data.get("contributions", {})
     require(isinstance(contributions, dict) and set(contributions) <= {"home"}, "UNSUPPORTED_CAPABILITY", "Unsupported plugin contribution.")

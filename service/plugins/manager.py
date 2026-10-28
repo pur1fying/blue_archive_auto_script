@@ -5,6 +5,7 @@ import copy
 import hashlib
 import io
 from itertools import islice
+from contextlib import asynccontextmanager
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -28,6 +29,12 @@ MAX_PACKAGE = 32 * 1024 * 1024
 MAX_FILES = 256
 MAX_JOBS = 128
 ACTIVE = {"queued", "running"}
+
+
+@asynccontextmanager
+async def _unlimited_slot():
+    # Long hoarding timelines must not consume the compute worker semaphore.
+    yield
 
 
 async def _blocking(function, *args):
@@ -175,6 +182,8 @@ class PluginManager:
                     if isinstance(raw, dict) and isinstance(raw.get("id"), str):
                         diagnostic["plugin_id"] = identifier(raw["id"])
                     manifest = validate_manifest(raw)
+                    require(source == "builtin" or all(a["execution"] != "host_automation" for a in manifest["actions"]),
+                            "UNSUPPORTED_AUTOMATION", "External packages cannot invoke reserved host automation.")
                     plugin_id = manifest["id"]
                     require(directory.name == plugin_id, "INVALID_ID", "Plugin directory and manifest ID must match.")
                     package = {"manifest": manifest, "source": source, "directory": directory, "digest": self._digest(directory)}
@@ -362,12 +371,15 @@ class PluginManager:
 
     async def _execute(self, job: dict, package: dict, action: dict, inputs: dict, settings: dict, set_log) -> None:
         try:
-            async with self._slots:
+            async with (self._slots if action["execution"] != "host_automation" else _unlimited_slot()):
                 # A queued job must not run a package changed since acceptance.
                 require(await _blocking(self._digest, package["directory"]) == package["digest"], "PACKAGE_CHANGED", "Plugin changed while the action was queued.")
                 self._transition(job, "running")
                 if action["execution"] == "compute":
                     operation = self._compute(job, package, action, inputs, settings)
+                elif action["execution"] == "host_automation":
+                    require(package["source"] == "builtin", "UNSUPPORTED_AUTOMATION", "Host automation requires a bundled tool.")
+                    operation = self.runtime.run_plugin_automation(job["config_id"], job["plugin_id"], action["id"], settings, set_log=set_log, inputs=inputs)
                 else:
                     operation = self.runtime.run_plugin_device_task(job["config_id"], action["task_name"], set_log=set_log)
                 timeout = action.get("timeout_seconds", 30 if action["execution"] == "compute" else 1800)
@@ -524,6 +536,8 @@ class PluginManager:
             except (BadZipFile, RuntimeError, OSError, ValueError, EOFError):
                 raise PluginError("INVALID_ARCHIVE", "ZIP package could not be extracted.") from None
             manifest = validate_manifest(_read_json(temporary / "plugin.json", 262144))
+            require(all(a["execution"] != "host_automation" for a in manifest["actions"]),
+                    "UNSUPPORTED_AUTOMATION", "External packages cannot invoke reserved host automation.")
             plugin_id = manifest["id"]
             existing, _ = self._discover()
             destination = self.external_root / plugin_id

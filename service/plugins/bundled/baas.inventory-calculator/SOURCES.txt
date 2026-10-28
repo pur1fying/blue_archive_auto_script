@@ -1,0 +1,11 @@
+Reference tool and rules:
+https://github.com/pur1fying/blue_archive_auto_script/pull/583
+https://github.com/sakurairsora/blue_archive_auto_script/tree/d4431b66449c3778ee26a7075bc723c4fd61c401/module/tools/schale_inventory
+
+The reference cites the MIT-licensed inventory-management calculator:
+https://github.com/terry-u16/schale-inventory-management
+
+This portable implementation independently counts the same rectangle-placement
+rules with a sparse frontier dynamic program and Python arbitrary-precision
+integers. It does not copy the Qt interface or ship NumPy DP arrays, sampling,
+images, global configuration or any device automation.

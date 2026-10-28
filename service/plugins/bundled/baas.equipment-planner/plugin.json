@@ -1,0 +1,1078 @@
+{
+  "schema_version": 1,
+  "api_version": 1,
+  "id": "baas.equipment-planner",
+  "version": "1.0.0",
+  "name": {
+    "en": "Equipment farming planner",
+    "zh": "装备刷图规划"
+  },
+  "description": {
+    "en": "Equipment and Eleph farming using the CN Schale snapshot from reference PR #583 (missions 1–30, equipment T1–T10). Expected drops are estimates. No device actions or automatic configuration edits.",
+    "zh": "使用参考 PR #583 的国服 Schale 掉落快照（1–30 区、T1–T10）规划装备与神名文字刷取。随机掉落仅为期望值，不操作设备或自动修改扫荡配置。"
+  },
+  "author": "BAAS contributors; reference by sakurairsora",
+  "permissions": [
+    "compute"
+  ],
+  "settings_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "actions": [
+    {
+      "id": "plan",
+      "name": {
+        "en": "Plan equipment farming",
+        "zh": "规划装备刷取"
+      },
+      "description": {
+        "en": "Subtract owned items from target quantities. High-tier random and low-tier fixed strategies use weighted greedy selection, not an optimality guarantee. Hard-stage limits apply to this plan.",
+        "zh": "目标减去已有库存；高阶随机／低阶固定两种加权贪心策略，不保证全局最优。困难关次数上限作用于当前计划。"
+      },
+      "execution": "compute",
+      "entrypoint": "main:plan",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "needs": {
+            "type": "array",
+            "title": {
+              "en": "Equipment targets",
+              "zh": "装备目标"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "slot": {
+                  "type": "string",
+                  "title": {
+                    "en": "Slot",
+                    "zh": "部位"
+                  },
+                  "enum": [
+                    "necklace",
+                    "watch",
+                    "charm",
+                    "hairpin",
+                    "badge",
+                    "bag",
+                    "shoes",
+                    "gloves",
+                    "hat"
+                  ],
+                  "default": "necklace"
+                },
+                "tier": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Tier",
+                    "zh": "阶数"
+                  },
+                  "minimum": 1,
+                  "maximum": 10,
+                  "default": 9
+                },
+                "quantity": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Target quantity",
+                    "zh": "目标数量"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000,
+                  "default": 1
+                },
+                "owned": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Already owned",
+                    "zh": "已有数量"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000,
+                  "default": 0
+                }
+              },
+              "required": [
+                "slot",
+                "tier",
+                "quantity",
+                "owned"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 90,
+            "default": [
+              {
+                "slot": "necklace",
+                "tier": 9,
+                "quantity": 1,
+                "owned": 0
+              }
+            ]
+          },
+          "strategy": {
+            "type": "string",
+            "title": {
+              "en": "Strategy",
+              "zh": "策略"
+            },
+            "enum": [
+              "high_random",
+              "low_fixed"
+            ],
+            "default": "high_random"
+          },
+          "include_normal": {
+            "type": "boolean",
+            "title": {
+              "en": "Include normal missions",
+              "zh": "包含普通关"
+            },
+            "default": true
+          },
+          "include_hard": {
+            "type": "boolean",
+            "title": {
+              "en": "Include hard missions",
+              "zh": "包含困难关"
+            },
+            "default": false
+          },
+          "drop_multiplier": {
+            "type": "number",
+            "title": {
+              "en": "Drop multiplier",
+              "zh": "掉落倍率"
+            },
+            "minimum": 1,
+            "maximum": 3,
+            "default": 1
+          },
+          "max_area": {
+            "type": "integer",
+            "title": {
+              "en": "Highest unlocked area",
+              "zh": "最高已解锁区域"
+            },
+            "minimum": 1,
+            "maximum": 30,
+            "default": 30
+          },
+          "max_stages": {
+            "type": "integer",
+            "title": {
+              "en": "Maximum different stages",
+              "zh": "最多不同关卡数"
+            },
+            "minimum": 1,
+            "maximum": 30,
+            "default": 10
+          },
+          "hard_runs_per_stage": {
+            "type": "integer",
+            "title": {
+              "en": "Hard runs per stage in this plan",
+              "zh": "本计划每个困难关的次数上限"
+            },
+            "minimum": 1,
+            "maximum": 6,
+            "default": 3
+          },
+          "normal_runs_limit": {
+            "type": "integer",
+            "title": {
+              "en": "Total normal runs budget",
+              "zh": "普通关总次数预算"
+            },
+            "minimum": 1,
+            "maximum": 9999,
+            "default": 9999
+          }
+        },
+        "required": [
+          "needs",
+          "strategy",
+          "include_normal",
+          "include_hard",
+          "drop_multiplier",
+          "max_area",
+          "max_stages",
+          "hard_runs_per_stage",
+          "normal_runs_limit"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": {
+              "en": "Dataset region",
+              "zh": "数据区服"
+            },
+            "enum": [
+              "CN"
+            ]
+          },
+          "total_ap": {
+            "type": "integer",
+            "title": {
+              "en": "Total AP",
+              "zh": "总消耗体力"
+            },
+            "minimum": 0,
+            "maximum": 1000000000
+          },
+          "plan": {
+            "type": "array",
+            "title": {
+              "en": "Farming plan",
+              "zh": "刷图计划"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "stage_id": {
+                  "type": "string",
+                  "title": {
+                    "en": "Stage",
+                    "zh": "关卡"
+                  },
+                  "maxLength": 20
+                },
+                "runs": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Runs",
+                    "zh": "次数"
+                  },
+                  "minimum": 1,
+                  "maximum": 9999
+                },
+                "ap": {
+                  "type": "integer",
+                  "title": {
+                    "en": "AP",
+                    "zh": "体力"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000
+                }
+              },
+              "required": [
+                "stage_id",
+                "runs",
+                "ap"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 64
+          },
+          "normal_sweep": {
+            "type": "string",
+            "title": {
+              "en": "Normal sweep configuration",
+              "zh": "普通关扫荡配置"
+            },
+            "maxLength": 4000
+          },
+          "hard_sweep": {
+            "type": "string",
+            "title": {
+              "en": "Hard sweep configuration",
+              "zh": "困难关扫荡配置"
+            },
+            "maxLength": 4000
+          },
+          "yields": {
+            "type": "array",
+            "title": {
+              "en": "Expected drops, including byproducts",
+              "zh": "期望掉落（含副产）"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "equipment_id": {
+                  "type": "string",
+                  "title": {
+                    "en": "Equipment ID",
+                    "zh": "装备标识"
+                  },
+                  "maxLength": 40
+                },
+                "slot": {
+                  "type": "string",
+                  "title": {
+                    "en": "Equipment slot",
+                    "zh": "装备部位"
+                  },
+                  "enum": [
+                    "necklace",
+                    "watch",
+                    "charm",
+                    "hairpin",
+                    "badge",
+                    "bag",
+                    "shoes",
+                    "gloves",
+                    "hat"
+                  ]
+                },
+                "tier": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Tier",
+                    "zh": "阶数"
+                  },
+                  "minimum": 0,
+                  "maximum": 10
+                },
+                "kind": {
+                  "type": "string",
+                  "title": {
+                    "en": "Kind",
+                    "zh": "种类"
+                  },
+                  "enum": [
+                    "blueprint",
+                    "gear",
+                    "universal_blueprint"
+                  ]
+                },
+                "expected": {
+                  "type": "number",
+                  "title": {
+                    "en": "Expected drops",
+                    "zh": "期望掉落"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000000
+                }
+              },
+              "required": [
+                "equipment_id",
+                "slot",
+                "tier",
+                "kind",
+                "expected"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 256
+          },
+          "status": {
+            "type": "string",
+            "title": {
+              "en": "Plan status",
+              "zh": "计划状态"
+            },
+            "enum": [
+              "covered",
+              "planned",
+              "partial"
+            ]
+          },
+          "strategy": {
+            "type": "string",
+            "title": {
+              "en": "Strategy",
+              "zh": "策略"
+            },
+            "enum": [
+              "high_random",
+              "low_fixed"
+            ]
+          },
+          "remaining": {
+            "type": "array",
+            "title": {
+              "en": "Uncovered equipment needs",
+              "zh": "未覆盖的装备缺口"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "slot": {
+                  "type": "string",
+                  "title": {
+                    "en": "Slot",
+                    "zh": "部位"
+                  },
+                  "enum": [
+                    "necklace",
+                    "watch",
+                    "charm",
+                    "hairpin",
+                    "badge",
+                    "bag",
+                    "shoes",
+                    "gloves",
+                    "hat"
+                  ]
+                },
+                "tier": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Tier",
+                    "zh": "阶数"
+                  },
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                "quantity": {
+                  "type": "number",
+                  "title": {
+                    "en": "Remaining expected shortfall",
+                    "zh": "剩余期望缺口"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000
+                }
+              },
+              "required": [
+                "slot",
+                "tier",
+                "quantity"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 90
+          }
+        },
+        "required": [
+          "region",
+          "total_ap",
+          "plan",
+          "normal_sweep",
+          "hard_sweep",
+          "yields",
+          "status",
+          "strategy",
+          "remaining"
+        ],
+        "additionalProperties": false
+      },
+      "timeout_seconds": 12
+    },
+    {
+      "id": "estimate",
+      "name": {
+        "en": "Estimate an edited sweep plan",
+        "zh": "估算编辑后的扫荡计划"
+      },
+      "description": {
+        "en": "Strict stage-runs syntax; prefix hard stages with h. Duplicate stages are merged.",
+        "zh": "使用严格的区域-关卡-次数语法，困难关加 h 前缀；重复关卡合并次数。"
+      },
+      "execution": "compute",
+      "entrypoint": "main:estimate",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sweeps": {
+            "type": "string",
+            "title": {
+              "en": "Stage runs: 14-1-15,h14-1-3",
+              "zh": "关卡次数：14-1-15,h14-1-3"
+            },
+            "minLength": 1,
+            "maxLength": 4000,
+            "default": "14-1-15,h14-1-3"
+          },
+          "drop_multiplier": {
+            "type": "number",
+            "title": {
+              "en": "Drop multiplier",
+              "zh": "掉落倍率"
+            },
+            "minimum": 1,
+            "maximum": 3,
+            "default": 1
+          }
+        },
+        "required": [
+          "sweeps",
+          "drop_multiplier"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": {
+              "en": "Dataset region",
+              "zh": "数据区服"
+            },
+            "enum": [
+              "CN"
+            ]
+          },
+          "total_ap": {
+            "type": "integer",
+            "title": {
+              "en": "Total AP",
+              "zh": "总消耗体力"
+            },
+            "minimum": 0,
+            "maximum": 1000000000
+          },
+          "plan": {
+            "type": "array",
+            "title": {
+              "en": "Farming plan",
+              "zh": "刷图计划"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "stage_id": {
+                  "type": "string",
+                  "title": {
+                    "en": "Stage",
+                    "zh": "关卡"
+                  },
+                  "maxLength": 20
+                },
+                "runs": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Runs",
+                    "zh": "次数"
+                  },
+                  "minimum": 1,
+                  "maximum": 9999
+                },
+                "ap": {
+                  "type": "integer",
+                  "title": {
+                    "en": "AP",
+                    "zh": "体力"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000
+                }
+              },
+              "required": [
+                "stage_id",
+                "runs",
+                "ap"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 64
+          },
+          "normal_sweep": {
+            "type": "string",
+            "title": {
+              "en": "Normal sweep configuration",
+              "zh": "普通关扫荡配置"
+            },
+            "maxLength": 4000
+          },
+          "hard_sweep": {
+            "type": "string",
+            "title": {
+              "en": "Hard sweep configuration",
+              "zh": "困难关扫荡配置"
+            },
+            "maxLength": 4000
+          },
+          "yields": {
+            "type": "array",
+            "title": {
+              "en": "Expected drops, including byproducts",
+              "zh": "期望掉落（含副产）"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "equipment_id": {
+                  "type": "string",
+                  "title": {
+                    "en": "Equipment ID",
+                    "zh": "装备标识"
+                  },
+                  "maxLength": 40
+                },
+                "slot": {
+                  "type": "string",
+                  "title": {
+                    "en": "Equipment slot",
+                    "zh": "装备部位"
+                  },
+                  "enum": [
+                    "necklace",
+                    "watch",
+                    "charm",
+                    "hairpin",
+                    "badge",
+                    "bag",
+                    "shoes",
+                    "gloves",
+                    "hat"
+                  ]
+                },
+                "tier": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Tier",
+                    "zh": "阶数"
+                  },
+                  "minimum": 0,
+                  "maximum": 10
+                },
+                "kind": {
+                  "type": "string",
+                  "title": {
+                    "en": "Kind",
+                    "zh": "种类"
+                  },
+                  "enum": [
+                    "blueprint",
+                    "gear",
+                    "universal_blueprint"
+                  ]
+                },
+                "expected": {
+                  "type": "number",
+                  "title": {
+                    "en": "Expected drops",
+                    "zh": "期望掉落"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000000
+                }
+              },
+              "required": [
+                "equipment_id",
+                "slot",
+                "tier",
+                "kind",
+                "expected"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 256
+          }
+        },
+        "required": [
+          "region",
+          "total_ap",
+          "plan",
+          "normal_sweep",
+          "hard_sweep",
+          "yields"
+        ],
+        "additionalProperties": false
+      },
+      "timeout_seconds": 12
+    },
+    {
+      "id": "eleph",
+      "name": {
+        "en": "Plan student Eleph farming",
+        "zh": "规划学生神名文字"
+      },
+      "description": {
+        "en": "S5 equals unique weapon 1; Z2–Z4 are unique weapon 2–4. Daily plan respects unlocked stages and avoids farming already-complete goals.",
+        "zh": "S5 等于专武一，Z2–Z4 为专武二至四；按已解锁关卡计算每日计划，已完成目标不会继续刷取。"
+      },
+      "execution": "compute",
+      "entrypoint": "main:eleph",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "students": {
+            "type": "array",
+            "title": {
+              "en": "Students",
+              "zh": "学生"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": {
+                    "en": "CN student name",
+                    "zh": "国服学生名称"
+                  },
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "current_rank": {
+                  "type": "string",
+                  "title": {
+                    "en": "Current stars / unique weapon",
+                    "zh": "当前星级／专武"
+                  },
+                  "enum": [
+                    "S1",
+                    "S2",
+                    "S3",
+                    "S4",
+                    "S5",
+                    "Z2",
+                    "Z3",
+                    "Z4"
+                  ],
+                  "default": "S3"
+                },
+                "target_rank": {
+                  "type": "string",
+                  "title": {
+                    "en": "Target stars / unique weapon",
+                    "zh": "目标星级／专武"
+                  },
+                  "enum": [
+                    "S1",
+                    "S2",
+                    "S3",
+                    "S4",
+                    "S5",
+                    "Z2",
+                    "Z3",
+                    "Z4"
+                  ],
+                  "default": "S5"
+                },
+                "owned": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Owned Eleph",
+                    "zh": "已有神名文字"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000,
+                  "default": 0
+                }
+              },
+              "required": [
+                "name",
+                "current_rank",
+                "target_rank",
+                "owned"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "default": [
+              {
+                "name": "优香",
+                "current_rank": "S2",
+                "target_rank": "S3",
+                "owned": 0
+              }
+            ]
+          },
+          "max_area": {
+            "type": "integer",
+            "title": {
+              "en": "Highest unlocked area",
+              "zh": "最高已解锁区域"
+            },
+            "minimum": 1,
+            "maximum": 30,
+            "default": 30
+          },
+          "runs_per_stage_daily": {
+            "type": "integer",
+            "title": {
+              "en": "Daily runs per hard stage",
+              "zh": "每个困难关每日次数"
+            },
+            "minimum": 1,
+            "maximum": 6,
+            "default": 3
+          },
+          "drop_multiplier": {
+            "type": "number",
+            "title": {
+              "en": "Drop multiplier",
+              "zh": "掉落倍率"
+            },
+            "minimum": 1,
+            "maximum": 3,
+            "default": 1
+          }
+        },
+        "required": [
+          "students",
+          "max_area",
+          "runs_per_stage_daily",
+          "drop_multiplier"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": {
+              "en": "Dataset region",
+              "zh": "数据区服"
+            },
+            "enum": [
+              "CN"
+            ]
+          },
+          "students": {
+            "type": "array",
+            "title": {
+              "en": "Student plans",
+              "zh": "学生计划"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": {
+                    "en": "Student",
+                    "zh": "学生"
+                  },
+                  "maxLength": 100
+                },
+                "fragments_needed": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Eleph still needed",
+                    "zh": "还需神名文字"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000
+                },
+                "expected_daily": {
+                  "type": "number",
+                  "title": {
+                    "en": "Expected Eleph per day",
+                    "zh": "每日期望神名文字"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                "estimated_days": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Estimated farming days",
+                    "zh": "预计刷取天数"
+                  },
+                  "minimum": 0,
+                  "maximum": 1000000
+                },
+                "status": {
+                  "type": "string",
+                  "title": {
+                    "en": "Status",
+                    "zh": "状态"
+                  },
+                  "enum": [
+                    "covered",
+                    "planned",
+                    "unavailable"
+                  ]
+                },
+                "stages": {
+                  "type": "array",
+                  "title": {
+                    "en": "Daily hard missions",
+                    "zh": "每日困难关"
+                  },
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "stage_id": {
+                        "type": "string",
+                        "title": {
+                          "en": "Stage",
+                          "zh": "关卡"
+                        },
+                        "maxLength": 20
+                      },
+                      "runs": {
+                        "type": "integer",
+                        "title": {
+                          "en": "Runs",
+                          "zh": "次数"
+                        },
+                        "minimum": 1,
+                        "maximum": 9999
+                      },
+                      "ap": {
+                        "type": "integer",
+                        "title": {
+                          "en": "AP",
+                          "zh": "体力"
+                        },
+                        "minimum": 0,
+                        "maximum": 1000000
+                      }
+                    },
+                    "required": [
+                      "stage_id",
+                      "runs",
+                      "ap"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "maxItems": 64
+                }
+              },
+              "required": [
+                "name",
+                "fragments_needed",
+                "expected_daily",
+                "estimated_days",
+                "status",
+                "stages"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 30
+          },
+          "hard_sweep": {
+            "type": "string",
+            "title": {
+              "en": "Hard sweep configuration",
+              "zh": "困难关扫荡配置"
+            },
+            "maxLength": 4000
+          },
+          "daily_ap": {
+            "type": "integer",
+            "title": {
+              "en": "Daily AP",
+              "zh": "每日体力"
+            },
+            "minimum": 0,
+            "maximum": 1000000
+          }
+        },
+        "required": [
+          "region",
+          "students",
+          "hard_sweep",
+          "daily_ap"
+        ],
+        "additionalProperties": false
+      },
+      "timeout_seconds": 12
+    },
+    {
+      "id": "catalog",
+      "name": {
+        "en": "Show dataset and farmable students",
+        "zh": "查看数据范围与可刷学生"
+      },
+      "description": {
+        "en": "Lists the snapshot provenance and exact CN names accepted by the Eleph planner.",
+        "zh": "列出快照来源及神名文字规划所接受的国服学生名。"
+      },
+      "execution": "compute",
+      "entrypoint": "main:catalog",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": {
+              "en": "Dataset region",
+              "zh": "数据区服"
+            },
+            "enum": [
+              "CN"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "title": {
+              "en": "Dataset source",
+              "zh": "数据来源"
+            },
+            "maxLength": 200
+          },
+          "source_commit": {
+            "type": "string",
+            "title": {
+              "en": "Reference revision",
+              "zh": "参考版本"
+            },
+            "maxLength": 40
+          },
+          "max_area": {
+            "type": "integer",
+            "title": {
+              "en": "Highest area",
+              "zh": "最高区域"
+            },
+            "minimum": 1,
+            "maximum": 30
+          },
+          "max_tier": {
+            "type": "integer",
+            "title": {
+              "en": "Highest tier",
+              "zh": "最高阶数"
+            },
+            "minimum": 1,
+            "maximum": 10
+          },
+          "students": {
+            "type": "array",
+            "title": {
+              "en": "Students with CN hard drops",
+              "zh": "国服困难关可刷学生"
+            },
+            "items": {
+              "type": "string",
+              "title": {
+                "en": "Student",
+                "zh": "学生"
+              },
+              "maxLength": 100
+            },
+            "maxItems": 256
+          }
+        },
+        "required": [
+          "region",
+          "source",
+          "source_commit",
+          "max_area",
+          "max_tier",
+          "students"
+        ],
+        "additionalProperties": false
+      },
+      "timeout_seconds": 12
+    }
+  ],
+  "contributions": {
+    "home": [
+      {
+        "id": "open",
+        "title": {
+          "en": "Equipment farming planner",
+          "zh": "装备刷图规划"
+        },
+        "action_id": "plan"
+      }
+    ]
+  }
+}
