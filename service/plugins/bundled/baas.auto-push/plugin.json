@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "api_version": 1,
+  "id": "baas.auto-push",
+  "version": "1.0.0",
+  "name": {
+    "en": "Auto push",
+    "zh": "自动推图"
+  },
+  "description": {
+    "en": "Independent mission, story and activity runs with a saved team plan. Current-page takeover recognizes known screens and stops on unknown pages.",
+    "zh": "独立保存推图与编队设置，执行普通、困难、剧情和活动。当前页接管仅识别已知画面，未知画面会停止。"
+  },
+  "author": "BAAS contributors",
+  "permissions": [
+    "device.tasks"
+  ],
+  "settings_schema": {
+    "type": "object",
+    "properties": {
+      "normal_stages": {
+        "type": "string",
+        "title": {
+          "en": "Normal missions (comma separated)",
+          "zh": "普通关卡（逗号分隔）"
+        },
+        "default": "1",
+        "maxLength": 1000
+      },
+      "hard_stages": {
+        "type": "string",
+        "title": {
+          "en": "Hard missions (comma separated)",
+          "zh": "困难关卡（逗号分隔）"
+        },
+        "default": "1",
+        "maxLength": 1000
+      },
+      "story_episodes": {
+        "type": "string",
+        "title": {
+          "en": "Main story episodes (empty for all)",
+          "zh": "主线章节（留空为全部）"
+        },
+        "default": "",
+        "maxLength": 500
+      },
+      "simple_mode": {
+        "type": "boolean",
+        "title": {
+          "en": "Use simple battle mode",
+          "zh": "使用简易战斗模式"
+        },
+        "default": false
+      },
+      "team_method": {
+        "type": "string",
+        "title": {
+          "en": "Team source",
+          "zh": "编队来源"
+        },
+        "default": "profile",
+        "enum": [
+          "profile",
+          "side",
+          "preset"
+        ]
+      },
+      "team_plan": {
+        "type": "array",
+        "title": {
+          "en": "Team attributes by formation group",
+          "zh": "按编队组指定属性"
+        },
+        "default": [],
+        "maxItems": 4,
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "enum": [
+              "burst",
+              "pierce",
+              "mystic",
+              "shock",
+              "unused"
+            ]
+          }
+        }
+      },
+      "manual_boss": {
+        "type": "boolean",
+        "title": {
+          "en": "Pause boss fights for manual control",
+          "zh": "Boss 战手动接管"
+        },
+        "default": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "actions": [
+    {
+      "id": "normal",
+      "name": {
+        "en": "Push normal missions",
+        "zh": "推普通关卡"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 3600
+    },
+    {
+      "id": "hard",
+      "name": {
+        "en": "Push hard missions",
+        "zh": "推困难关卡"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 3600
+    },
+    {
+      "id": "story",
+      "name": {
+        "en": "Push main story",
+        "zh": "推主线剧情"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 3600
+    },
+    {
+      "id": "activity_mission",
+      "name": {
+        "en": "Push activity missions",
+        "zh": "推活动任务"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 3600
+    },
+    {
+      "id": "activity_story",
+      "name": {
+        "en": "Push activity stories",
+        "zh": "推活动剧情"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 3600
+    },
+    {
+      "id": "activity_challenge",
+      "name": {
+        "en": "Push activity challenges",
+        "zh": "推活动挑战"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 3600
+    },
+    {
+      "id": "current_stage",
+      "name": {
+        "en": "Take over current stage page",
+        "zh": "接管当前关卡页"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 3600
+    },
+    {
+      "id": "current_story",
+      "name": {
+        "en": "Take over current story page",
+        "zh": "接管当前剧情页"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 3600
+    }
+  ]
+}

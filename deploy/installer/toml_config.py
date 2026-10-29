@@ -1,6 +1,76 @@
 import os
 import tomli_w
 
+if __package__:
+    from .const import is_retired_repo_url, normalize_repo_method, repo_url_for_method
+else:
+    from const import is_retired_repo_url, normalize_repo_method, repo_url_for_method
+
+# The service schema and the desktop UI share one setup.toml. Keep these
+# aliases here so reading desktop settings never imports the service runtime.
+_SETUP_KEY_ALIASES = {
+    "General.mirrorc_cdk": "general.mirrorc_cdk",
+    "General.current_BAAS_version": "general.current_baas_sha",
+    "General.current_BAAS_Cpp_version": "general.current_baas_cpp_sha",
+    "General.get_remote_sha_method": "general.get_remote_sha_method",
+    "General.channel": "general.channel",
+    "General.launch": "general.launch",
+    "General.force_launch": "general.force_launch",
+    "General.debug": "general.debug",
+    "General.no_update": "general.no_update",
+    "General.git_backend": "general.git_backend",
+    "General.source_list": "general.source_list",
+    "General.runtime_path": "python.runtime_path",
+    "Paths.BAAS_ROOT_PATH": "paths.baas_root_path",
+    "Paths.TMP_PATH": "paths.tmp_path",
+    "Paths.TOOL_KIT_PATH": "paths.toolkit_path",
+}
+
+DEFAULT_SETTINGS = {
+    "General": {
+        "mirrorc_cdk": "",
+        "current_BAAS_version": "",
+        "current_BAAS_Cpp_version": "",
+        "get_remote_sha_method": "",
+        "channel": "stable",
+        "dev": False,
+        "refresh": False,
+        "launch": False,
+        "force_launch": False,
+        "internal_launch": False,
+        "no_build": True,
+        "debug": False,
+        "use_dynamic_update": False,
+        "no_update": False,
+        "source_list": [
+            "https://pypi.tuna.tsinghua.edu.cn/simple",
+            "https://mirrors.ustc.edu.cn/pypi/web/simple",
+            "https://mirrors.aliyun.com/pypi/simple",
+            "https://pypi.doubanio.com/simple",
+            "https://mirrors.huaweicloud.com/repository/pypi/simple",
+            "https://mirrors.cloud.tencent.com/pypi/simple",
+            "https://mirrors.163.com/pypi/simple",
+            "https://pypi.python.org/simple",
+            "https://pypi.org/simple",
+        ],
+        "package_manager": "pip",
+        "runtime_path": "default",
+        "linux_pwd": "",
+    },
+    "URLs": {
+        "REPO_URL_HTTP": "https://gitee.com/pur1fy/blue_archive_auto_script.git",
+        "GET_PIP_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/get-pip.py",
+        "GET_UPX_URL": "https://ghp.ci/https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-win64.zip",
+        "GET_ENV_PATCH_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/env_patch.zip",
+        "GET_PYTHON_URL": "https://gitee.com/pur1fy/blue_archive_auto_script_assets/raw/master/python-3.9.13-embed-amd64.zip",
+    },
+    "Paths": {
+        "BAAS_ROOT_PATH": "",
+        "TMP_PATH": "tmp",
+        "TOOL_KIT_PATH": "toolkit",
+    },
+}
+
 try:
     import tomllib
 except ModuleNotFoundError:
@@ -20,8 +90,48 @@ class TOML_Config:
     def _init_config(self):
         with open(self.config_path, 'rb') as f:
             self.config = tomllib.load(f)
+        # Legacy launchers read setup.toml directly, without service schema migration.
+        for section_name in ("General", "general"):
+            section = self.config.get(section_name, {})
+            if isinstance(section, dict):
+                for key in ("get_remote_sha_method", "getRemoteShaMethod"):
+                    if key in section:
+                        previous = section[key]
+                        section[key] = normalize_repo_method(previous)
+                        if section[key] != previous and not section.get("get_remote_sha_method"):
+                            section["get_remote_sha_method"] = section[key]
+        urls = self.config.get("URLs", {})
+        if isinstance(urls, dict) and is_retired_repo_url(urls.get("REPO_URL_HTTP")):
+            general = self.config.get("general", {})
+            legacy = self.config.get("General", {})
+            channel = general.get("channel") or legacy.get("channel") or ("dev" if legacy.get("dev") else "stable")
+            urls["REPO_URL_HTTP"] = repo_url_for_method("github", channel)
 
     def get(self, key, default=None):
+        if "general" in self.config:
+            if key in ("General", "URLs", "Paths"):
+                table = dict(DEFAULT_SETTINGS[key])
+                table.update(self.config.get(key, {}))
+                for legacy_key, alias in _SETUP_KEY_ALIASES.items():
+                    if legacy_key.startswith(key + ".") and self.contains(alias):
+                        table[legacy_key.split(".", 1)[1]] = self.get(alias)
+                if key == "General":
+                    table["dev"] = self.get("General.dev", table["dev"])
+                elif key == "URLs":
+                    table["REPO_URL_HTTP"] = self.get("URLs.REPO_URL_HTTP", table["REPO_URL_HTTP"])
+                return table
+            if key == "General.dev" and "channel" in self.config["general"]:
+                return self.config["general"].get("channel", "stable") == "dev"
+            if key == "URLs.REPO_URL_HTTP":
+                general = self.config["general"]
+                url = repo_url_for_method(
+                    general.get("get_remote_sha_method"), general.get("channel", "stable")
+                )
+                if url:
+                    return url
+            alias = _SETUP_KEY_ALIASES.get(key)
+            if alias and self.contains(alias):
+                return self.get(alias, default)
         keys = key.split('.')
         current = self.config
         for key in keys:
@@ -32,6 +142,22 @@ class TOML_Config:
         return current
 
     def set(self, key, value):
+        if "general" in self.config:
+            alias = _SETUP_KEY_ALIASES.get(key)
+            if alias:
+                self.set(alias, value)
+            elif key == "General.dev":
+                self.set("general.channel", "dev" if value else "stable")
+            elif key == "URLs.REPO_URL_HTTP":
+                try:
+                    from .const import CHANNEL_REPO_SHA_METHODS, method_for_repo_url
+                except ImportError:  # Standalone installer.py
+                    from const import CHANNEL_REPO_SHA_METHODS, method_for_repo_url
+                self.set("general.get_remote_sha_method", method_for_repo_url(value) or "")
+                for channel, sources in CHANNEL_REPO_SHA_METHODS.items():
+                    if any(source.get("url") == value for source in sources):
+                        self.set("general.channel", channel)
+                        break
         keys = key.split('.')
         current = self.config
         for key in keys[:-1]:
@@ -41,6 +167,8 @@ class TOML_Config:
         current[keys[-1]] = value
 
     def contains(self, key):
+        if "general" in self.config and key in _SETUP_KEY_ALIASES:
+            return self.contains(_SETUP_KEY_ALIASES[key])
         keys = key.split('.')
         current = self.config
         for key in keys:
@@ -55,6 +183,8 @@ class TOML_Config:
         self.save()
 
     def delete(self, key):
+        if "general" in self.config and key in _SETUP_KEY_ALIASES:
+            self.delete(_SETUP_KEY_ALIASES[key])
         keys = key.split('.')
         current = self.config
 

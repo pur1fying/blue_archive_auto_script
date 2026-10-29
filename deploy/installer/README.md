@@ -1,5 +1,11 @@
 # This Directory contains the installer (Artifact for executable) for the project.
 
+`installer.py` is the single source entry point for installation, updates, launching,
+and PyInstaller builds on Windows and Linux. Run it from the repository root with
+`python deploy/installer/installer.py` or `python -m deploy.installer.installer`.
+Its configuration remains in `setup.toml`; dynamic updates and launcher rebuilding
+use this same file.
+
 **To use the installer, you need to have the following installed on your system:**
 
 - **Python 3.6 or higher, recommendation is version 3.10.11**

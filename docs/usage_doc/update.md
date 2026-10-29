@@ -18,7 +18,7 @@
 所以运行可执行程序等效于以下shell命令
 
 ```shell
-"env/Script/python.exe" installer.py
+".venv/Scripts/python.exe" deploy/installer/installer.py
 ```
 **related issue:** [#217](https://github.com/pur1fying/blue_archive_auto_script/issues/217)
 

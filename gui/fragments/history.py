@@ -6,10 +6,26 @@ from datetime import datetime
 from hashlib import md5
 
 from PyQt5.QtWidgets import QAbstractItemView, QTableWidgetItem, QHeaderView
-from dulwich.repo import Repo
 from qfluentwidgets import TableWidget
 
 from gui.util.customized_ui import PureWindow
+
+def read_history_entries(repo_path):
+    """Read local history through pygit2, including merge commits."""
+    import pygit2
+
+    repo = pygit2.Repository(str(repo_path))
+    try:
+        if repo.head_is_unborn:
+            return []
+        return [{
+            'id': str(commit.id)[:6],
+            'author': commit.author.name.strip(),
+            'date': datetime.fromtimestamp(commit.commit_time).strftime("%Y-%m-%d %H:%M:%S"),
+            'message': commit.message.strip(),
+        } for commit in repo.walk(repo.head.target, pygit2.GIT_SORT_TIME)]
+    finally:
+        repo.free()
 
 
 class HistoryWindow(PureWindow):
@@ -41,22 +57,7 @@ class HistoryWindow(PureWindow):
     def fetch_update_info(self):
         repo_path = '.'  # 仓库路径，可根据需要修改
         try:
-            repo = Repo(repo_path)
-            self.log_entries = []
-
-            for entry in repo.get_walker():
-                commit = entry.commit
-                commit_id = entry.commit.id.decode("utf-8")[:6]
-                author = commit.author.decode("utf-8").split('<')[0].strip()
-                commit_time = datetime.fromtimestamp(commit.commit_time).strftime("%Y-%m-%d %H:%M:%S")
-                message = commit.message.decode("utf-8").strip()
-
-                self.log_entries.append({
-                    'id': commit_id,
-                    'author': author,
-                    'date': commit_time,
-                    'message': message
-                })
+            self.log_entries = read_history_entries(repo_path)
 
             self.table_view.setRowCount(len(self.log_entries))
             for i, entry in enumerate(self.log_entries):

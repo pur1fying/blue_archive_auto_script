@@ -1,9 +1,8 @@
-import binascii
 import threading
 import time
 import webbrowser
 
-import dulwich
+import pygit2
 import requests
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QColor
@@ -14,6 +13,7 @@ from qfluentwidgets import (TableWidget, ComboBox, PrimaryPushButton, TextEdit,
 
 from core.utils import delay
 from deploy.installer.const import GetShaMethod, get_remote_sha_methods
+from deploy.installer.git_backend import remote_branch_sha
 from deploy.installer.mirrorc_update.const import MirrorCErrorCode
 from deploy.installer.mirrorc_update.mirrorc_updater import (
     MirrorCRequestError,
@@ -39,7 +39,7 @@ class TestGetRemoteShaMethodWorker(QThread):
         elif self.method == GetShaMethod.MIRRORC_API:
             success, sha_value = self.mirrorc_api_get_latest_sha()
         elif self.method == GetShaMethod.PYGIT2:
-            success, sha_value = self.dulwich_get_latest_sha(self.config)
+            success, sha_value = self.pygit2_get_latest_sha(self.config)
         else:
             success = False
             sha_value = self.tr("未知方法")
@@ -75,30 +75,11 @@ class TestGetRemoteShaMethodWorker(QThread):
             return False, str(e)
 
     @staticmethod
-    def dulwich_get_latest_sha(data):
-        url = data["url"]
-        branch = data["branch"]
-        target_ref = f"refs/heads/{branch}"
-
+    def pygit2_get_latest_sha(data):
         try:
-            remote_refs = dulwich.porcelain.ls_remote(url)
-            for ref_name, sha in remote_refs.items():
-                decoded_ref = ref_name.decode("utf-8")
-                if decoded_ref == target_ref:
-                    if len(sha) == 20:
-                        return True, binascii.hexlify(sha).decode("utf-8")
-                    try:
-                        hex_str = sha.decode("utf-8")
-                        if len(hex_str) == 40:
-                            return True, hex_str
-                    except:
-                        pass
-                    return True, binascii.hexlify(sha[:20]).decode("utf-8")
-            ref = f"refs/heads/{branch}",
-            sha = remote_refs[ref.encode("utf-8")]
-            return True, binascii.hexlify(sha[:20]).decode("utf-8")
-        except Exception as e:
-            return False, str(e)
+            return True, remote_branch_sha(data["url"], data["branch"], timeout=3.0)
+        except Exception as exc:
+            return False, str(exc)
 
 
 class MirrorCCDKTestThread(QThread):
@@ -360,8 +341,8 @@ class Layout(QWidget):
         method = "setup.toml"
         if not self._BAAS_local_version_sha:
             try:
-                self._repo = dulwich.repo.Repo(".")
-                self._BAAS_local_version_sha = self._repo.head().decode("utf-8")
+                self._repo = pygit2.Repository(".")
+                self._BAAS_local_version_sha = str(self._repo.head.target)
                 method = ".git"
             except Exception:
                 method = None
@@ -591,7 +572,7 @@ class Layout(QWidget):
                         method_type = config["method"]
                         is_ok, sha = (TestGetRemoteShaMethodWorker.github_api_get_latest_sha(config)
                                       if method_type == GetShaMethod.GITHUB_API
-                                      else TestGetRemoteShaMethodWorker.dulwich_get_latest_sha(config))
+                                      else TestGetRemoteShaMethodWorker.pygit2_get_latest_sha(config))
                         if is_ok:
                             self._BAAS_remote_version_sha = sha
                             self._BAAS_remote_version_get_method = "git"
