@@ -3559,7 +3559,7 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "SayBing",
+        "CN": "WeAretheOccultResearchSociety",
         "Global": "HighlanderRailroadExplosionIncident",
         "JP": "HighlanderRailroadExplosionIncident"
     },
