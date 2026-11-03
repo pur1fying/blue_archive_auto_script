@@ -20,6 +20,85 @@ from qfluentwidgets.window.fluent_window import FluentWindowBase, FluentTitleBar
 from gui.util.config_gui import configGui, COLOR_THEME
 
 
+class ViewportCappedFragment:
+    """页级容器约束：sizeHint 高度永不超过当前视口高度。
+
+    背景：qframelesswindow 在 Windows 高 DPI（如 200% 缩放）下，窗口
+    首次移动会做一次性原生几何重对齐，目标高度取自当前页内容的
+    sizeHint——若任何一页的内容期望高度大于窗口，首次拖动标题栏时
+    窗口就会被一次性加高（如 900x700 -> 900x747），此后不再复现。
+    上游各页均为固定骨架，sizeHint 天然不超视口，不会触发；工具大厅
+    的插件槽位内容高度动态，属于风险面。混入此约束后，sizeHint 始终
+    被钳制在当前可视高度内，原生重对齐的目标与现状一致，从结构上
+    使该 bug 无法被后续插件开发触发。
+
+    用法：页类定义处同时继承 QWidget 系基类与本类，如
+        class HomeFragment(ViewportCappedFragment, QFrame):
+    注意本类须放在基类之前，且页面用布局管理器正常布局即可，无
+    额外调用。
+    """
+
+    def sizeHint(self):
+        hint = super().sizeHint()
+        try:
+            h = self.height()
+            if h > 0 and hint.height() > h:
+                hint = hint.__class__(hint.width(), h)
+        except Exception:
+            pass
+        return hint
+
+    def minimumSizeHint(self):
+        hint = super().minimumSizeHint()
+        try:
+            h = self.height()
+            if h > 0 and hint.height() > h:
+                hint = hint.__class__(hint.width(), h)
+        except Exception:
+            pass
+        return hint
+
+
+class ViewportCappedVBoxLayout(QVBoxLayout):
+    """布局级视口高度约束（与 ViewportCappedFragment 配套，二者缺一不可）。
+
+    诊断结论：QStackedLayout 等布局链路会绕过 QWidget.sizeHint()，直接
+    读取页面顶层布局的 totalSizeHint()/sizeHint()——实测页 widget 的
+    sizeHint 已钳制到视口高 651 时，QStackedWidget.sizeHint 仍取布局
+    totalSizeHint=698，窗口布局合计 747，正是 frameless 窗口首次移动
+    被原生层一次性拉高的目标值。页面顶层布局必须同样钳制。
+    """
+
+    def _capped(self, hint):
+        try:
+            w = self.widget()
+            if w is None:
+                w = self.parentWidget()
+            if w is not None:
+                h = w.height()
+                if h > 0 and hint.height() > h:
+                    hint.setHeight(h)
+        except Exception:
+            pass
+        return hint
+
+    def hasHeightForWidth(self):
+        # 关键：不向父级布局链传播 hfw。QStackedLayout::heightForWidth 会
+        # 直接问每页 widget->heightForWidth()（穿透到页内流式布局的自然
+        # 高度），QLayout::totalSizeHint 又在 hasHeightForWidth() 为真时用
+        # 该值顶掉 sizeHint 高度——这正是插件槽位内容把窗口"期望高度"
+        # 撑到视口之上的通道。对父级声明 False 后，页面外的 hint 链条
+        # 全部走 sizeHint()（已被本类钳制）；页内部子项的行高排布仍按
+        # 子项各自的 hfw 正常工作，不受影响。
+        return False
+
+    def totalSizeHint(self):
+        return self._capped(super().totalSizeHint())
+
+    def sizeHint(self):
+        return self._capped(super().sizeHint())
+
+
 class BoundComponent(QObject):
     """
     BoundComponent is a class that binds a component to a string rule. The string rule is a string that contains
@@ -239,6 +318,43 @@ class DialogSettingBox(MessageBoxBase):
         scroll_area.setWidget(frame)
         scroll_area.setWidgetResizable(True)
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # hoard_ap_cafe_viewport_v2
+        try:
+            _sn = str(setting_name or '')
+            _is_hoard = ('hoard' in _sn.lower()) or ('Hoard' in _sn)
+            if _is_hoard:
+                scroll_area.setFixedWidth(min(max(self.width() - 80, 860), 960))
+                scroll_area.setFixedHeight(480)
+                try:
+                    content_h = int(layout.minimumSizeHint().height())
+                except Exception:
+                    content_h = 420
+                try:
+                    frame.setMinimumWidth(860)
+                    frame.setMinimumHeight(max(content_h, 420))
+                except Exception:
+                    pass
+                scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        except Exception:
+            pass
+        # hoard_ap_single_scroll_v3
+        try:
+            _sn = str(setting_name or '')
+            _inner = layout
+            _prop = False
+            try:
+                _prop = bool(_inner.property('hoardSingleScroll')) or bool(_inner.property('hoardFreezeTop'))
+            except Exception:
+                _prop = False
+            _name = ''
+            try:
+                _name = str(_inner.objectName() or '')
+            except Exception:
+                pass
+            if _prop or _name == 'hoardApLayout' or ('hoard' in _sn.lower()):
+                scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        except Exception:
+            pass
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll_area.setFixedWidth(self.width() - 100)
         self.viewLayout.addWidget(scroll_area)
@@ -503,7 +619,6 @@ class AssetsWidget(QFrame):
         self.layout = FlowLayout(self)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(4, 2, 4, 2)
-        self.setLayout(self.layout)
         self.patch_v_dict = {}
         self.patch_t_dict = {}
         self.disp_config = {
@@ -574,7 +689,7 @@ class AssetsWidget(QFrame):
             AssetsWidget {
                 background-color: %(background_color)s;
                 border-radius: 10px;
-                border: 2px dashed %(border_color)s;
+                border: 1px solid %(border_color)s;
             }
 
             QLabel {

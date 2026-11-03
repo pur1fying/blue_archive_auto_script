@@ -136,7 +136,7 @@ class Baas_ocr:
             raise OcrInternalError("Enable Thread Pool Error: " + response.text)
 
     def create_shared_memory(self, baas, size):
-        baas.logger.info("Ocr Create Shared Memory [ " + baas.shared_memory_name + " ]")
+        baas.logger.debug("Ocr Create Shared Memory [ " + baas.shared_memory_name + " ]")
         self.client.create_shared_memory(baas.shared_memory_name, size)
 
     def release_shared_memory(self, name):

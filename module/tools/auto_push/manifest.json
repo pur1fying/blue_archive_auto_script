@@ -1,0 +1,23 @@
+{
+  "id": "auto_push",
+  "name": "自动推图",
+  "version": "1.2.0",
+  "summary": "推未通关新图：编队、推图、推剧情、活动图一页搞定",
+  "icon": "GAME",
+  "category": "battle",
+  "order": 35,
+  "kind": "local",
+  "entry": "module.tools.auto_push.tool:AutoPushTool",
+  "ui": "module.tools.auto_push.ui:Layout",
+  "permissions": [],
+  "home": {
+    "slot": "below_title",
+    "order": 35
+  },
+  "config_prefix": "tool_auto_push_",
+  "config_defaults": {
+    "tool_auto_push_home_entry": false
+  },
+  "enabled_by_default": true,
+  "show_in_lobby": true
+}

@@ -12,11 +12,16 @@ if TYPE_CHECKING:
 
 def wait_loading(self: Baas_thread) -> None:
     startTime = time.time()
+    logged = False
     while (self.flag_run and
            match_rgb_feature(self, "loadingNotWhite") and match_rgb_feature(self, "loadingWhite")):
         self.update_screenshot_array()
         loadingTime = round(time.time() - startTime, 3)
-        self.logger.info("Detected loading, loading time: " + str(loadingTime))
+        if not logged:
+            # 加载期间每个截图间隔都会命中这里：只记一条 debug（控制台静默），
+            # 避免 INFO 刷屏。
+            self.logger.debug("Detected loading, loading time: " + str(loadingTime))
+            logged = True
         time.sleep(self.screenshot_interval)
     return
 

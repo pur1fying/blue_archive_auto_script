@@ -1,0 +1,26 @@
+{
+  "id": "equip_farm",
+  "name": "装备刷图",
+  "version": "1.0.0",
+  "summary": "输入缺的装备数量，算出该刷哪些图",
+  "icon": "LIBRARY",
+  "category": "planner",
+  "order": 20,
+  "kind": "local",
+  "entry": "module.tools.equip_farm.tool:EquipFarmTool",
+  "ui": "module.tools.equip_farm.ui:Layout",
+  "permissions": [],
+  "scheduler": null,
+  "config_prefix": "tool_equip_farm_",
+  "enabled_by_default": true,
+  "home_hooks": [],
+  "show_in_lobby": true,
+  "home": {
+    "slot": "below_title",
+    "order": 20
+  },
+  "config_defaults": {
+    "tool_equip_farm_inputs_json": "",
+    "tool_equip_farm_home_entry": true
+  }
+}

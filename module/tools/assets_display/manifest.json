@@ -1,0 +1,27 @@
+{
+  "id": "assets_display",
+  "name": "主页编辑",
+  "version": "1.1.0",
+  "summary": "资产条开关；主页板块可视化拖拽排序",
+  "icon": "LIBRARY",
+  "category": "home",
+  "order": 80,
+  "kind": "home",
+  "entry": "module.tools.assets_display.tool:AssetsDisplayTool",
+  "ui": "module.tools.assets_display.ui:Layout",
+  "permissions": [],
+  "home": {
+    "slot": "below_startup",
+    "order": 10
+  },
+  "config_prefix": "tool_assets_",
+  "config_defaults": {
+    "assetsVisibility": true,
+    "tool_assets_enabled": true,
+    "tool_assets_home_edit": false,
+    "tool_assets_home_edit_entry": false,
+    "tool_assets_home_switch_entry": true
+  },
+  "enabled_by_default": true,
+  "show_in_lobby": true
+}

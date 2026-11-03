@@ -72,7 +72,7 @@ class Connection:
         if old != new:
             self.set_serial(new)
             self.logger.warning(f"Serial [ {old} ] is revised to [ {new} ]")
-        self.logger.info(f"Serial : {self.serial}")
+        self.logger.debug(f"Serial : {self.serial}")
 
     @staticmethod
     def revise_serial(serial):
@@ -109,17 +109,17 @@ class Connection:
         return port
 
     def detect_device(self):
-        self.logger.info("Detect Device")
+        self.logger.debug("Detect Device")
         devices = self.list_devices()
         n_available = 0
         available = []
         unavailable = []
-        self.logger.info("Available devices are listed below, choose the one you want to run BAAS on.")
+        self.logger.debug("Available devices are listed below, choose the one you want to run BAAS on.")
         for i, device in enumerate(devices):
             if device.state == 'device':
                 n_available += 1
                 available.append(device.serial)
-                self.logger.info(f"{i + 1} : [ {device.serial} ]")
+                self.logger.debug(f"{i + 1} : [ {device.serial} ]")
             else:
                 unavailable.append(device)
 
@@ -233,7 +233,7 @@ class Connection:
     # set self.server to ['CN', 'Global', 'JP']
     # set corresponding package
     def detect_package(self):
-        self.logger.info("Detect Package")
+        self.logger.debug("Detect Package")
         server = self.config.server
         package_exist = False
         if server == "auto":
@@ -249,7 +249,7 @@ class Connection:
         if not package_exist:
             self.check_package_exist(server)
         self.activity = self.static_config.activity_name[server]
-        self.logger.info("Server : " + self.server)
+        self.logger.debug("Server : " + self.server)
 
     def auto_detect_package(self):
         self.logger.info("Detect Package")
@@ -278,7 +278,7 @@ class Connection:
         return all_available_packages
 
     def list_packages(self):
-        self.logger.info("List Packages")
+        self.logger.debug("List Packages")
         for _ in range(3):
             d = adb.device(self.serial)
             result = []
@@ -306,12 +306,12 @@ class Connection:
 
     def check_package_exist(self, server):
         target_package = self.static_config.package_name[server]
-        self.logger.info("Check Package [ " + target_package + " ] Exist.")
+        self.logger.debug("Check Package [ " + target_package + " ] Exist.")
         installed_packages = self.list_packages()
         if target_package not in installed_packages:
             self.logger.error(f"Package [ {target_package} ] not found.")
             raise RequestHumanTakeOver("Package not found.")
-        self.logger.info(f"Package Found.")
+        self.logger.debug(f"Package Found.")
         self.package = target_package
 
     def get_package_name(self):

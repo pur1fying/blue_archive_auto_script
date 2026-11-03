@@ -24,7 +24,7 @@ class Screenshot:
 
     def init_screenshot_instance(self):
         self.method = self.config.screenshot_method
-        self.logger.info("Screenshot method : " + self.method)
+        self.logger.debug("Screenshot method : " + self.method)
 
         if self.Baas_instance.is_android_device:
             if self.method == "nemu":
@@ -60,7 +60,7 @@ class Screenshot:
         if interval < 0.3:
             self.logger.warning("screenshot_interval must be greater than 0.3")
             interval = 0.3
-        self.logger.info("screenshot_interval set to " + str(interval))
+        self.logger.debug("screenshot_interval set to " + str(interval))
         self.screenshot_interval = interval
         return interval
 
