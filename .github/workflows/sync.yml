@@ -38,9 +38,8 @@
 name: Repository Sync
 
 on:
+  # Preserve CNB mirroring on every branch/tag push. Only master notifies the fork.
   push:
-    branches:
-      - master
   repository_dispatch:
     types:
       - upstream-master-push
@@ -61,7 +60,9 @@ permissions: {}
 jobs:
   notify-fork:
     name: Notify fork
-    if: github.event_name == 'push' && github.repository == 'pur1fying/blue_archive_auto_script'
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/master' &&
+      github.repository == 'pur1fying/blue_archive_auto_script'
     runs-on: ubuntu-latest
     steps:
       - name: Trigger fork sync
@@ -166,6 +167,8 @@ jobs:
       !cancelled() &&
       (github.event_name == 'push' ||
        (github.event_name == 'workflow_dispatch' && inputs.operation == 'cnb') ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'all' &&
+        github.repository == 'pur1fying/blue_archive_auto_script') ||
        needs.sync-upstream.result == 'success') &&
       (github.repository == 'Kiramei/baas-dev' ||
        github.repository == 'pur1fying/blue_archive_auto_script')
@@ -175,11 +178,13 @@ jobs:
       group: sync-cnb-master-${{ github.repository }}
       cancel-in-progress: false
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: master
+          persist-credentials: false
 
       - name: Sync Dev
         if: github.repository == 'Kiramei/baas-dev'
@@ -192,5 +197,5 @@ jobs:
         if: github.repository == 'pur1fying/blue_archive_auto_script'
         uses: ./.github/actions/sync-to-cnb
         with:
-          target-url: https://cnb.cool/pur1fying/blue_archive_auto_script.git
-          password: ${{ secrets.CNB_SYNC_TOKEN }}
+          target-url: https://cnb.cool/BlueArchiveAutoScript/blue_arhchive_auto_script
+          password: ${{ secrets.BAAS_SYNC_FOR_CNB }}
