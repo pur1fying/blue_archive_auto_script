@@ -4,21 +4,18 @@ import webbrowser
 
 import pygit2
 import requests
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QHeaderView, QTableWidgetItem, QWidget, QLabel,
                              QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox)
 from qfluentwidgets import (TableWidget, ComboBox, PrimaryPushButton, TextEdit,
                             PushButton, BodyLabel)
 
-from core.utils import delay
-from deploy.installer.const import GetShaMethod, get_remote_sha_methods
+from deploy.installer.const import GetShaMethod, get_remote_sha_methods_for_channel
 from deploy.installer.git_backend import remote_branch_sha
 from deploy.installer.mirrorc_update.const import MirrorCErrorCode
 from deploy.installer.mirrorc_update.mirrorc_updater import (
-    MirrorCRequestError,
     MirrorC_Updater,
-    RequestReturn,
 )
 from gui.util.config_gui import COLOR_THEME, configGui
 from gui.util.notification import success, error
@@ -83,11 +80,11 @@ class TestGetRemoteShaMethodWorker(QThread):
 
 
 class MirrorCCDKTestThread(QThread):
-    finished = pyqtSignal(RequestReturn, bool)
+    test_completed = pyqtSignal(object, bool, str)
 
     def __init__(self, layout, cdk, save=False, parent=None):
         super().__init__(parent)
-        self.layout = layout
+        self.updater = layout._mirrorc_inst
         self.cdk = cdk
         self.save = save
         self.is_finished = False
@@ -95,19 +92,17 @@ class MirrorCCDKTestThread(QThread):
 
     def run(self):
         try:
-            self.req_ret = self.layout._mirrorc_inst.get_latest_version(cdk=self.cdk, timeout=3.0)
-            self.finished.emit(self.req_ret, self.save)
+            self.req_ret = self.updater.get_latest_version(cdk=self.cdk, timeout=3.0)
+            message = ""
         except Exception as e:
-            message = (
-                str(e)
-                if isinstance(e, MirrorCRequestError)
-                else f"{type(e).__name__}; cdk=**"
-            )
-            error("CDK" + self.tr("测试错误"), message, self.layout.config)
+            # Exception text can contain the request URL or CDK.
+            message = f"{type(e).__name__}; cdk=**"
         self.is_finished = True
+        self.test_completed.emit(self.req_ret, self.save, message)
 
 
 class Layout(QWidget):
+    _update_detection_finished = pyqtSignal(int, object)
 
     def __init__(self, parent=None, config=None):
         super().__init__(parent=parent)
@@ -115,19 +110,42 @@ class Layout(QWidget):
         self._repo = None
         self._cdk_test_thread = None
         self.workers = []
+        self._update_detection_generation = 0
+        self._update_detection_finished.connect(self._apply_update_detection_result)
+        self._cdk_debounce_timer = QTimer(self)
+        self._cdk_debounce_timer.setSingleShot(True)
+        self._cdk_debounce_timer.timeout.connect(lambda: self._test_and_set_mirrorc_cdk_state(save=True))
 
+        channel = self.config.get("General.channel")
+        if not channel:
+            channel = "dev" if self.config.get("General.dev", False) else "stable"
+        self._remote_sha_methods = get_remote_sha_methods_for_channel(channel)
+        self._source_display_names = {
+            "github": self.tr("GitHub API"),
+            "mirrorc": self.tr("Mirror酱免费API"),
+            "gitee": self.tr("Gitee仓库读取"),
+            "gitcode": self.tr("GitCode仓库读取"),
+            "github_proxy_v4": "GitHub Proxy (IPv4)",
+            "github_proxy_v6": "GitHub Proxy (IPv6)",
+            "github_proxy_cdn": "GitHub Proxy (CDN)",
+            "gh_proxy": "GH-Proxy",
+            "sevencdn": "SevenCDN",
+            "githubfast": "GitHubFast",
+        }
+        repo_display_names = dict(self._source_display_names)
+        repo_display_names.update({
+            "github": self.tr("GitHub (主仓库)"),
+            "gitee": self.tr("Gitee (国内镜像)"),
+            "gitcode": self.tr("GitCode (国内镜像)"),
+        })
         self.REPO_URL_NAME_mapping = {
-            "https://github.com/pur1fying/blue_archive_auto_script.git": self.tr("GitHub (主仓库)"),
-            "https://gitee.com/pur1fy/blue_archive_auto_script.git": self.tr("Gitee (国内镜像)"),
-            "https://gitcode.com/m0_74686738/blue_archive_auto_script.git": self.tr("GitCode (国内镜像)"),
-            "https://e.coding.net/g-jbio0266/baas/blue_archive_auto_script.git": self.tr("腾讯工蜂 (国内镜像)")
+            item["url"]: repo_display_names.get(item["name"], item["name"])
+            for item in self._remote_sha_methods if item.get("url")
         }
         self._revert_REPO_URL_NAME_mapping = {v: k for k, v in self.REPO_URL_NAME_mapping.items()}
         self.REPO_URL_CHECK_UPDATE_METHOD_mapping = {
-            "https://github.com/pur1fying/blue_archive_auto_script.git": "github",
-            "https://gitee.com/pur1fy/blue_archive_auto_script.git": "gitee",
-            "https://gitcode.com/m0_74686738/blue_archive_auto_script.git": "gitcode",
-            "https://e.coding.net/g-jbio0266/baas/blue_archive_auto_script.git": "tencent_c_coding"
+            item["url"]: item["name"]
+            for item in self._remote_sha_methods if item.get("url")
         }
 
         self._main_vBoxLayout = QVBoxLayout(self)
@@ -364,9 +382,8 @@ class Layout(QWidget):
             self.__set_config_and_display_message("URLs.REPO_URL_HTTP", url)
             self._detect_update_method_and_update_ui()
 
-    @delay(0.8)  # 防抖，避免输入过程中频繁触发
     def _on_cdk_text_changed_debounced(self):
-        self._test_and_set_mirrorc_cdk_state(save=True)
+        self._cdk_debounce_timer.start(800)
 
     def __set_config_and_display_message(self, key, value):
         self.config.set_and_save(key, value)
@@ -388,6 +405,10 @@ class Layout(QWidget):
 
     # --- MirrorC CDK ---
     def _test_and_set_mirrorc_cdk_state(self, save=False):
+        if self._cdk_test_thread and self._cdk_test_thread.isRunning():
+            return
+        save = save or self._cdk_debounce_timer.isActive()
+        self._cdk_debounce_timer.stop()
         cdk = self._mirrorc_cdk_TextEdit.toPlainText().strip()
         if not cdk:
             self._update_status_label(self._mirrorc_cdk_state_label, "info", self.tr("请输入CDK"))
@@ -398,12 +419,20 @@ class Layout(QWidget):
         self._test_mirrorc_cdk_button.setEnabled(False)
 
         self._cdk_test_thread = MirrorCCDKTestThread(self, cdk, save=save)
-        self._cdk_test_thread.finished.connect(self._handle_cdk_test_result)
+        self._cdk_test_thread.test_completed.connect(self._handle_cdk_test_result)
         self._cdk_test_thread.start()
 
-    def _handle_cdk_test_result(self, request_ret, save=False):
+    def _handle_cdk_test_result(self, request_ret, save=False, failure=""):
+        self._mirrorc_cdk_TextEdit.setEnabled(True)
+        self._test_mirrorc_cdk_button.setEnabled(True)
+        if failure or request_ret is None:
+            self._mirrorc_cdk_is_valid = False
+            self._update_status_label(self._mirrorc_cdk_state_label, "error", self.tr("测试失败，请重试"))
+            error("CDK" + self.tr("测试错误"), failure or self.tr("测试失败，请重试"), self.config)
+            self._detect_update_method_and_update_ui()
+            return
         code = request_ret.code
-        if code is MirrorCErrorCode.SUCCESS.value:
+        if code == MirrorCErrorCode.SUCCESS.value and getattr(request_ret, "cdk_expired_time", None):
             expired_time = time.localtime(request_ret.cdk_expired_time)
             expired_time_str = time.strftime("%Y-%m-%d %H:%M:%S", expired_time)
         else:
@@ -434,25 +463,22 @@ class Layout(QWidget):
             self._update_status_label(self._mirrorc_cdk_state_label, "error", message)
             error(self.tr("CDK错误"), message, self.config)
 
-        self._mirrorc_cdk_TextEdit.setEnabled(True)
-        self._test_mirrorc_cdk_button.setEnabled(True)
         self._detect_update_method_and_update_ui()
 
     # --- SHA获取方式 ---
     def _init_get_remote_sha_method_ComboBox(self):
-        self.get_remote_sha_method_origin_names = [item["name"] for item in get_remote_sha_methods]
+        if not self._mirrorc_update_available:
+            self._remote_sha_methods = [
+                item for item in self._remote_sha_methods if item["name"] != "mirrorc"
+            ]
+        self.get_remote_sha_method_origin_names = [item["name"] for item in self._remote_sha_methods]
         self.get_remote_sha_method_display_names = [
-            self.tr("GitHub API"), self.tr("Mirror酱免费API"), self.tr("Gitee仓库读取"),
-            self.tr("GitCode仓库读取"), self.tr("腾讯工蜂仓库读取")
+            self._source_display_names.get(name, name)
+            for name in self.get_remote_sha_method_origin_names
         ]
 
-        # TODO: Handle case where saved method is not in the list
-        if not self._mirrorc_update_available:
-            self.get_remote_sha_method_display_names.pop(1)
-            get_remote_sha_methods.pop(1)
-
         header = self.test_result_table.horizontalHeader()
-        row_count = len(get_remote_sha_methods)
+        row_count = len(self._remote_sha_methods)
         self.test_result_table.setRowCount(row_count)
         table_height = min(400, row_count * 35 + header.height() + 5)
         self.test_result_table.setFixedHeight(table_height)
@@ -467,12 +493,14 @@ class Layout(QWidget):
         self.get_remote_sha_method_ComboBox.currentIndexChanged.connect(self._on_sha_method_changed)
 
     def _on_sha_method_changed(self, index):
+        if not 0 <= index < len(self.get_remote_sha_method_origin_names):
+            return
         selected_method = self.get_remote_sha_method_origin_names[index]
         self.__set_config_and_display_message("General.get_remote_sha_method", selected_method)
 
     # --- 连通性测试 ---
     def _init_test_table_content(self):
-        for i, config in enumerate(get_remote_sha_methods):
+        for i, config in enumerate(self._remote_sha_methods):
             method_item = QTableWidgetItem(self.get_remote_sha_method_display_names[i])
             status_item = QTableWidgetItem(self.tr("待测试"))
             time_item = QTableWidgetItem("-")
@@ -530,8 +558,8 @@ class Layout(QWidget):
 
                 self.completed_count += 1
                 self._update_status_label(self.status_label, "testing",
-                                          f"测试进度: {self.completed_count}/{len(get_remote_sha_methods)}")
-                if self.completed_count == len(get_remote_sha_methods):
+                                          f"测试进度: {self.completed_count}/{len(self._remote_sha_methods)}")
+                if self.completed_count == len(self._remote_sha_methods):
                     self._test_get_remote_sha_method_push_button.setEnabled(True)
                     self._update_status_label(self.status_label, "success", self.tr("所有测试已完成。"))
                     success(self.tr("测试完成"), self.tr("所有远程方法均已测试完毕。"), self.config)
@@ -540,49 +568,50 @@ class Layout(QWidget):
     # --- 核心逻辑: 检测和更新UI ---
     def _detect_update_method_and_update_ui(self):
         self._update_status_label(self._current_update_method_label, "testing", self.tr("正在检测最佳更新方式..."))
-        threading.Thread(target=self._detect_update_method_thread, daemon=True).start()
+        self._update_detection_generation += 1
+        generation = self._update_detection_generation
+        repo_url = self.config.get("URLs.REPO_URL_HTTP", None)
+        mirror_valid = (self._mirrorc_update_available
+                        and bool(self.config.get("General.mirrorc_cdk", ""))
+                        and getattr(self, "_mirrorc_cdk_is_valid", False))
+        mirror_sha = getattr(self, "_BAAS_remote_version_sha", "") if mirror_valid else ""
+        method_name = self.REPO_URL_CHECK_UPDATE_METHOD_mapping.get(repo_url)
+        method_config = next((dict(c) for c in self._remote_sha_methods if c["name"] == method_name), None)
+        repo_available = bool(repo_url and repo_url in self.REPO_URL_NAME_mapping)
 
-    def _detect_update_method_thread(self):
-        self._update_method = None
-        # 1. 优先检查有效的MirrorC
-        if self._mirrorc_update_available and len(self._mirrorc_cdk) > 0:
-            if self._cdk_test_thread and not self._cdk_test_thread.is_finished:
-                self._cdk_test_thread.wait()  # 等待当前测试完成
-
-            try:
-                fx = self._mirrorc_cdk_is_valid
-            except AttributeError:
-                print("TRIGGER: MirrorC CDK is not valid or not tested yet.")
-                time.sleep(0.5)
-                self._detect_update_method_thread()
-                return None
-
-            if fx:
-                self._update_method = "mirrorc"
-
-        # 2. 如果MirrorC不可用，再检查Git
-        if self._update_method is None:
-            self._repo_url_http = self.config.get("URLs.REPO_URL_HTTP", None)
-            if self._repo_url_http and self._repo_url_http in self.REPO_URL_NAME_mapping:
-                self._update_method = "git"
-                method_name = self.REPO_URL_CHECK_UPDATE_METHOD_mapping.get(self._repo_url_http)
-                if method_name:
-                    config = next((c for c in get_remote_sha_methods if c["name"] == method_name), None)
-                    if config:
-                        method_type = config["method"]
-                        is_ok, sha = (TestGetRemoteShaMethodWorker.github_api_get_latest_sha(config)
-                                      if method_type == GetShaMethod.GITHUB_API
-                                      else TestGetRemoteShaMethodWorker.pygit2_get_latest_sha(config))
-                        if is_ok:
-                            self._BAAS_remote_version_sha = sha
-                            self._BAAS_remote_version_get_method = "git"
+        def detect():
+            result = {"method": None, "repo_url": repo_url, "sha": "", "sha_method": None}
+            if mirror_valid:
+                result.update(method="mirrorc", sha=mirror_sha, sha_method="mirrorc")
+            elif repo_available:
+                result["method"] = "git"
+                if method_config:
+                    try:
+                        if method_config["method"] == GetShaMethod.GITHUB_API:
+                            ok, sha = TestGetRemoteShaMethodWorker.github_api_get_latest_sha(method_config)
                         else:
-                            self._BAAS_remote_version_sha = ""  # 获取失败
+                            ok, sha = TestGetRemoteShaMethodWorker.pygit2_get_latest_sha(method_config)
+                        if ok:
+                            result.update(sha=sha or "", sha_method="git")
+                    except Exception:
+                        pass
+            try:
+                self._update_detection_finished.emit(generation, result)
+            except RuntimeError:
+                # The view may have been deleted before the network request completed.
+                pass
 
-        # 在主线程更新UI
-        # self.sender().thread().msleep(100)  # 确保在主线程执行
+        threading.Thread(target=detect, daemon=True).start()
+
+    def _apply_update_detection_result(self, generation, result):
+        # Qt delivers this slot on the GUI thread. Ignore obsolete requests.
+        if generation != self._update_detection_generation:
+            return
+        self._update_method = result["method"]
+        self._repo_url_http = result["repo_url"]
+        self._BAAS_remote_version_sha = result["sha"]
+        self._BAAS_remote_version_get_method = result["sha_method"]
         self._update_ui_after_detection()
-        return None
 
     def _update_ui_after_detection(self):
         # 更新当前更新方式的显示
@@ -595,9 +624,6 @@ class Layout(QWidget):
         else:
             self._update_status_label(self._current_update_method_label, "error",
                                       self.tr("无可用更新方法，请检查CDK或仓库设置"))
-
-        while (not hasattr(self, "_BAAS_remote_version_sha")):
-            time.sleep(0.1)  # Wait until the attribute is set
 
         # 更新远程版本号的显示
         if self._BAAS_remote_version_sha:
