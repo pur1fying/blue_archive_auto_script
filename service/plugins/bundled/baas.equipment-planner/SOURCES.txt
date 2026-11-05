@@ -1,0 +1,14 @@
+Reference implementation and CN Schale data:
+https://github.com/pur1fying/blue_archive_auto_script/pull/583
+https://github.com/sakurairsora/blue_archive_auto_script/tree/d4431b66449c3778ee26a7075bc723c4fd61c401/module/tools/equip_farm
+
+Source snapshot: equip_stages_cn.json (version 3), derived from
+https://schaledb.brightsu.cn/stage/ . Only calculation fields are retained;
+duplicated labels, UI code, images, pretty copies and legacy files are omitted.
+The snapshot covers CN missions 1–30 and equipment T1–T10. It is not represented
+as current JP/Global data. No network request occurs during calculation.
+
+Weighted greedy selection and rank-up costs follow the reference algorithms,
+with explicit budgets, strict validation, actual expected-yield accounting,
+and no automatic edits to the host's sweep configuration.
+Distributed under this repository's GPL-3.0-only license.

@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "api_version": 1,
+  "id": "baas.inventory-calculator",
+  "version": "1.0.0",
+  "name": {
+    "en": "Schale inventory calculator",
+    "zh": "库存管理计算器"
+  },
+  "description": {
+    "en": "Exact cell probabilities for the 9 × 5 Schale inventory-management minigame. Found items are included in total counts. No device actions.",
+    "zh": "计算沙勒总决算「库存管理」9×5 棋盘的精确格子概率；备品总数包含已找到数量。不操作设备。"
+  },
+  "author": "BAAS contributors; reference by sakurairsora",
+  "permissions": [
+    "compute"
+  ],
+  "settings_schema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "actions": [
+    {
+      "id": "solve",
+      "name": {
+        "en": "Calculate board probabilities",
+        "zh": "计算棋盘概率"
+      },
+      "description": {
+        "en": "All compatible layouts are equally likely. Returns a resource-limit result rather than approximate probabilities if exact solving exceeds 350,000 DP states or 8 seconds.",
+        "zh": "对全部有效布局等概率计数；精确求解超过 35 万状态或 8 秒时明确提示计算限制，不返回近似概率。"
+      },
+      "execution": "compute",
+      "entrypoint": "main:solve",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "title": {
+              "en": "Three item groups",
+              "zh": "三组备品"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "width": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Width",
+                    "zh": "宽"
+                  },
+                  "minimum": 1,
+                  "maximum": 4,
+                  "default": 1
+                },
+                "height": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Height",
+                    "zh": "高"
+                  },
+                  "minimum": 1,
+                  "maximum": 4,
+                  "default": 1
+                },
+                "count": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Total count, including found items",
+                    "zh": "总数（包含已找到备品）"
+                  },
+                  "minimum": 0,
+                  "maximum": 7,
+                  "default": 1
+                }
+              },
+              "required": [
+                "width",
+                "height",
+                "count"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "default": [
+              {
+                "width": 1,
+                "height": 1,
+                "count": 1
+              },
+              {
+                "width": 1,
+                "height": 1,
+                "count": 1
+              },
+              {
+                "width": 1,
+                "height": 1,
+                "count": 1
+              }
+            ]
+          },
+          "empty_cells": {
+            "type": "array",
+            "title": {
+              "en": "Known empty cells (row × 9 + column)",
+              "zh": "已知空格（行×9＋列）"
+            },
+            "items": {
+              "type": "integer",
+              "title": {
+                "en": "Cell",
+                "zh": "格子"
+              },
+              "minimum": 0,
+              "maximum": 44
+            },
+            "maxItems": 45,
+            "default": []
+          },
+          "placed": {
+            "type": "array",
+            "title": {
+              "en": "Found items",
+              "zh": "已找到备品"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "item_index": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Item group (0–2)",
+                    "zh": "备品组（0–2）"
+                  },
+                  "minimum": 0,
+                  "maximum": 2
+                },
+                "row": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Row (0–4)",
+                    "zh": "行（0–4）"
+                  },
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "col": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Column (0–8)",
+                    "zh": "列（0–8）"
+                  },
+                  "minimum": 0,
+                  "maximum": 8
+                },
+                "rotated": {
+                  "type": "boolean",
+                  "title": {
+                    "en": "Rotated",
+                    "zh": "已旋转"
+                  },
+                  "default": false
+                }
+              },
+              "required": [
+                "item_index",
+                "row",
+                "col",
+                "rotated"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 21,
+            "default": []
+          }
+        },
+        "required": [
+          "items",
+          "empty_cells",
+          "placed"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": {
+              "en": "Status",
+              "zh": "状态"
+            },
+            "enum": [
+              "solved",
+              "impossible",
+              "limit"
+            ]
+          },
+          "total_arrangements": {
+            "type": "string",
+            "title": {
+              "en": "Exact number of arrangements",
+              "zh": "精确布局总数"
+            },
+            "maxLength": 100
+          },
+          "cells": {
+            "type": "array",
+            "title": {
+              "en": "Cell probabilities",
+              "zh": "格子概率"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Row",
+                    "zh": "行"
+                  },
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "col": {
+                  "type": "integer",
+                  "title": {
+                    "en": "Column",
+                    "zh": "列"
+                  },
+                  "minimum": 0,
+                  "maximum": 8
+                },
+                "group_a": {
+                  "type": "number",
+                  "title": {
+                    "en": "Group A probability",
+                    "zh": "备品一概率"
+                  },
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "group_b": {
+                  "type": "number",
+                  "title": {
+                    "en": "Group B probability",
+                    "zh": "备品二概率"
+                  },
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "group_c": {
+                  "type": "number",
+                  "title": {
+                    "en": "Group C probability",
+                    "zh": "备品三概率"
+                  },
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "any_item": {
+                  "type": "number",
+                  "title": {
+                    "en": "Any item probability",
+                    "zh": "任意备品概率"
+                  },
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "revealed": {
+                  "type": "boolean",
+                  "title": {
+                    "en": "Revealed",
+                    "zh": "已翻开"
+                  }
+                }
+              },
+              "required": [
+                "row",
+                "col",
+                "group_a",
+                "group_b",
+                "group_c",
+                "any_item",
+                "revealed"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 45
+          },
+          "best_cells": {
+            "type": "array",
+            "title": {
+              "en": "Best unopened cells",
+              "zh": "建议翻开的格子"
+            },
+            "items": {
+              "type": "integer",
+              "title": {
+                "en": "Cell",
+                "zh": "格子"
+              },
+              "minimum": 0,
+              "maximum": 44
+            },
+            "maxItems": 45
+          },
+          "message": {
+            "type": "string",
+            "title": {
+              "en": "Calculation detail",
+              "zh": "计算说明"
+            },
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "status",
+          "total_arrangements",
+          "cells",
+          "best_cells",
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "timeout_seconds": 12
+    }
+  ],
+  "contributions": {
+    "home": [
+      {
+        "id": "open",
+        "title": {
+          "en": "Schale inventory calculator",
+          "zh": "库存管理计算器"
+        },
+        "action_id": "solve"
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "api_version": 1,
+  "id": "baas.home-editor",
+  "version": "1.0.0",
+  "name": {
+    "en": "Home editor",
+    "zh": "主页编辑"
+  },
+  "description": {
+    "en": "Reorder home sections and choose which summaries are visible for each profile. Desktop, Android and WebUI share the same saved layout.",
+    "zh": "按配置拖拽调整主页板块顺序和显示内容，桌面、Android 与 WebUI 共用保存的布局。"
+  },
+  "author": "BAAS contributors",
+  "permissions": [],
+  "settings_schema": {
+    "type": "object",
+    "properties": {
+      "assets_visible": {
+        "type": "boolean",
+        "title": {
+          "en": "Account assets",
+          "zh": "资产条"
+        },
+        "default": true
+      },
+      "tasks_visible": {
+        "type": "boolean",
+        "title": {
+          "en": "Task status",
+          "zh": "任务状态"
+        },
+        "default": true
+      },
+      "shortcuts_visible": {
+        "type": "boolean",
+        "title": {
+          "en": "Plugin shortcuts",
+          "zh": "插件快捷入口"
+        },
+        "default": true
+      },
+      "show_edit_entry": {
+        "type": "boolean",
+        "title": {
+          "en": "Show edit entry on Home",
+          "zh": "在主页显示编辑入口"
+        },
+        "default": true
+      },
+      "section_order": {
+        "type": "array",
+        "title": {
+          "en": "Home section order",
+          "zh": "主页板块顺序"
+        },
+        "items": {
+          "type": "string",
+          "enum": [
+            "assets",
+            "tasks",
+            "shortcuts",
+            "logs"
+          ]
+        },
+        "default": [
+          "shortcuts",
+          "assets",
+          "tasks",
+          "logs"
+        ],
+        "minItems": 4,
+        "maxItems": 4
+      }
+    },
+    "additionalProperties": false
+  },
+  "actions": []
+}

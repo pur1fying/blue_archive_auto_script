@@ -42,26 +42,49 @@ echo "+--------------------------------+"
 echo "|          UPDATE BAAS           |"
 echo "+--------------------------------+"
 
-remote_sha=$($GIT_HOME ls-remote --heads origin refs/heads/master | awk '{print $1}')
-local_sha=$($GIT_HOME rev-parse HEAD)
+setup_no_update() {
+    if [ ! -f "setup.toml" ]; then
+        return 1
+    fi
+    value="$(awk '
+        /^\[.*\]$/ { section=$0 }
+        (section == "[General]" || section == "[general]") {
+            line=$0
+            gsub(/[[:space:]]/, "", line)
+            split(line, parts, "=")
+            if (parts[1] == "no_update") {
+                print tolower(parts[2])
+                exit
+            }
+        }
+    ' setup.toml)"
+    [ "$value" = "true" ]
+}
 
-echo "[INFO] Remote SHA: $remote_sha"
-echo "[INFO] Local SHA: $local_sha"
-
-if [ "$local_sha" = "$remote_sha" ] && [ -z "$($GIT_HOME diff)" ]; then
-    echo "[INFO] No updates available"
+if setup_no_update; then
+    echo "[INFO] no_update is enabled. Skipping repository update."
 else
-    echo "[INFO] Pulling updates from the remote repository..."
-    $GIT_HOME reset --hard HEAD
-    $GIT_HOME pull "$REPO_URL_HTTP"
+    remote_sha=$($GIT_HOME ls-remote --heads origin refs/heads/master | awk '{print $1}')
+    local_sha=$($GIT_HOME rev-parse HEAD)
 
-    updated_local_sha=$($GIT_HOME rev-parse HEAD)
+    echo "[INFO] Remote SHA: $remote_sha"
+    echo "[INFO] Local SHA: $local_sha"
 
-    echo "[INFO] Updated SHA: $updated_local_sha"
-    if [ "$updated_local_sha" = "$remote_sha" ]; then
-        echo "[INFO] Update success"
+    if [ "$local_sha" = "$remote_sha" ] && [ -z "$($GIT_HOME diff)" ]; then
+        echo "[INFO] No updates available"
     else
-        echo "[ERROR] Failed to update the source code, please check your network or for conflicting files"
+        echo "[INFO] Pulling updates from the remote repository..."
+        $GIT_HOME reset --hard HEAD
+        $GIT_HOME pull "$REPO_URL_HTTP"
+
+        updated_local_sha=$($GIT_HOME rev-parse HEAD)
+
+        echo "[INFO] Updated SHA: $updated_local_sha"
+        if [ "$updated_local_sha" = "$remote_sha" ]; then
+            echo "[INFO] Update success"
+        else
+            echo "[ERROR] Failed to update the source code, please check your network or for conflicting files"
+        fi
     fi
 fi
 

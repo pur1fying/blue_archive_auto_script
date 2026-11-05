@@ -1,0 +1,841 @@
+{
+  "schema_version": 1,
+  "api_version": 1,
+  "id": "baas.hoard-ap",
+  "version": "1.1.0",
+  "name": {
+    "en": "AP hoarding",
+    "zh": "囤体"
+  },
+  "description": {
+    "en": "Plan AP and cafe storage, scan anonymous mailbox inventory, and execute source delivery and whole-letter collection with AP and mailbox verification. Premium purchases remain manual. Starting rescans the mailbox; restarting requires replanning.",
+    "zh": "规划体力与咖啡存量，扫描匿名邮件库存，并核验来源到账、整封逐封领取。青辉石购买仍需手动；开始时重新扫描邮箱，重启后需重新规划。"
+  },
+  "author": "BAAS contributors",
+  "permissions": [
+    "device.tasks"
+  ],
+  "settings_schema": {
+    "type": "object",
+    "properties": {
+      "target_at": {
+        "type": "string",
+        "title": {
+          "en": "Spend at",
+          "zh": "花体时间"
+        },
+        "default": "",
+        "maxLength": 40,
+        "format": "date-time"
+      },
+      "strategy": {
+        "type": "string",
+        "title": {
+          "en": "Strategy",
+          "zh": "策略"
+        },
+        "default": "relaxed",
+        "enum": [
+          "relaxed",
+          "regeneration"
+        ]
+      },
+      "current_ap": {
+        "type": "integer",
+        "title": {
+          "en": "Current AP",
+          "zh": "当前体力"
+        },
+        "default": 160,
+        "minimum": 0,
+        "maximum": 999
+      },
+      "soft_cap": {
+        "type": "integer",
+        "title": {
+          "en": "Natural recovery cap",
+          "zh": "自然恢复上限"
+        },
+        "default": 160,
+        "minimum": 1,
+        "maximum": 999
+      },
+      "reset_hour": {
+        "type": "integer",
+        "title": {
+          "en": "Server reset hour (game time zone)",
+          "zh": "日界小时（游戏时区）"
+        },
+        "default": 4,
+        "minimum": 0,
+        "maximum": 23
+      },
+      "server_utc_offset_minutes": {
+        "type": "integer",
+        "title": {
+          "en": "Game time zone (UTC offset minutes)",
+          "zh": "游戏时区（UTC偏移分钟）"
+        },
+        "description": {
+          "en": "480 = UTC+8; 540 = UTC+9. Independent of the browser time zone.",
+          "zh": "480为UTC+8，540为UTC+9；与浏览器时区独立。"
+        },
+        "default": 480,
+        "minimum": -720,
+        "maximum": 840
+      },
+      "tube_count": {
+        "type": "integer",
+        "title": {
+          "en": "Planned daily AP purchases (manual)",
+          "zh": "每日计划买管数（手动）"
+        },
+        "default": 0,
+        "minimum": 0,
+        "maximum": 6
+      },
+      "tube_days": {
+        "type": "integer",
+        "title": {
+          "en": "Purchase days",
+          "zh": "买管天数"
+        },
+        "default": 2,
+        "minimum": 1,
+        "maximum": 3
+      },
+      "purchases_today": {
+        "type": "integer",
+        "title": {
+          "en": "AP purchases already made today",
+          "zh": "今日已买管数"
+        },
+        "default": 0,
+        "minimum": 0,
+        "maximum": 6
+      },
+      "cafe_stock": {
+        "type": "integer",
+        "title": {
+          "en": "Current cafe AP",
+          "zh": "咖啡厅当前体力"
+        },
+        "default": 0,
+        "minimum": 0,
+        "maximum": 999
+      },
+      "cafe_rate": {
+        "type": "number",
+        "title": {
+          "en": "Cafe AP per hour",
+          "zh": "咖啡厅每小时体力"
+        },
+        "default": 30.8,
+        "minimum": 0,
+        "maximum": 100
+      },
+      "cafe_capacity": {
+        "type": "integer",
+        "title": {
+          "en": "Cafe AP capacity",
+          "zh": "咖啡厅容量"
+        },
+        "default": 740,
+        "minimum": 0,
+        "maximum": 999
+      },
+      "daily_ap": {
+        "type": "integer",
+        "title": {
+          "en": "Today's daily mission AP limit",
+          "zh": "今日每日任务体力领取上限"
+        },
+        "default": 150,
+        "minimum": 0,
+        "maximum": 150,
+        "description": {
+          "en": "Read the AP amount on each claimable daily task first. A card exceeding the remaining limit is not claimed. Future server days allow at most 150 AP.",
+          "zh": "先读取每日任务卡片的实际体力量；超过剩余上限的整项奖励不领取。未来游戏日最多领取150体力。"
+        }
+      },
+      "club_ap": {
+        "type": "integer",
+        "title": {
+          "en": "Unclaimed club AP",
+          "zh": "未领小组体力"
+        },
+        "default": 10,
+        "minimum": 0,
+        "maximum": 10,
+        "description": {
+          "en": "Only rewards not yet signed in today. Sign-in delivery is verified by a complete new mailbox scan; future sign-ins are forecast separately from verified stock.",
+          "zh": "仅填今日尚未签到的奖励。签到后完整扫描确认新增邮件；未来签到仅作预估，不计入已核验库存。"
+        }
+      },
+      "jjc_mode": {
+        "type": "string",
+        "title": {
+          "en": "Tactical challenge AP purchase",
+          "zh": "竞技场商店体力"
+        },
+        "default": "none",
+        "enum": [
+          "none",
+          "30",
+          "30_60"
+        ]
+      },
+      "jjc_refreshes": {
+        "type": "integer",
+        "title": {
+          "en": "Tactical challenge shop refreshes",
+          "zh": "竞技场商店刷新次数"
+        },
+        "default": 0,
+        "minimum": 0,
+        "maximum": 3
+      },
+      "claim_free_ap": {
+        "type": "boolean",
+        "title": {
+          "en": "Claim free daily AP",
+          "zh": "领取每日免费体力"
+        },
+        "default": true
+      },
+      "spend_task": {
+        "type": "string",
+        "title": {
+          "en": "Spend AP using profile settings",
+          "zh": "按当前配置花体"
+        },
+        "default": "activity_sweep",
+        "enum": [
+          "normal_task",
+          "hard_task",
+          "activity_sweep",
+          "clear_special_task_power",
+          "scrimmage"
+        ]
+      },
+      "spend_at_target": {
+        "type": "boolean",
+        "title": {
+          "en": "Spend AP automatically at target time",
+          "zh": "到点自动花体"
+        },
+        "default": false
+      },
+      "mail": {
+        "type": "array",
+        "title": {
+          "en": "Estimated AP mail (a scan replaces this list)",
+          "zh": "预估体力邮件（扫描结果会替代此列表）"
+        },
+        "default": [],
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "title": {
+                "en": "AP",
+                "zh": "体力"
+              },
+              "default": 1,
+              "minimum": 1,
+              "maximum": 999
+            },
+            "expires_at": {
+              "type": "string",
+              "title": {
+                "en": "Expires at",
+                "zh": "过期时间"
+              },
+              "default": "",
+              "maxLength": 40,
+              "format": "date-time"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "amount",
+            "expires_at"
+          ]
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "actions": [
+    {
+      "id": "plan",
+      "name": {
+        "en": "Build timeline",
+        "zh": "生成时间轴"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "mailbox_snapshot": {
+            "type": "object",
+            "properties": {
+              "complete": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "observed_at": {
+                "type": "string",
+                "maxLength": 40,
+                "format": "date-time"
+              },
+              "mailbox_count": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 200
+              },
+              "parcels": {
+                "type": "array",
+                "maxItems": 200,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "identity": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "amount": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 999
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "maxLength": 40,
+                      "format": "date-time"
+                    },
+                    "expires_before": {
+                      "type": "string",
+                      "maxLength": 40,
+                      "format": "date-time"
+                    },
+                    "expiry_precision": {
+                      "type": "string",
+                      "enum": [
+                        "day",
+                        "hour",
+                        "minute",
+                        "second",
+                        "under-hour"
+                      ]
+                    },
+                    "expiry_uncertain": {
+                      "type": "boolean"
+                    },
+                    "received_at": {
+                      "type": "string",
+                      "maxLength": 10
+                    },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "mailbox-ocr"
+                      ]
+                    },
+                    "occurrence": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 199
+                    },
+                    "verified": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "amount",
+                    "expires_at",
+                    "expires_before",
+                    "expiry_precision",
+                    "received_at",
+                    "occurrence"
+                  ]
+                }
+              },
+              "total_ap": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 199800
+              },
+              "fingerprint": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "hoard_mail_scan"
+                ]
+              },
+              "inventory_kind": {
+                "type": "string",
+                "enum": [
+                  "verified"
+                ]
+              },
+              "character_ap": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 999
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "complete",
+              "observed_at",
+              "mailbox_count",
+              "parcels",
+              "total_ap",
+              "fingerprint"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "timeout_seconds": 30,
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "maxLength": 40
+          },
+          "target_at": {
+            "type": "string",
+            "format": "date-time",
+            "maxLength": 40
+          },
+          "executable": {
+            "type": "boolean"
+          },
+          "pending_mail_ap": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "steps": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "type": "object",
+              "properties": {
+                "at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 40
+                },
+                "action": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "amount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "ap_before": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 999
+                },
+                "ap_after": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 999
+                },
+                "mail_ap": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "expected_mail_ap": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "delivery": {
+                  "type": "string",
+                  "enum": [
+                    "mail"
+                  ]
+                },
+                "verification": {
+                  "type": "string",
+                  "enum": [
+                    "estimated",
+                    "verified",
+                    "scan_required"
+                  ]
+                },
+                "target_ap": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 999
+                },
+                "reason": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "task": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "overflow_ap": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pyroxene": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "mail_id": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "source_key": {
+                  "type": "string",
+                  "maxLength": 64
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "at",
+                "action",
+                "amount",
+                "ap_before",
+                "ap_after",
+                "mail_ap"
+              ]
+            }
+          },
+          "available_at_target": {
+            "type": "object",
+            "properties": {
+              "character_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "mail_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cafe_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total_ap": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "character_ap",
+              "mail_ap",
+              "cafe_ap",
+              "total_ap"
+            ]
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "character_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "mail_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cafe_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "manual_pyroxene_budget": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cafe_capacity_loss": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "character_ap",
+              "mail_ap",
+              "cafe_ap",
+              "total_ap",
+              "manual_pyroxene_budget",
+              "cafe_capacity_loss"
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "maxItems": 16,
+            "items": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          "inventory": {
+            "type": "object",
+            "properties": {
+              "provenance": {
+                "type": "string",
+                "enum": [
+                  "estimate",
+                  "provided_snapshot",
+                  "live_scan"
+                ]
+              },
+              "verified_mail_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "estimated_mail_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "estimated_overflow_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "pending_source_mail_ap": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "observed_at": {
+                "type": "string",
+                "maxLength": 40,
+                "format": "date-time"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "provenance",
+              "verified_mail_ap",
+              "estimated_mail_ap",
+              "estimated_overflow_ap",
+              "pending_source_mail_ap"
+            ]
+          },
+          "steps_total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "steps_offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "history_truncated": {
+            "type": "boolean"
+          },
+          "steps_omitted": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "generated_at",
+          "target_at",
+          "executable",
+          "pending_mail_ap",
+          "steps",
+          "summary",
+          "warnings",
+          "inventory",
+          "available_at_target"
+        ]
+      }
+    },
+    {
+      "id": "scan_mail",
+      "name": {
+        "en": "Scan mailbox",
+        "zh": "扫描邮箱"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "complete": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "maxLength": 40,
+            "format": "date-time"
+          },
+          "mailbox_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 200
+          },
+          "parcels": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "identity": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "amount": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 999
+                },
+                "expires_at": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "format": "date-time"
+                },
+                "expires_before": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "format": "date-time"
+                },
+                "expiry_precision": {
+                  "type": "string",
+                  "enum": [
+                    "day",
+                    "hour",
+                    "minute",
+                    "second",
+                    "under-hour"
+                  ]
+                },
+                "expiry_uncertain": {
+                  "type": "boolean"
+                },
+                "received_at": {
+                  "type": "string",
+                  "maxLength": 10
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "mailbox-ocr"
+                  ]
+                },
+                "occurrence": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 199
+                },
+                "verified": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "amount",
+                "expires_at",
+                "expires_before",
+                "expiry_precision",
+                "received_at",
+                "occurrence"
+              ]
+            }
+          },
+          "total_ap": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 199800
+          },
+          "fingerprint": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "hoard_mail_scan"
+            ]
+          },
+          "inventory_kind": {
+            "type": "string",
+            "enum": [
+              "verified"
+            ]
+          },
+          "character_ap": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 999
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "complete",
+          "observed_at",
+          "mailbox_count",
+          "parcels",
+          "total_ap",
+          "fingerprint",
+          "kind",
+          "inventory_kind",
+          "character_ap"
+        ]
+      },
+      "timeout_seconds": 1800,
+      "description": {
+        "en": "Reads every mail page without collecting rewards. Large mailboxes can take several minutes.",
+        "zh": "逐页扫描所有邮件，不领取奖励。邮件较多时可能需要数分钟。"
+      }
+    },
+    {
+      "id": "start",
+      "name": {
+        "en": "Run hoarding timeline",
+        "zh": "执行囤体时间轴"
+      },
+      "execution": "host_automation",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "timeout_seconds": 604800
+    }
+  ]
+}

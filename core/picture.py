@@ -124,7 +124,7 @@ def co_detect(
                         break
                     self.logger.info(f"RGB feature: {rgb_feature} -> Click @ ({click[0]},{click[1]})")
                     if click[0] >= 0 and click[1] >= 0:
-                        self.last_click_time = current_time
+                        self.last_click_time = time.time()
                         self.click(click[0], click[1])
                         self.last_click_position = (click[0], click[1])
                         self.last_click_name = rgb_feature
@@ -142,7 +142,7 @@ def co_detect(
                         break
                     self.logger.info(f"Image feature: {img_feature} -> Click @ ({click[0]},{click[1]})")
                     if click[0] >= 0 and click[1] >= 0:
-                        self.last_click_time = feature_last_appear_time
+                        self.last_click_time = time.time()
                         self.click(click[0], click[1])
                         self.last_click_position = (click[0], click[1])
                         self.last_click_name = img_feature
@@ -150,14 +150,22 @@ def co_detect(
         if not matched and not deal_with_pop_ups(self, pop_ups_rgb_reactions, pop_ups_img_reactions):
             if tentative_click:
                 fail_cnt += 1
-                if fail_cnt > max_fail_cnt:
+                click_time = time.time()
+                # Fast video frames can exhaust the failure count during a
+                # normal transition. Give every previous click (and initial
+                # navigation) the same two-second settling period.
+                if (self.flag_run and fail_cnt > max_fail_cnt
+                    and click_time - max(self.last_click_time, start_time) >= 2):
                     self.logger.info(
                         f"Performing tentative click @ ({tentative_x},{tentative_y}) due to recognition failure.")
+                    self.last_click_time = click_time
                     self.click(tentative_x, tentative_y)
+                    self.last_click_position = (tentative_x, tentative_y)
+                    self.last_click_name = "tentative"
+                    fail_cnt = 0
 
                     # if recognition failed for too many times, then preform a tentative click and take a break.
                     time.sleep(self.screenshot_interval * 5)
-                    # fail_cnt = 0
         if matched:
             fail_cnt = 0
 

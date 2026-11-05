@@ -124,20 +124,38 @@ class Client:
         else:
             raise ConnectionError("Failed to connect scrcpy-server after 3 seconds")
 
-        dummy_byte = self.__video_socket.recv(1)
-        if not len(dummy_byte) or dummy_byte != b"\x00":
+        self.__video_socket.settimeout(self.connection_timeout / 1000)
+        dummy_byte = self._recv_exact(self.__video_socket, 1)
+        if dummy_byte != b"\x00":
             raise ConnectionError("Did not receive Dummy Byte!")
 
         self.control_socket = self.device.create_connection(
             Network.LOCAL_ABSTRACT, "scrcpy"
         )
-        self.device_name = self.__video_socket.recv(64).decode("utf-8").rstrip("\x00")
+        self.device_name = self._recv_exact(self.__video_socket, 64).decode("utf-8").rstrip("\x00")
         if not len(self.device_name):
             raise ConnectionError("Did not receive Device Name!")
 
-        res = self.__video_socket.recv(4)
-        self.resolution = struct.unpack(">HH", res)
+        # The deployed 2.4 server sends codec ID and two 32-bit dimensions:
+        # https://github.com/Genymobile/scrcpy/blob/v2.4/server/src/main/java/com/genymobile/scrcpy/Streamer.java
+        # Reading the old four-byte size instead treats ASCII "h264" as the
+        # screen dimensions and leaves eight header bytes in the video stream.
+        codec, width, height = struct.unpack(">III", self._recv_exact(self.__video_socket, 12))
+        expected_codec = {"h264": 0x68323634, "h265": 0x68323635, "av1": 0x00617631}[self.codec_name or "h264"]
+        if codec != expected_codec or not (0 < width <= 65535 and 0 < height <= 65535):
+            raise ConnectionError("Invalid scrcpy video metadata")
+        self.resolution = (width, height)
         self.__video_socket.setblocking(False)
+
+    @staticmethod
+    def _recv_exact(connection, size):
+        data = bytearray()
+        while len(data) < size:
+            chunk = connection.recv(size - len(data))
+            if not chunk:
+                raise ConnectionError("Scrcpy disconnected during video metadata")
+            data.extend(chunk)
+        return bytes(data)
 
     @staticmethod
     def get_scrcpy_jar_path() -> str:

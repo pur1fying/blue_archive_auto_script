@@ -433,7 +433,7 @@ class Baas_thread:
         if msg == "start":
             if self.button_signal is not None:
                 self.button_signal.emit("停止")
-            self.thread_starter()
+            return self.thread_starter()
         elif msg == "stop":
             if self.button_signal is not None:
                 self.button_signal.emit("启动")
@@ -479,7 +479,7 @@ class Baas_thread:
                         if not self.solve(task):
                             self.signal_stop()
                             notify(title='', body='任务已停止')
-                            return
+                            return False
                         if flg:
                             currentTaskNextTime = self.next_time
 
@@ -502,7 +502,8 @@ class Baas_thread:
                         self.handle_then()
         except Exception as e:
             self.logger.error(traceback.format_exc())
-            return
+            return False
+        return True
 
     def genScheduleLog(self, task):
         self.logger.info("Scheduler : {")
@@ -530,7 +531,8 @@ class Baas_thread:
         """
             execute the task by call the corresponding function in func_dict
         """
-        for i in range(0, 3):
+        max_attempts = 3
+        for i in range(max_attempts):
             if i != 0:
                 self.logger.info("Retry Task " + activity + " " + str(i))
             try:
@@ -550,6 +552,8 @@ class Baas_thread:
                     self.push_and_log_error_msg("Script Error Occurred", traceback.format_exc())
                     return False
                 return True  # Human take over
+        self.logger.error(f"Task '{activity}' failed after {max_attempts} attempts; stopping execution.")
+        return False
 
     def deal_with_package_incorrect(self, curr_pkg):
         """
@@ -640,6 +644,7 @@ class Baas_thread:
             'normal_task_task-operating-round-over-notice': (888, 163),
             'momo_talk_momotalk-peach': (1123, 122),
             'cafe_students-arrived': (922, 189),
+            'cafe_quick-home': (1236, 31),
             'pass_menu': (1247, 40),
             'pass_mission-menu': (1247, 40),
             'group_sign-up-reward': (920, 159),
@@ -712,7 +717,8 @@ class Baas_thread:
             self.config = copy.deepcopy(self.config_set.config)
             for field in fields(self.config):
                 value = getattr(self.config, field.name)
-                if type(value) is not str:
+                # Telegram IDs are strings; signed/large IDs must not become lossy floats.
+                if type(value) is not str or field.name == "push_telegram_chat_id":
                     continue
                 if value.isdigit():
                     setattr(self.config, field.name, int(value))

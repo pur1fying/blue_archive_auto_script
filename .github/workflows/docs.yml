@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   build:
+    if: github.repository == 'pur1fying/blue_archive_auto_script'
     runs-on: ubuntu-latest
 
     steps:

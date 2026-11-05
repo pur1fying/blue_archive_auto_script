@@ -12,9 +12,13 @@ if TYPE_CHECKING:
 
 def wait_loading(self: Baas_thread) -> None:
     startTime = time.time()
-    while (self.flag_run and
+    # Home artwork can match the sparse loading colors. A confirmed page
+    # must take precedence so navigation can inspect its own end conditions.
+    while (self.flag_run and not match_rgb_feature(self, "main_page") and
            match_rgb_feature(self, "loadingNotWhite") and match_rgb_feature(self, "loadingWhite")):
         self.update_screenshot_array()
+        if not self.flag_run or match_rgb_feature(self, "main_page"):
+            break
         loadingTime = round(time.time() - startTime, 3)
         self.logger.info("Detected loading, loading time: " + str(loadingTime))
         time.sleep(self.screenshot_interval)
