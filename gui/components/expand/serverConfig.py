@@ -42,7 +42,8 @@ class Layout(TemplateLayout):
             {
                 'label': ServerConfig.tr('请填写您的adb端口号'),
                 'type': 'text',
-                'key': 'adbPort'
+                'key': 'adbPort',
+                'confirm': True
             },
             {
                 'label': ServerConfig.tr('检测adb地址(检测目前开启的模拟器adb地址)'),
