@@ -26,6 +26,7 @@ class ConfigItem:
         self.selection = kwargs.get('selection')
         self.type = kwargs.get('type')
         self.readOnly = kwargs.get('readOnly', False)
+        self.confirm = kwargs.get('confirm', False)
         self.tip = kwargs.get('tip', None)
 
 
@@ -102,12 +103,15 @@ class TemplateLayout(QWidget):
                 inputComponent.setText(str(self.config.get(currentKey)))
                 inputComponent.setReadOnly(cfg.readOnly)
                 self.patch_signal.connect(partial(parsePatch, inputComponent.setText, currentKey))
-                # editingFinished for both modes:
-                # - Draft: Dialog OK clearFocus flushes last edit into ConfigDraft.
-                # - List: one ConfigSet.set on blur (not per keystroke) — no freeze.
                 if not cfg.readOnly:
-                    inputComponent.editingFinished.connect(
-                        partial(self._commit, currentKey, inputComponent, labelComponent))
+                    if cfg.confirm:
+                        selectButton = PushButton(self.tr('确认'), self)
+                        selectButton.clicked.connect(
+                            partial(self._commit, currentKey, inputComponent, labelComponent))
+                    else:
+                        # Drafts flush on dialog OK; live settings save on blur.
+                        inputComponent.editingFinished.connect(
+                            partial(self._commit, currentKey, inputComponent, labelComponent))
             elif cfg.type == 'text__action':
                 currentKey = cfg.key
                 inputComponent = LineEdit(self)
