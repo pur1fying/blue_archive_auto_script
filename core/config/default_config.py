@@ -3561,7 +3561,7 @@ STATIC_DEFAULT_CONFIG = '''
     "current_game_activity": {
         "CN": "WeAretheOccultResearchSociety",
         "Global": "HighlanderRailroadExplosionIncident",
-        "JP": "HighlanderRailroadExplosionIncident"
+        "JP": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics"
     },
     "dailyGameActivity": {
         "CN": null,
