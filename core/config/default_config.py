@@ -3560,7 +3560,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "ShesideOutside",
-        "Global": "HighlanderRailroadExplosionIncident",
+        "Global": "ChairMakotosLuxSummerGetaway",
         "JP": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics"
     },
     "dailyGameActivity": {
