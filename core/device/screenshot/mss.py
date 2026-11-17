@@ -14,6 +14,9 @@ class MssScreenshot:
         screenshot_pil = self._sct.grab(self._window.get_region())
         return cv2.cvtColor(np.array(screenshot_pil), cv2.COLOR_BGRA2BGR)
 
+    def close(self):
+        self._sct.close()
+
     def _ensure_window(self):
         if not self._window.activate_window():
             if self._window.get_window() is None:

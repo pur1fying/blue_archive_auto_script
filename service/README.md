@@ -33,6 +33,19 @@
 
 ## Testing
 
+Task startup keeps the async command interface, but device initialization and
+task execution run sequentially on the same worker, as in the original GUI.
+Every single-task or scheduler launch initializes its device resources again;
+a prior session's scheduler does not make thread-bound handles reusable.
+Screenshot providers that expose `close()` are closed on that worker before it
+exits. No compatibility injection is used for this lifecycle.
+
+The start acknowledgement means the worker was launched. Initialization errors
+are reported through the normal final failure status. A stop request is retained
+through initialization, even if core initialization resets `flag_run`; it prevents
+the task body from starting after initialization returns. An active worker keeps
+the configuration occupied until it exits.
+
 The managed `--shm-name BASE` transport supports Windows and Linux with the same
 version 1 slot and packet layout. Linux desktop requires a 64-bit Python runtime
 (x86_64/aarch64) and opens POSIX shared memory `/BASE` and
