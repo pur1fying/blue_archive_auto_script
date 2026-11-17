@@ -5,8 +5,8 @@ from core.picture import GAME_ONE_TIME_POP_UPS
 def implement(self):
     self.to_main_page()
     to_purchase_pyroxenes_menu(self)
-    if self.server == "JP":
-        to_jp_daily_free_product(self)
+    if self.server in ("JP", "Global"):
+        to_daily_free_product(self)
     else:
         to_purchase_type(self, "package")
     if detect_free_power_availability(self):
@@ -20,10 +20,11 @@ def implement(self):
 def collect_daily_free_power(self):
     self.logger.info("Collect Daily Free Power.")
 
-    free_package_position = (385, 423) if self.server == "JP" else (385, 479)
+    free_package_position = (385, 423) if self.server in ("JP", "Global") else (385, 479)
+    confirm_position = (765, 594) if self.server == "Global" else (749, 571)
     img_possibles = {
         "main_page_purchase-pyroxenes-menu": free_package_position,
-        "main_page_purchase-pyroxenes-confirm-purchase-notice": (749, 571),
+        "main_page_purchase-pyroxenes-confirm-purchase-notice": confirm_position,
     }
     img_ends = "main_page_full-notice"
     rgb_ends = "reward_acquired"
@@ -31,7 +32,7 @@ def collect_daily_free_power(self):
     self.logger.info("Get 10 AP")
 
 def return_to_main_page(self):
-    back_position = (52, 38) if self.server == "JP" else (1011, 114)
+    back_position = (52, 38) if self.server in ("JP", "Global") else (1011, 114)
     img_possibles = {
         "main_page_purchase-pyroxenes-menu": back_position,
         "main_page_full-notice": (887, 165)
@@ -52,11 +53,12 @@ def to_purchase_pyroxenes_menu(self):
     picture.co_detect(self, None, rgb_possibles, img_ends, img_possibles, skip_first_screenshot=True)
 
 
-def to_jp_daily_free_product(self):
+def to_daily_free_product(self):
     general_selected = [
-        "main_page_purchase-pyroxenes-general-selected-1",
         "main_page_purchase-pyroxenes-general-selected-2",
     ]
+    if self.server == "JP":
+        general_selected.insert(0, "main_page_purchase-pyroxenes-general-selected-1")
     picture.co_detect(
         self,
         None,
