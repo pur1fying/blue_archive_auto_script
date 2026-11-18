@@ -403,6 +403,7 @@ DEFAULT_CONFIG = """
     ],
     "cafe_reward_invite2_starred_student_position" : 1,
     "cafe_reward_use_invitation_ticket": true,
+    "cafe_reward_invite_ticket_time": "refresh_16",
     "cafe_reward_allow_duplicate_invite": false,
     "cafe_reward_allow_exchange_student": false,
     "cafe_reward_interaction_shot_delay": 1.0,

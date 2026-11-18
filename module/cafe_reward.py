@@ -3,11 +3,20 @@ import time
 import queue
 import threading
 
+from datetime import datetime, timedelta, timezone
+
 import numpy as np
 
 from core import image, color, picture
 from core.utils import merge_nearby_coordinates
 from statistics import median
+
+INVITE_TICKET_WHEN_READY = "when_ready"
+INVITE_TICKET_DEFAULT = "refresh_16"
+# 每日刷新时点（4 点 / 16 点）对应的 UTC 小时，国际服/日服为 UTC+9
+INVITE_TICKET_REFRESH_HOUR_UTC = {"refresh_04": 20, "refresh_16": 8}
+# 到点后仍算正点的容差：排队/重开游戏会让实际进咖啡厅晚几分钟
+INVITE_TICKET_TIME_GRACE = 3600
 
 
 def implement(self):
@@ -19,19 +28,19 @@ def implement(self):
     ticket1_next_time = None
     ticket2_next_time = None
     if self.config.cafe_reward_use_invitation_ticket:
-        if not get_invitation_ticket_status(self):
-            ticket1_next_time = get_invitation_ticket_next_time(self)
-        else:
+        invite, wait = should_use_invitation_ticket(self, 1)
+        if invite:
             invite_girl(self, 1)
+        ticket1_next_time = wait or None
     interaction_for_cafe_solve_method3(self)
     if self.config.cafe_reward_has_no2_cafe:
         self.logger.info("start no2 cafe relationship interaction")
         to_no2_cafe(self)
         if self.config.cafe_reward_use_invitation_ticket:
-            if not get_invitation_ticket_status(self):
-                ticket2_next_time = get_invitation_ticket_next_time(self)
-            else:
+            invite, wait = should_use_invitation_ticket(self, 2)
+            if invite:
                 invite_girl(self, 2)
+            ticket2_next_time = wait or None
         interaction_for_cafe_solve_method3(self)
 
     # handle next time according to invitation ticket cool time and interval
@@ -483,6 +492,43 @@ def collect(self):
     if color.rgb_in_range(self, 563, 539, 225, 255, 213, 255, 55, 95):
         self.logger.info("Collect Cafe Earnings")
         self.click(643, 521, wait_over=True)
+
+
+def invite_ticket_time_mode(self):
+    mode = self.config_set.get("cafe_reward_invite_ticket_time") or INVITE_TICKET_DEFAULT
+    return mode if mode in INVITE_TICKET_REFRESH_HOUR_UTC else INVITE_TICKET_WHEN_READY
+
+
+def is_invite_ticket_time_point(self):
+    """是否处在"到点邀请"窗口内：最近一次每日刷新时点后 INVITE_TICKET_TIME_GRACE 秒内。"""
+    mode = invite_ticket_time_mode(self)
+    if mode == INVITE_TICKET_WHEN_READY:
+        return True
+    hour = INVITE_TICKET_REFRESH_HOUR_UTC[mode] - (self.server in ("Global", "JP"))
+    now = datetime.now(timezone.utc)
+    time_point = now.replace(hour=hour % 24, minute=0, second=0, microsecond=0)
+    if time_point > now:
+        time_point -= timedelta(days=1)
+    return (now - time_point).total_seconds() <= INVITE_TICKET_TIME_GRACE
+
+
+def should_use_invitation_ticket(self, cafe_no=1):
+    """按"邀请券使用时机"判断本次是否使用邀请券。
+
+    Returns:
+        (是否现在使用邀请券, 需等待的秒数)
+        第二个值只在"好了就用"且券仍在冷却时非 0，沿用旧的冷却回补调度。
+    """
+    mode = invite_ticket_time_mode(self)
+    if mode != INVITE_TICKET_WHEN_READY and not is_invite_ticket_time_point(self):
+        self.logger.info(f"No.{cafe_no} Cafe Invite: not the invite time point, hold the ticket.")
+        return False, 0
+    if get_invitation_ticket_status(self):
+        return True, 0
+    if mode != INVITE_TICKET_WHEN_READY:
+        self.logger.info(f"No.{cafe_no} Cafe Invite: invitation ticket is not ready.")
+        return False, 0
+    return False, get_invitation_ticket_next_time(self) or 0
 
 
 def get_invitation_ticket_status(self):
