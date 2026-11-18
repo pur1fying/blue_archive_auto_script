@@ -1874,6 +1874,26 @@ nemu の使用が推奨され、nemu を使用している場合は、「エミ�
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>咖啡厅到点刷新再使用邀请券时机:</source>
+        <translation>毎日リセット時に招待チケットを使用:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>凌晨4点</source>
+        <translation>午前4時</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>下午16点</source>
+        <translation>午後4時</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>好了就用</source>
+        <translation>使用可能になり次第</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
         <source>1号咖啡厅</source>
         <translation>カフェ1</translation>
     </message>

@@ -64,6 +64,7 @@ class Config:
     favorStudent2: list
     cafe_reward_invite2_starred_student_position: int
     cafe_reward_use_invitation_ticket: bool
+    cafe_reward_invite_ticket_time: str
     cafe_reward_allow_duplicate_invite: bool
     cafe_reward_allow_exchange_student: bool
     cafe_reward_interaction_shot_delay: float
