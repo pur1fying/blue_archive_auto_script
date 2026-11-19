@@ -16,9 +16,19 @@ Dailies, events, the café, shops and stories, all done while you're away.
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-8A2BE2?style=flat-square)
 ![AtomGit stars](https://atomgit.com/m0_74686738/blue_archive_auto_script/star/badge.svg)
 
-<kbd>**English**</kbd> <kbd>[简体中文](docs/README_zh.md)</kbd>
+<p>
+  <kbd><b>English</b></kbd>
+  <a href="docs/README_zh.md"><kbd>简体中文</kbd></a>
+</p>
 
-<kbd>[Download](#-get-started)</kbd> <kbd>[Features](#-features)</kbd> <kbd>[Docs](https://baas.kiramei.moe/docs/en/)</kbd> <kbd>[Wiki](https://baas.wiki/)</kbd> <kbd>[Report a bug](#-reporting-bugs)</kbd> <kbd>[Contribute](#-contributing)</kbd>
+<p>
+  <a href="#-get-started"><kbd>Download</kbd></a>
+  <a href="#-features"><kbd>Features</kbd></a>
+  <a href="https://baas.kiramei.moe/docs/en/"><kbd>Docs</kbd></a>
+  <a href="https://baas.wiki/"><kbd>Wiki</kbd></a>
+  <a href="#-reporting-bugs"><kbd>Report a bug</kbd></a>
+  <a href="#-contributing"><kbd>Contribute</kbd></a>
+</p>
 
 </div>
 
@@ -42,7 +52,12 @@ Dailies, events, the café, shops and stories, all done while you're away.
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white)
 
-<sub>Still on the legacy UI? &nbsp;<kbd>[Legacy releases](https://github.com/pur1fying/blue_archive_auto_script/releases)</kbd> <kbd>[Legacy install guide](https://baas.wiki/usage_doc/install/choose_platform.html)</kbd> <kbd>[Source of BAAS Tauri](https://github.com/Kiramei/baas-tauri)</kbd></sub>
+<p>
+  <sub>Still on the legacy UI?</sub>
+  <a href="https://github.com/pur1fying/blue_archive_auto_script/releases"><kbd>Legacy releases</kbd></a>
+  <a href="https://baas.wiki/usage_doc/install/choose_platform.html"><kbd>Legacy install guide</kbd></a>
+  <a href="https://github.com/Kiramei/baas-tauri"><kbd>Source of BAAS Tauri</kbd></a>
+</p>
 
 </div>
 

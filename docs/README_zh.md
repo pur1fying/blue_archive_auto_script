@@ -16,9 +16,19 @@
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-8A2BE2?style=flat-square)
 ![AtomGit Stars](https://atomgit.com/m0_74686738/blue_archive_auto_script/star/badge.svg)
 
-<kbd>[English](../README.md)</kbd> <kbd>**简体中文**</kbd>
+<p>
+  <a href="../README.md"><kbd>English</kbd></a>
+  <kbd><b>简体中文</b></kbd>
+</p>
 
-<kbd>[下载](#-快速开始)</kbd> <kbd>[功能](#-功能一览)</kbd> <kbd>[文档](https://baas.kiramei.moe/docs/zh/)</kbd> <kbd>[Wiki](https://baas.wiki/)</kbd> <kbd>[上报 Bug](#-如何上报-bug)</kbd> <kbd>[参与开发](#-参与开发)</kbd>
+<p>
+  <a href="#-快速开始"><kbd>下载</kbd></a>
+  <a href="#-功能一览"><kbd>功能</kbd></a>
+  <a href="https://baas.kiramei.moe/docs/zh/"><kbd>文档</kbd></a>
+  <a href="https://baas.wiki/"><kbd>Wiki</kbd></a>
+  <a href="#-如何上报-bug"><kbd>上报 Bug</kbd></a>
+  <a href="#-参与开发"><kbd>参与开发</kbd></a>
+</p>
 
 </div>
 
@@ -42,7 +52,12 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white)
 
-<sub>仍在使用旧版界面？&nbsp;<kbd>[旧版发布页](https://github.com/pur1fying/blue_archive_auto_script/releases)</kbd> <kbd>[旧版安装文档](https://baas.wiki/usage_doc/install/choose_platform.html)</kbd> <kbd>[BAAS Tauri 源码](https://github.com/Kiramei/baas-tauri)</kbd></sub>
+<p>
+  <sub>仍在使用旧版界面？</sub>
+  <a href="https://github.com/pur1fying/blue_archive_auto_script/releases"><kbd>旧版发布页</kbd></a>
+  <a href="https://baas.wiki/usage_doc/install/choose_platform.html"><kbd>旧版安装文档</kbd></a>
+  <a href="https://github.com/Kiramei/baas-tauri"><kbd>BAAS Tauri 源码</kbd></a>
+</p>
 
 </div>
 
