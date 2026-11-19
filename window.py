@@ -1,11 +1,13 @@
 # coding:utf-8
 import datetime
 import json
+import logging
 import os
 import shutil
 import sys
 import threading
 from functools import partial
+from pathlib import Path
 from typing import Union
 
 from PyQt5.QtCore import Qt, QSize, QPoint, pyqtSignal, QObject, QTimer
@@ -14,7 +16,7 @@ from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel
 from qfluentwidgets import FluentIcon as FIF, FluentTranslator, SplashScreen, MSFluentWindow, TabBar, \
     MSFluentTitleBar, MessageBox, TransparentToolButton, FluentIconBase, TabItem, \
     RoundMenu, Action, MenuAnimationType, MessageBoxBase, LineEdit
-from qfluentwidgets import (SubtitleLabel, setFont)
+from qfluentwidgets import (SubtitleLabel, isDarkTheme, setFont)
 
 from core.config import default_config
 from gui.components.dialog_panel import CreateSettingMessageBox
@@ -24,6 +26,7 @@ from gui.util import notification
 from gui.util.config_gui import configGui, COLOR_THEME
 from core.config.config_set import ConfigSet
 from gui.util.language import Language
+from gui.util.legacy_migration import desktop_migration_enabled, sync_legacy_config
 from gui.util.translator import baasTranslator as bt
 
 # sys.stderr = open('error.log', 'w+', encoding='utf-8')
@@ -449,6 +452,19 @@ class Window(MSFluentWindow):
         # SingleShot is used to speed up the initialization process
         # self.init_main_class()
         QTimer.singleShot(100, self.init_main_class)
+        if desktop_migration_enabled():
+            QTimer.singleShot(0, self.offer_legacy_ui_migration)
+
+    def offer_legacy_ui_migration(self):
+        from gui.components.legacy_ui_notice import show_legacy_ui_notice
+
+        language = configGui.get(configGui.language).value.name().split("_")[0]
+        theme = "dark" if isDarkTheme() else "light"
+        try:
+            if sync_legacy_config(Path.cwd(), language, theme):
+                show_legacy_ui_notice(self, language)
+        except OSError:
+            logging.getLogger(__name__).exception("Could not save the BAAS UI migration handoff")
 
     def init_main_class(self, ):
         threading.Thread(target=self.init_main_class_thread).start()
