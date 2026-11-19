@@ -1,84 +1,106 @@
+<p align="center">
+  <img src="docs/assets/logo.png" alt="BAAS logo" width="112">
+</p>
+
 # Blue Archive Auto Script
+
+[简体中文](docs/REAME_zh.md)
+
 ![Python](https://img.shields.io/badge/-Python-000000?style=flat&logo=python)
 ![C++](https://img.shields.io/badge/C%2B%2B-blue?logo=c%2B%2B)
 ![GitHub stars](https://img.shields.io/github/stars/pur1fying/blue_archive_auto_script?style=social)
-![star](https://atomgit.com/m0_74686738/blue_archive_auto_script/star/badge.svg)
+![AtomGit stars](https://atomgit.com/m0_74686738/blue_archive_auto_script/star/badge.svg)
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-purple)
 
+**BAAS** is an automation tool for Blue Archive across all regional servers. It works with 16:9 game screens, and we recommend 1280 × 720. Our goal is to automate every in-game task, from dailies to events.
 
-**BAAS**,一个带GUI的蔚蓝档案（全服支持），为屏幕分辨率为 16:9 (1280x720 最佳) 运行的场景而设计 最终目的是接管一切蔚蓝档案任务 实现完全自动化
+## New UI · BAAS Tauri
 
-GUI预览图：
+[BAAS Tauri](https://baas.kiramei.moe/) is the new BAAS interface for Windows, macOS, Linux, and Android. It brings a visual scheduler, profile and task settings, device previews, logs, and updates together in one app.
 
-<img src="docs/assets/ui.png" alt="gui" width="50%">
-<img src="docs/assets/ui2.png" alt="gui" width="50%">
-<img src="docs/assets/ui3.png" alt="gui" width="50%">
+[Download BAAS Tauri](https://github.com/Kiramei/baas-tauri/releases/latest) · [Installation guide](https://baas.kiramei.moe/docs/en/guide/install/) · [BAAS Tauri source](https://github.com/Kiramei/baas-tauri)
 
-## 功能 Features
-- **角色好感度**: 咖啡厅一日8摸, 日程自动找指定学生, 每日最大限度提升好感度
-- **主线**: 自动推图(普通4-30，困难1-30，最新主线<30>已适配)
-- **咖啡厅**: 邀请券可选择指定学生 咖啡厅摸头 咖啡厅奖励
-- **商店**: 支持指定普通物品商店 以及竞技场商店自动购买和刷新次数
-- **收获**: 每日小组体力 邮箱 竞技场每日领奖 总力战累计积分领奖 每日任务领奖 pass任务点数和奖励领取
-- **体力清理**: 可指定任意主线关卡(普通困难) 特别委托 活动关卡 扫荡任意次数
-- **日程**: 优先做指定角色存在的日程, 可优先做加好感度多的日程, 指定每个区域日程次数
-- **竞技场**: 清理到没有竞技场挑战券为止，自动领取每日奖励
-- **制造**: 无缝制造三解 指定制造优先级 次数 是否使用加速券 
-- **momotalk**: 自动完成所有未结束对话 完成剧情 领取青辉石
-- **总力战**: 清空总力战挑战券并领取奖励(自动凹分功已在[该仓库](https://github.com/pur1fying/BAAS_Cpp)适配, 正在接入**BAAS**)
-- **战术综合测试**: 在考试开启期间自动清票
-- **剧情**: 一键清理主线剧情，小组剧情, 迷你剧情
-- **活动**: 一键活动推剧情，任务，挑战，走格子(三服活动稳定更新)
+![BAAS Tauri desktop scheduler with a list of tasks and run times](https://baas.kiramei.moe/media/desktop/en/dark/scheduler-list.webp)
 
-### 突出特性：
+| Visual workflow editor | Café settings |
+| --- | --- |
+| ![BAAS Tauri workflow editor](https://baas.kiramei.moe/media/desktop/en/dark/scheduler-workflow.webp) | ![BAAS Tauri café settings](https://baas.kiramei.moe/media/desktop/en/dark/config-cafe.webp) |
 
-- **16:9分辨率模拟器都可以运行，不局限于1280x720**
-- **在低配电脑上运行也不会出现问题** 处理器速度低的电脑可以手动调小截图速度 增长运行时间
-- **自定义调度(每日固定刷新时间，执行间隔)**
+For Android setup and other deployment options, see the [BAAS Tauri docs](https://baas.kiramei.moe/docs/en/).
 
-## 安装 Installation 
-  **请确保安装路径没有中文(QT框架限制)**
-  解压Release或qq交流群中的下载包，双击`BlueArchiveAutoScript.exe`安装环境，请耐心等待。
-  安装完成后，BAAS 的ui界面将自动启动。同时，我们提供了pyinstaller可使用的打包脚本，您可以自
-  行打包，具体内容在`deploy/installer`文件夹中。
-  [安装相关文档](https://baas.wiki/usage_doc/install/choose_platform.html)
-  
-## 如何使用
-用户文档见[wiki](https://baas.wiki/), 有详细的BAAS配置教程和使用方法
+### Moving from the legacy UI
 
-## 如何上报bug How to Report Bugs
-在提问题之前至少花费 5 分钟来思考和准备, 才会有人花费他的 5 分钟来帮助你。
+If your legacy desktop build supports migration, open it once to export your profiles and preferences. Then launch BAAS Tauri and choose to migrate when prompted during initial setup. On Windows, macOS, and Linux, BAAS Tauri can reuse your existing installation folder and carry over your profiles, language, theme, and any available MirrorChyan settings.
 
-在提问题前，请先。
-检查 BAAS 的更新，确认使用的是最新版(重启程序自动更新至最新版本)。
-如果是非预期的行为，请提供非预期行为发生时UI界面的日志,模拟器截图或视频。
+## Legacy UI · PyQt
 
-## 开发
-我们会在github issue和开发文档中发布一些需求,如果您有兴趣可以参与开发, 欢迎向**BAAS**提交pull request,我们会仔细阅读你的每一行代码, 哦对了,别忘了阅读[开发文档](https://blog.lzwi.fun/blue_archive_auto_script/develop_doc/develop_guide)
+The original BAAS desktop interface is still available. The [BAAS wiki](https://baas.wiki/) has setup and usage guides for the legacy UI.
 
-1. **BAAS**自动战斗使用YOLOv8检测游戏内角色, 如果你愿意帮助开发者分担压力, 参与数据标注, 欢迎联系作者
-2. 欢迎将gui适配其他语言(目前有English,简体中文,日本語, 한국말)
-3. 如果你愿意帮助推广**BAAS**, 也欢迎联系作者, 推广方式包括但不限于
-    - 在BiliBili使用**BAAS**自动战斗直播帮别人凹分
-    - 做使用教学视频在不同视频平台推广
+[Legacy releases](https://github.com/pur1fying/blue_archive_auto_script/releases) · [Legacy installation guide](https://baas.wiki/usage_doc/install/choose_platform.html)
 
-## 已知问题 Known Issues
-- **在使用本软件时请勿游玩游戏瓦洛兰特(可能会受到若干小时的封号处罚)**
-- 本项目尝试支持Docker部署，但目前仍无法运行，目前在`deploy/docker`文件夹中，如有解决方案，请提交PR
+| Home and logs | General settings | Task settings |
+| --- | --- | --- |
+| ![Legacy BAAS home and logs](docs/assets/ui.png) | ![Legacy BAAS general settings](docs/assets/ui2.png) | ![Legacy BAAS task settings](docs/assets/ui3.png) |
 
-## 联系我们 Contact Us
-- QQ 
-  - 1群: 658302636
-  - 2群: 1027430247
-- 有开发意向请加作者（Email pur1fying at 2274916027@qq.com）
- 
-## 未来目标 Future Goals
-- **学生党，痛苦喵，大家一起来开源喵**
-- **使用C++重构一部分功能(正在进行中https://github.com/pur1fying/BAAS_Cpp)**
-- **为自动战斗开发一个普通用户可用的GUI**
-- **完善体力规划模块,使脚本可以在二/三倍活动掉落期间刷不同图，购买体力等，使刷体力更灵活可变**
-- **增加竞技场新赛季碎石挖矿功能**
+On Windows, download the legacy launcher archive from GitHub Releases or a QQ group. Qt requires an installation path without Chinese characters. Double-click `BlueArchiveAutoScript.exe` after extracting the archive and wait for it to install the runtime. The UI opens automatically when setup finishes. To build your own package with PyInstaller, see [`deploy/installer`](deploy/installer).
 
-## [致谢名单](https://baas.wiki/thanks)
+## What BAAS can do
 
-![Contributors](https://contrib.rocks/image?repo=pur1fying/blue_archive_auto_script)
+| Feature | Automation |
+| --- | --- |
+| Student affinity | Pet students up to eight times a day in the café and prioritize specific students in lessons. |
+| Missions | Clear Normal areas 4–30 and Hard areas 1–30 automatically, including Area 30. |
+| Café | Invite the student of your choice with an invitation ticket, pet students, and collect café rewards. |
+| Shops | Set what to buy and how many times to refresh the regular and Tactical Challenge shops. |
+| Daily rewards | Collect daily club AP, mail, Tactical Challenge rewards, daily mission rewards, and Pass points and rewards. |
+| AP spending | Sweep selected Normal and Hard missions, Special Commissions, and event stages as many times as you set. |
+| Lessons | Prioritize selected students or lessons with higher affinity gains, and set how many lessons to take in each area. |
+| Tactical Challenge | Use all challenge tickets and collect the daily reward. |
+| Crafting | Automate all three crafting stages and set priorities, run counts, and whether to use Booster Tickets. |
+| MomoTalk | Finish all pending conversations, complete relationship stories, and claim Pyroxene. |
+| Total Assault | The ticket-clearing and reward task, including cumulative point rewards, is [currently disabled](module/total_assault.py#L9-L11). Auto-battle for high-score attempts is implemented in [BAAS_Cpp](https://github.com/pur1fying/BAAS_Cpp), with integration into BAAS still in progress. |
+| Joint Firing Drill | Use all tickets while a drill is active. |
+| Stories | Clear main, group, and mini stories in one go. |
+| Events | Clear event stories, missions, challenges, and tile maps. Event support is updated regularly for three regional servers. |
+
+BAAS works with 16:9 emulator resolutions, including sizes other than 1280 × 720. On slower hardware, lower the screenshot frequency and allow more time for tasks to run. You can customize scheduling with a fixed daily reset time and run intervals.
+
+## Reporting bugs
+
+Please spend five minutes checking and reproducing the problem before filing an [issue](https://github.com/pur1fying/blue_archive_auto_script/issues). Check that BAAS is up to date. To update the legacy version automatically, restart it using its launcher. If BAAS behaves unexpectedly, attach the UI log from the affected run and an emulator screenshot or video.
+
+## Contributing
+
+We post project requests in [GitHub Issues](https://github.com/pur1fying/blue_archive_auto_script/issues) and the [developer guide](https://blog.lzwi.fun/blue_archive_auto_script/develop_doc/develop_guide). Pull requests are welcome, and we'll review your code carefully.
+
+- BAAS uses YOLOv8 to detect characters in auto-battle. Contact the maintainer if you'd like to help label training data.
+- Help translate the UI. The legacy GUI has English, Simplified Chinese, Japanese, and Korean.
+- Help more people find BAAS. Stream automated high-score attempts on Bilibili or make tutorials for your favorite video platform.
+
+## Known issues
+
+- **Avoid using BAAS while playing VALORANT.** You may receive a temporary suspension lasting several hours.
+- The Docker proof of concept in [`deploy/docker`](deploy/docker) does not run. Fixes are welcome. See the [WebUI and Docker guide](https://baas.kiramei.moe/docs/en/guide/webui/) for the new setup.
+
+## Community
+
+- QQ group 1 · `658302636`
+- QQ group 2 · `1027430247`
+- Interested in development? Email maintainer [pur1fying](mailto:2274916027@qq.com).
+
+## Roadmap
+
+BAAS is a student-led open-source project. Come build it with us!
+
+- Continue rewriting parts of BAAS in C++ in [BAAS_Cpp](https://github.com/pur1fying/BAAS_Cpp).
+- Build an auto-battle UI anyone can use.
+- Make AP planning more flexible during ×2 and ×3 drop campaigns, with different stage choices and AP purchases.
+- Add Pyroxene farming for new Tactical Challenge seasons.
+
+## Acknowledgments
+
+Thanks to everyone who has helped build BAAS. See the [acknowledgments](https://baas.wiki/thanks) and [contributors](https://github.com/pur1fying/blue_archive_auto_script/graphs/contributors).
+
+![BAAS contributors](https://contrib.rocks/image?repo=pur1fying/blue_archive_auto_script)
+
+BAAS is available under the [GNU General Public License v3.0](LICENSE).
