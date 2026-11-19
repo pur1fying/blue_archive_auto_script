@@ -10,11 +10,13 @@ from qfluentwidgets import SettingCardGroup, PushButton, VBoxLayout, ComboBox, E
 
 from deploy.installer.toml_config import TOML_Config
 from gui.components import expand
+from gui.components.legacy_ui_notice import legacy_ui_notice_card
 from gui.components.template_card import SimpleSettingCard
 from gui.util.customized_ui import ColorSvgWidget
 from gui.util.notification import success
 
 from gui.util.config_gui import configGui, COLOR_THEME
+from gui.util.legacy_migration import desktop_migration_enabled
 
 
 
@@ -97,6 +99,7 @@ class GlobalFragment(ScrollArea):
         self.expandLayout.setSpacing(28)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setWidgetResizable(True)
+        self._add_legacy_ui_notice(self.expandLayout, self.scrollWidget)
         self.expandLayout.addWidget(self.settingLabel)
         self.expandLayout.addWidget(self.basicGroup)
         self.setWidget(self.scrollWidget)
@@ -105,6 +108,7 @@ class GlobalFragment(ScrollArea):
         layout = VBoxLayout(self)
         layout.setAlignment(Qt.AlignTop)
         layout.setContentsMargins(40, 40, 40, 40)
+        self._add_legacy_ui_notice(layout, self)
         layout.addStretch(1)
         layout.setSpacing(15)
 
@@ -176,3 +180,8 @@ class GlobalFragment(ScrollArea):
         layout.addLayout(sub_layout_0)
 
         layout.addStretch(2)
+
+    def _add_legacy_ui_notice(self, layout, parent):
+        if desktop_migration_enabled():
+            language = configGui.get(configGui.language).value.name().split("_")[0]
+            layout.addWidget(legacy_ui_notice_card(parent, language))
