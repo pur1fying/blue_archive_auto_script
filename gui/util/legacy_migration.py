@@ -41,7 +41,10 @@ def _handoff_lock(directory):
             import fcntl
 
             fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-            yield
+            try:
+                yield
+            finally:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
 
 
 def _ignore_links(directory, names):
