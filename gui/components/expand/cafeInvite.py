@@ -337,6 +337,13 @@ class Layout(QWidget):
         }
         self.name_dict_rev = {v: k for k, v in self.name_dict.items()}
 
+        self.ticket_time_dict = {
+            self.tr("凌晨4点"): "refresh_04",
+            self.tr("下午16点"): "refresh_16",
+            self.tr("好了就用"): "when_ready",
+        }
+        self.ticket_time_dict_rev = {v: k for k, v in self.ticket_time_dict.items()}
+
         self.student_name = []
         try:
             students = list(getattr(self.config.static_config, "student_names", None) or [])
@@ -407,13 +414,24 @@ class Layout(QWidget):
         grid.addWidget(self._stack_cell(exchange_label, self.swExchange), 1, 0)
         grid.addWidget(self._stack_cell(duplicate_label, self.swDup), 1, 1)
 
+        self.inputTicketTime = CafeComboBox()
+        self.inputTicketTime.addItems(self.ticket_time_dict.keys())
+        _tune_combo(self.inputTicketTime, len(self.ticket_time_dict))
+        self.inputTicketTime.setCurrentText(self.ticket_time_dict_rev.get(
+            self.config.get("cafe_reward_invite_ticket_time"), self.tr("下午16点")))
+        self.inputTicketTime.currentTextChanged.connect(self.__accept_ticket_time)
+        grid.addWidget(
+            self._inline_cell(self.tr("咖啡厅到点刷新再使用邀请券时机:"), self.inputTicketTime),
+            2, 0, 1, 2,
+        )
+
         self.inputPatRound = LineEdit()
         self.inputPatRound.setFixedWidth(56)
         self.inputPatRound.setText(str(self.pat_round))
         self.inputPatRound.editingFinished.connect(self.__accept_pat_round)
         grid.addWidget(
             self._inline_cell(self.tr("摸头轮数 (轮数越高越不会漏摸):"), self.inputPatRound),
-            2, 0, 1, 2,
+            3, 0, 1, 2,
         )
 
         # Locked dropdown (still a ComboBox — unlock by setEnabled(True) later).
@@ -425,7 +443,7 @@ class Layout(QWidget):
         self.inputPatStyle.setToolTip(self.tr("当前仅支持「拖动礼物」，选项已锁定"))
         grid.addWidget(
             self._inline_cell(self.tr("摸头方式:"), self.inputPatStyle),
-            3, 0, 1, 2,
+            4, 0, 1, 2,
         )
 
         left_lay.addLayout(grid)
@@ -684,6 +702,11 @@ class Layout(QWidget):
         favor_student = self.check_valid_student_names(lineEdit.text().split(","))
         self.config.set(f"favorStudent{no}", favor_student)
         lineEdit.setText(",".join(favor_student))
+
+    def __accept_ticket_time(self, text):
+        value = self.ticket_time_dict.get(text)
+        if value is not None:
+            self.config.set("cafe_reward_invite_ticket_time", value)
 
     def __accept_pat_round(self, *_):
         text = self.inputPatRound.text().strip()

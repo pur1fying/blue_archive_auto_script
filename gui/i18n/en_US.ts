@@ -1877,6 +1877,26 @@ set the &apos;emulator address&apos; to your MuMu emulator path, accurate to MuM
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>咖啡厅到点刷新再使用邀请券时机:</source>
+        <translation>Use the invitation ticket at the daily reset time point:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>凌晨4点</source>
+        <translation>04:00 (4 AM)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>下午16点</source>
+        <translation>16:00 (4 PM)</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>好了就用</source>
+        <translation>As soon as ready</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
         <source>1号咖啡厅</source>
         <translation>Cafe 1</translation>
     </message>

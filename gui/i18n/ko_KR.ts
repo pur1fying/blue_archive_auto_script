@@ -1878,6 +1878,26 @@ nemu를 사용하는 것이 좋으며, nemu를 사용하는 경우 &apos;에뮬�
     </message>
     <message>
         <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>咖啡厅到点刷新再使用邀请券时机:</source>
+        <translation>매일 리셋 시 초대권 사용:</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>凌晨4点</source>
+        <translation>오전 4시</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>下午16点</source>
+        <translation>오후 4시</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
+        <source>好了就用</source>
+        <translation>사용 가능 시 바로</translation>
+    </message>
+    <message>
+        <location filename="../components/expand/cafeInvite.py" line="1"/>
         <source>1号咖啡厅</source>
         <translation>카페 1</translation>
     </message>
