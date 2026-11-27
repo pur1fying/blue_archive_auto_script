@@ -3,6 +3,7 @@ import os
 import re
 from core.config.generated_user_config import Config
 from core.config.generated_static_config import StaticConfig
+from core.config.json_file import write_json_atomic
 from gui.util.customized_ui import BoundComponent
 from gui.util.translator import baasTranslator as bt
 from dataclasses import asdict
@@ -74,8 +75,7 @@ class ConfigSet:
 
     def save(self):
         data = asdict(self.config)
-        with open(os.path.join(self.config_dir, "config.json"), 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
+        write_json_atomic(os.path.join(self.config_dir, "config.json"), data, indent=4)
 
     def dynamic_update(self, key):
         if key not in self.inject_config_list: return

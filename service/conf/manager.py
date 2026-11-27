@@ -11,6 +11,7 @@ from typing import Any, Dict, Iterable, List, Optional, Union
 
 from watchfiles import Change, awatch
 
+from core.config.json_file import write_json_atomic
 from deploy.installer.const import normalize_update_channel
 from service.types import PatchOperation, SyncPushPayload
 from service.android_modes import ANDROID_LOCAL_METHOD
@@ -259,8 +260,10 @@ class ConfigManager:
         data = None
         if resource == "setup_toml":
             data, _ = read_setup_toml()
+            timestamp = file_mtime_ms(path)
         else:
             with path.open("r", encoding="utf-8") as fp:
+                timestamp = os.fstat(fp.fileno()).st_mtime * 1000
                 data = json.load(fp)
         if resource == "gui":
             self._gui_full = data
@@ -280,7 +283,6 @@ class ConfigManager:
             event = self.gen_event_formation_attr(data_to_store)
             data_to_store["current_game_activity"] = event
 
-        timestamp = file_mtime_ms(path)
         snapshot = ResourceSnapshot(data=data_to_store, timestamp=timestamp)
         self._snapshots[(resource, resource_id)] = snapshot
         self._mtimes[(resource, resource_id)] = timestamp
@@ -297,6 +299,8 @@ class ConfigManager:
             Deep-copied ResourceSnapshot safe for callers to mutate.
         """
         key = (resource, resource_id)
+        if resource in ("config", "event") and key in self._snapshots:
+            await self._check_resource(resource, resource_id)
         async with self._async_lock():
             snapshot = self._snapshots.get(key)
             if snapshot is None:
@@ -374,10 +378,11 @@ class ConfigManager:
             else:
                 await asyncio.to_thread(self._write_json, path, to_dump, resource)
 
-            new_timestamp = max(timestamp, unix_timestamp_ms(), file_mtime_ms(path))
+            disk_mtime = file_mtime_ms(path)
+            new_timestamp = max(timestamp, unix_timestamp_ms(), disk_mtime)
             new_snapshot = ResourceSnapshot(data=updated, timestamp=new_timestamp)
             self._snapshots[key] = new_snapshot
-            self._mtimes[key] = new_timestamp
+            self._mtimes[key] = disk_mtime
 
         payload = SyncPushPayload(
             resource=resource, resource_id=resource_id, timestamp=new_snapshot.timestamp, ops=[
@@ -390,8 +395,7 @@ class ConfigManager:
     @staticmethod
     def _write_json(path: Path, data: Any, resource: str) -> None:
         indent = 4 if resource in ("config", "gui") else 2
-        with path.open("w", encoding="utf-8") as fp:
-            json.dump(data, fp, indent=indent, ensure_ascii=False)
+        write_json_atomic(path, data, indent=indent)
 
     async def subscribe_updates(self) -> asyncio.Queue:
         """Subscribe to filesystem/backend/frontend config update messages."""
@@ -450,21 +454,31 @@ class ConfigManager:
         self._snapshots.pop(("event", config_id), None)
         await self._update_bus.publish(payload.model_dump())
 
-    async def _check_resource(self, resource: str, resource_id: Optional[str]) -> None:
+    async def _check_resource(self, resource: str, resource_id: Optional[str], *, changed: bool = False) -> None:
         key = (resource, resource_id)
         path = self._file_path(resource, resource_id)
-        if not path.exists():
-            return
-        mtime = file_mtime_ms(path)
-        previous = self._mtimes.get(key)
-        if previous is None:
-            self._mtimes[key] = mtime
-            return
-        if mtime <= previous:
-            return
-        async with self._async_lock():
-            old_snapshot = self._snapshots.get(key)
-            fresh_snapshot = self._load_from_disk(resource, resource_id)
+        for attempt in range(3):
+            try:
+                async with self._async_lock():
+                    mtime = file_mtime_ms(path)
+                    previous = self._mtimes.get(key)
+                    if not changed and previous is None:
+                        self._mtimes[key] = mtime
+                        return
+                    if not changed and previous == mtime:
+                        return
+                    old_snapshot = self._snapshots.get(key)
+                    fresh_snapshot = self._load_from_disk(resource, resource_id)
+                    if old_snapshot is not None:
+                        fresh_snapshot.timestamp = max(old_snapshot.timestamp, fresh_snapshot.timestamp)
+                break
+            except FileNotFoundError:
+                return
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+                if attempt == 2:
+                    logging.warning("Cannot read %s, keeping the last snapshot: %s", path, exc)
+                    return
+                await asyncio.sleep(0.05 * (attempt + 1))
         if old_snapshot is None:
             ops = [{"op": "replace", "path": "", "value": fresh_snapshot.data}]
         else:
@@ -541,7 +555,7 @@ class ConfigManager:
         if rescan_configs:
             await self.scan_once()
         for resource, resource_id in resource_changes:
-            await self._check_resource(resource, resource_id)
+            await self._check_resource(resource, resource_id, changed=True)
 
     def _classify_config_change(
         self,
