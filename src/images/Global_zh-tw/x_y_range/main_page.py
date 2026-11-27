@@ -7,7 +7,10 @@ x_y_range = {
     'insufficient-inventory-space': (494, 391, 770, 453),
     'login-store': (551, 145, 730, 182),
     'login-feature': (40, 625, 96, 649),
-    'news': (50, 102, 96, 144),
+    # Search box for the news popup close button: its centre is (1216, 44)
+    # and the 60x60 template spans (1186, 14) to (1246, 74).
+    'news': (1186, 14, 1246, 74),
+    'news2': (1186, 14, 1246, 74),
     'daily-attendance': (540, 90, 1100, 174),
     'skip-notice': (589, 309, 701, 353),
     'full-notice': (397, 294, 871, 370),

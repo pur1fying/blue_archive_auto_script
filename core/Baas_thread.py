@@ -681,7 +681,12 @@ class Baas_thread:
                 'main_page_download-additional-resources': (769, 535),
             },
             'Global': {
-                'main_page_news': (1239, 50),
+                # The news popup close button sits at (1216, 44) on the
+                # current client. The old (1239, 50) was ~23px off and the
+                # template no longer matches (0.676 vs 0.8), so the main page
+                # could never be left.
+                'main_page_news': (1216, 44),
+                'main_page_news2': (1216, 44),
                 'main_page_login-store': (883, 162),
                 'main_page_insufficient-inventory-space': (912, 140),
                 'main_page_Failed-to-convert-errorResponse': (641, 511),
