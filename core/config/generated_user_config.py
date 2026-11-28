@@ -68,6 +68,7 @@ class Config:
     cafe_reward_allow_exchange_student: bool
     cafe_reward_interaction_shot_delay: float
     server: str
+    global_ocr_language: str
     control_method: str
     screenshot_method: str
     adbIP: str

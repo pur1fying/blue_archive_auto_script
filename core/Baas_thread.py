@@ -2,7 +2,9 @@ import copy
 import json
 import math
 import os
+import shlex
 import subprocess
+import tempfile
 import threading
 import time
 import traceback
@@ -359,54 +361,330 @@ class Baas_thread:
                 self._get_host_ocr_language()
         self.logger.info("Ocr Language : " + self.ocr_language)
 
+    GLOBAL_DEVICE_OPTION_LANGUAGE_MAP = {
+        "Kr": "ko-kr",
+        "En": "en-us",
+        "Tw": "zh-tw",
+    }
+    SUPPORTED_GLOBAL_OCR_LANGUAGES = frozenset(GLOBAL_DEVICE_OPTION_LANGUAGE_MAP.values())
+    _DEVICE_OPTION_SHELL_TIMEOUT = 5
+
     def _get_host_ocr_language(self):
         path = os.path.join(os.getenv('LOCALAPPDATA'), '..', 'LocalLow', 'Nexon Games', 'Blue Archive', 'DeviceOption')
         if not os.path.exists(path):
             raise Exception("Local DeviceOption not found : " + path)
         self._read_DeviceOption_ocr_language(path)
 
+    def _get_configured_global_ocr_language(self):
+        cfg = self.config if self.config is not None else getattr(self.config_set, "config", None)
+        configured = getattr(cfg, "global_ocr_language", None)
+        if configured is None:
+            return None
+        value = str(configured).strip()
+        if not value or value.lower() == "auto":
+            return None
+        normalized = value.lower()
+        if normalized in self.SUPPORTED_GLOBAL_OCR_LANGUAGES:
+            return normalized
+        supported = ", ".join(sorted(self.SUPPORTED_GLOBAL_OCR_LANGUAGES))
+        raise ValueError(
+            f"Invalid global_ocr_language config: {configured!r}. "
+            f"Expected 'auto' or one of: {supported}."
+        )
+
+    @staticmethod
+    def _run_adb_shell(adb_device, command: str, timeout: float = 5):
+        shell2 = getattr(adb_device, "shell2", None)
+        if callable(shell2):
+            res = shell2(command, timeout=timeout)
+            output = res.output if isinstance(res.output, str) else res.output.decode("utf-8", errors="replace")
+            return res.returncode, output
+        try:
+            output = adb_device.shell(command, timeout=timeout)
+        except TypeError:
+            output = adb_device.shell(command)
+        text = output if isinstance(output, str) else output.decode("utf-8", errors="replace")
+        return None, text
+
+    def _get_android_device_option_path(self, adb_device) -> str:
+        basic_path = ""
+        try:
+            _, raw_ext = self._run_adb_shell(
+                adb_device,
+                "echo $EXTERNAL_STORAGE",
+                timeout=self._DEVICE_OPTION_SHELL_TIMEOUT,
+            )
+            basic_path = raw_ext.strip().rstrip("/")
+        except Exception as e:
+            self.logger.warning(f"Failed to query $EXTERNAL_STORAGE, fallback to /sdcard: {e}")
+        if not basic_path:
+            basic_path = "/sdcard"
+        package_name = (self.package_name or "").strip()
+        if not package_name or any(ch in package_name for ch in ("/", "\\", "\n", "\r", "\x00")):
+            raise ValueError(f"Invalid Android package name: {self.package_name!r}")
+        return "/".join([
+            basic_path,
+            "Android",
+            "data",
+            package_name,
+            "files",
+            "DeviceOption",
+        ])
+
+    @staticmethod
+    def _build_device_option_su_paths(src: str):
+        paths = [src]
+        for prefix in ("/sdcard/", "/storage/emulated/0/"):
+            if src.startswith(prefix):
+                alt_path = "/data/media/0/" + src[len(prefix):]
+                if alt_path not in paths:
+                    paths.append(alt_path)
+                break
+        return paths
+
+    def _read_android_device_option_via_sync(self, adb_device, src: str):
+        sync = adb_device.sync
+        src_file_info = sync.stat(src)
+        is_src_file = (src_file_info.mode & 32768) != 0
+        if not is_src_file:
+            return None
+
+        read_bytes = getattr(sync, "read_bytes", None)
+        if callable(read_bytes):
+            return read_bytes(src).decode("utf-8-sig")
+
+        read_text = getattr(sync, "read_text", None)
+        if callable(read_text):
+            return read_text(src, encoding="utf-8-sig")
+
+        fd, tmp_path = tempfile.mkstemp(prefix="baas_device_option_", suffix=".json")
+        os.close(fd)
+        try:
+            sync.pull_file(src, tmp_path)
+            with open(tmp_path, "r", encoding="utf-8-sig") as f:
+                return f.read()
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    @staticmethod
+    def _is_cat_missing_file_error(output: str, path: str) -> bool:
+        lower = output.lower()
+        return "no such file or directory" in lower and (
+            "cat:" in lower or path.lower() in lower
+        )
+
+    @staticmethod
+    def _is_su_unavailable_error(output: str) -> bool:
+        lower = output.lower()
+        return "su:" in lower and (
+            "not found" in lower or "inaccessible" in lower
+        )
+
+    def _read_android_device_option_via_su(self, adb_device, src: str):
+        candidate_paths = self._build_device_option_su_paths(src)
+        su_errors = []
+        missing_paths = set()
+        last_parse_error = None
+        su_unavailable = False
+
+        for path in candidate_paths:
+            quoted_path = shlex.quote(path)
+            commands = [
+                f"su -c {shlex.quote(f'cat {quoted_path}')}",
+                f"su 0 cat {quoted_path}",
+            ]
+            for cmd in commands:
+                try:
+                    returncode, output = self._run_adb_shell(
+                        adb_device,
+                        cmd,
+                        timeout=self._DEVICE_OPTION_SHELL_TIMEOUT,
+                    )
+                except Exception as e:
+                    su_errors.append(f"{cmd} -> {type(e).__name__}: {e}")
+                    continue
+
+                stripped = output.strip()
+                if returncode is not None and returncode != 0:
+                    su_errors.append(f"{cmd} (exit {returncode}) -> {stripped}")
+                    if self._is_cat_missing_file_error(stripped, path):
+                        missing_paths.add(path)
+                    if self._is_su_unavailable_error(stripped):
+                        su_unavailable = True
+                        break
+                    continue
+
+                cleaned = output.lstrip("\ufeff").strip()
+                if cleaned:
+                    try:
+                        data = json.loads(cleaned)
+                    except json.JSONDecodeError as e:
+                        if returncode == 0:
+                            last_parse_error = ValueError(
+                                f"Failed to parse Global Server DeviceOption JSON: {e}"
+                            )
+                        su_errors.append(f"{cmd} -> non-JSON output: {stripped}")
+                        if self._is_cat_missing_file_error(stripped, path):
+                            missing_paths.add(path)
+                        if self._is_su_unavailable_error(stripped):
+                            su_unavailable = True
+                            break
+                        continue
+
+                    if isinstance(data, dict) and "Language" in data:
+                        return self._parse_device_option_language(cleaned), su_errors, False, None
+
+                    if returncode == 0:
+                        last_parse_error = ValueError(
+                            "Global Server DeviceOption JSON missing 'Language' field."
+                        )
+                    su_errors.append(f"{cmd} -> unexpected JSON output: {stripped}")
+                else:
+                    su_errors.append(f"{cmd} -> empty output")
+
+            if su_unavailable:
+                break
+
+        confirmed_missing = bool(candidate_paths) and len(missing_paths) == len(candidate_paths)
+        return None, su_errors, confirmed_missing, last_parse_error
+
+    def _raise_android_device_option_error(
+        self,
+        adb_device,
+        src: str,
+        sync_error=None,
+        su_errors=None,
+        confirmed_missing_by_su: bool = False,
+    ):
+        su_errors = su_errors or []
+        if confirmed_missing_by_su:
+            msg = (
+                f"Global Server DeviceOption File not exist: {src}. "
+                "Please verify that the selected server/package matches the installed game "
+                "and launch the game to the lobby at least once to generate DeviceOption."
+            )
+            self.logger.error(msg)
+            raise FileNotFoundError(msg)
+
+        ls_output = ""
+        try:
+            _, raw_ls = self._run_adb_shell(
+                adb_device,
+                f"ls -ld {shlex.quote(src)}",
+                timeout=self._DEVICE_OPTION_SHELL_TIMEOUT,
+            )
+            ls_output = raw_ls.strip()
+        except Exception as e:
+            ls_output = f"{type(e).__name__}: {e}"
+
+        combined_lower = " ".join(
+            part for part in (ls_output, str(sync_error or "")) if part
+        ).lower()
+        if "permission denied" in combined_lower or "operation not permitted" in combined_lower:
+            su_detail = f" ({'; '.join(su_errors)})" if su_errors else ""
+            msg = (
+                f"Permission denied reading Global Server DeviceOption ({src}) "
+                f"and su fallback failed{su_detail}. "
+                "On Android 11+, non-root ADB shell cannot access Android/data due to Scoped Storage. "
+                "Please enable Root permission in your emulator settings, run `adb root`, "
+                "or set `global_ocr_language` ('en-us', 'zh-tw', or 'ko-kr') in config.json."
+            )
+            self.logger.error(msg)
+            raise PermissionError(msg)
+
+        if "no such file or directory" in ls_output.lower():
+            msg = (
+                f"Global Server DeviceOption File not exist: {src}. "
+                "Please verify that the selected server/package matches the installed game "
+                "and launch the game to the lobby at least once to generate DeviceOption."
+            )
+            self.logger.error(msg)
+            raise FileNotFoundError(msg)
+
+        details = []
+        if sync_error is not None:
+            details.append(f"sync={sync_error}")
+        if su_errors:
+            details.append(f"su={'; '.join(su_errors)}")
+        if ls_output:
+            details.append(f"ls={ls_output}")
+        detail_text = f" Details: {' | '.join(details)}" if details else ""
+        msg = f"Failed to read Global Server DeviceOption ({src}).{detail_text}"
+        self.logger.error(msg)
+        raise RuntimeError(msg)
+
     def _get_android_device_ocr_language(self):
         if self.server == "CN":
             self.ocr_language = "zh-cn"
         elif self.server == "Global":
-            basic_path = self.u2._adb_device.shell(f"echo $EXTERNAL_STORAGE").strip()
-            src = "/".join([
-                basic_path,
-                "Android",
-                "data",
-                self.package_name,
-                "files",
-                "DeviceOption"
-            ])
-            dst = os.path.basename(self.config_set.config_dir) + "_DeviceOption.json"
-            # remove dst existing file
-            if os.path.exists(dst):
-                os.remove(dst)
-            sync = self.u2._adb_device.sync
-            src_file_info = sync.stat(src)
-            is_src_file = src_file_info.mode & 32768 != 0
+            configured_language = self._get_configured_global_ocr_language()
+            if configured_language is not None:
+                self.logger.info("Using configured Global OCR Language : " + configured_language)
+                self.ocr_language = configured_language
+                return
 
-            if is_src_file:
-                sync.pull_file(src, dst)
-            else:
-                raise Exception("Global Server DeviceOption File not exist.")
-            self._read_DeviceOption_ocr_language(dst)
+            adb_device = self.u2._adb_device
+            src = self._get_android_device_option_path(adb_device)
+
+            sync_error = None
+            raw_content = None
+            try:
+                raw_content = self._read_android_device_option_via_sync(adb_device, src)
+            except Exception as e:
+                sync_error = e
+                self.logger.warning(
+                    f"Direct ADB sync read for DeviceOption failed ({e}), trying su fallback."
+                )
+
+            if raw_content is not None:
+                self.ocr_language = self._parse_device_option_language(raw_content)
+                return
+
+            self.logger.warning(
+                "Direct ADB access to Global Server DeviceOption failed; trying su fallback."
+            )
+            language, su_errors, confirmed_missing, parse_error = (
+                self._read_android_device_option_via_su(adb_device, src)
+            )
+            if language is not None:
+                self.logger.info("Read Global Server DeviceOption via su fallback.")
+                self.ocr_language = language
+                return
+            if parse_error is not None:
+                raise parse_error
+
+            self._raise_android_device_option_error(
+                adb_device,
+                src,
+                sync_error=sync_error,
+                su_errors=su_errors,
+                confirmed_missing_by_su=confirmed_missing,
+            )
         elif self.server == "JP":
             self.ocr_language = "ja-jp"
 
+    @classmethod
+    def _parse_device_option_language(cls, raw_content: str) -> str:
+        cleaned = raw_content.lstrip("\ufeff").strip()
+        if not cleaned:
+            raise ValueError("Global Server DeviceOption file is empty.")
+        try:
+            data = json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Failed to parse Global Server DeviceOption JSON: {e}") from e
+        if not isinstance(data, dict):
+            raise ValueError("Global Server DeviceOption JSON root must be an object.")
+        if "Language" not in data:
+            raise ValueError("Global Server DeviceOption JSON missing 'Language' field.")
+        game_lan = data["Language"]
+        if isinstance(game_lan, str) and game_lan in cls.GLOBAL_DEVICE_OPTION_LANGUAGE_MAP:
+            return cls.GLOBAL_DEVICE_OPTION_LANGUAGE_MAP[game_lan]
+        raise ValueError("Global Server Invalid Language : " + str(game_lan) + ".")
+
     def _read_DeviceOption_ocr_language(self, _p):
-        supported_language_convert_dict = {
-            "Kr": "ko-kr",
-            "En": "en-us",
-            "Tw": "zh-tw",
-        }
-        with open(_p, "r") as f:
-            data = json.load(f)
-            game_lan = data["Language"]
-            if game_lan in supported_language_convert_dict:
-                self.ocr_language = supported_language_convert_dict[game_lan]
-            else:
-                raise Exception("Global Server Invalid Language : " + game_lan + ".")
+        with open(_p, "r", encoding="utf-8-sig") as f:
+            self.ocr_language = self._parse_device_option_language(f.read())
 
     def check_atx(self):
         self.logger.info("--------------Check ATX install ----------------")
