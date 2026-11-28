@@ -407,6 +407,7 @@ DEFAULT_CONFIG = """
     "cafe_reward_allow_exchange_student": false,
     "cafe_reward_interaction_shot_delay": 1.0,
     "server": "官服",
+    "global_ocr_language": "auto",
     "control_method" : "uiautomator2",
     "screenshot_method" : "uiautomator2",
     "adbIP": "127.0.0.1",
