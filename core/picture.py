@@ -21,8 +21,10 @@ def co_detect(
     img_reactions: dict = None,
     skip_first_screenshot=False,
     tentative_click=False,
-    tentative_x=1238,
-    tentative_y=45,
+    # The news popup close button sits at (1216, 44). The old (1238, 45)
+    # landed ~22px to its right, so a failed recognition never dismisses it.
+    tentative_x=1216,
+    tentative_y=44,
     max_fail_cnt=10,
     pop_ups_rgb_reactions: dict = None,
     pop_ups_img_reactions: dict = None,
@@ -283,7 +285,11 @@ GAME_ONE_TIME_POP_UPS = {
         'draw-card-point-exchange-to-stone-piece-notice': (933, 155)
     },
     'Global': {
-        'main_page_news': (1239, 50),
+        # Keep in sync with the Global branch of to_main_page; this dict is
+        # the popup fallback for the task modules, so a stale value here also
+        # blocks them.
+        'main_page_news': (1216, 44),
+        'main_page_news2': (1216, 44),
         'main_page_item-expired-notice': (922, 159),
         'main_page_item-expiring-notice': (931, 132),
         'main_page_Failed-to-convert-errorResponse': (641, 511),
