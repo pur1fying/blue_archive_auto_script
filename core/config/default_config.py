@@ -3560,7 +3560,7 @@ STATIC_DEFAULT_CONFIG = '''
     },
     "current_game_activity": {
         "CN": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
-        "Global": "HighlanderRailroadExplosionIncident",
+        "Global": "PandemicHazardAMiraclePancake",
         "JP": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics"
     },
     "dailyGameActivity": {
