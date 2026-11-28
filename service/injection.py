@@ -221,8 +221,6 @@ def _patch_baas_thread() -> None:
     original_android_language = Baas_thread._get_android_device_ocr_language
     original_check_atx = Baas_thread.check_atx
     original_wait_uiautomator_start = Baas_thread.wait_uiautomator_start
-    original_check_resolution = Baas_thread.check_resolution
-    original_swipe = Baas_thread.swipe
 
     @wraps(original_init)
     def init(self, config, logger_signal=None, button_signal=None, update_signal=None, exit_signal=None, **kwargs):
@@ -300,41 +298,12 @@ def _patch_baas_thread() -> None:
                 time.sleep(0.3)
         raise RuntimeError("Android embedded uiautomator2 agent is not responding")
 
-    @wraps(original_check_resolution)
-    def check_resolution(self):
-        try:
-            return original_check_resolution(self)
-        except Exception:
-            if _env_enabled("BAAS_ANDROID"):
-                self.logger.warning("Android embedded mode accepts non-16:9 device screens.")
-                return None
-            raise
-
-    @wraps(original_swipe)
-    def swipe(self, fx, fy, tx, ty, duration=None, post_sleep_time=0):
-        if not _env_enabled("BAAS_ANDROID"):
-            return original_swipe(self, fx, fy, tx, ty, duration, post_sleep_time)
-        width, height = self.resolution if getattr(self, "resolution", None) else (1280, 720)
-        max_x = max(0, int(width) - 1)
-        max_y = max(0, int(height) - 1)
-        return original_swipe(
-            self,
-            min(max_x, max(0, int(fx))),
-            min(max_y, max(0, int(fy))),
-            min(max_x, max(0, int(tx))),
-            min(max_y, max(0, int(ty))),
-            duration,
-            post_sleep_time,
-        )
-
     Baas_thread.__init__ = init
     Baas_thread.set_ocr = set_ocr
     Baas_thread.start_emulator = start_emulator
     Baas_thread._get_android_device_ocr_language = _get_android_device_ocr_language
     Baas_thread.check_atx = check_atx
     Baas_thread.wait_uiautomator_start = wait_uiautomator_start
-    Baas_thread.check_resolution = check_resolution
-    Baas_thread.swipe = swipe
     Baas_thread._baas_service_injected = True
 
 
@@ -484,134 +453,6 @@ def _patch_device_modules() -> None:
         U2Client._baas_service_injected = True
 
 
-def _patch_cafe_reward() -> None:
-    import cv2
-    import threading
-    import time
-    from module import cafe_reward
-
-    if getattr(cafe_reward, "_baas_service_injected", False):
-        return
-
-    original_gift_to_cafe = cafe_reward.gift_to_cafe
-    original_swipe_gift_and_screenshot = cafe_reward.swipe_gift_and_screenshot
-
-    cafe_reward._happy_face_templates = None
-    cafe_reward._happy_face_match_scale = 0.75
-    cafe_reward._happy_face_match_roi = (0, 45, 1280, 555)
-
-    def _resize_for_happy_face_match(img):
-        """Resize cafe interaction images before matching to keep template search bounded."""
-        height, width = img.shape[:2]
-        size = (
-            max(1, int(round(width * cafe_reward._happy_face_match_scale))),
-            max(1, int(round(height * cafe_reward._happy_face_match_scale))),
-        )
-        return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
-
-    def _get_happy_face_templates():
-        """Load and cache grayscale cafe interaction templates used by the injected matcher."""
-        if cafe_reward._happy_face_templates is None:
-            templates = []
-            for i in range(1, 5):
-                template = cv2.imread("src/images/CN/cafe/happy_face" + str(i) + ".png")
-                if template is None:
-                    templates.append(None)
-                    continue
-                template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-                template = _resize_for_happy_face_match(template)
-                templates.append(template)
-            cafe_reward._happy_face_templates = templates
-        return cafe_reward._happy_face_templates
-
-    def _dedupe_happy_face_points(points):
-        """Merge nearby interaction candidates so one student head is clicked only once."""
-        deduped = []
-        for x, y in sorted(points, key=lambda item: (item[1], item[0])):
-            if any(abs(x - px) <= 24 and abs(y - py) <= 24 for px, py in deduped):
-                continue
-            deduped.append([x, y])
-            if len(deduped) >= 32:
-                break
-        return deduped
-
-    def match(img):
-        """Find cafe interaction icons with template matching on every platform."""
-        res = []
-        roi_x0, roi_y0, roi_x1, roi_y1 = cafe_reward._happy_face_match_roi
-        search_img = img[roi_y0:roi_y1, roi_x0:roi_x1]
-        search_img = cv2.cvtColor(search_img, cv2.COLOR_BGR2GRAY)
-        search_img = _resize_for_happy_face_match(search_img)
-        for template in _get_happy_face_templates():
-            if template is None:
-                continue
-            result = cv2.matchTemplate(search_img, template, cv2.TM_CCOEFF_NORMED)
-            threshold = 0.75
-            suppress_x = max(20, template.shape[1])
-            suppress_y = max(20, template.shape[0])
-            for _ in range(16):
-                _, max_val, _, max_loc = cv2.minMaxLoc(result)
-                if max_val < threshold:
-                    break
-                pt_x, pt_y = max_loc
-                res.append([
-                    int(roi_x0 + (pt_x + template.shape[1] / 2) / cafe_reward._happy_face_match_scale),
-                    int(roi_y0 + (pt_y + template.shape[0] / 2) / cafe_reward._happy_face_match_scale + 58),
-                ])
-                left = max(0, pt_x - suppress_x)
-                right = min(result.shape[1], pt_x + suppress_x + 1)
-                top = max(0, pt_y - suppress_y)
-                bottom = min(result.shape[0], pt_y + suppress_y + 1)
-                result[top:bottom, left:right] = -1
-        return _dedupe_happy_face_points(res)
-
-    @wraps(original_gift_to_cafe)
-    def gift_to_cafe(self):
-        """Return from the gift screen quickly on Android without slow image co-detection."""
-        if getattr(self, "is_android_device", False):
-            self.click(1240, 574, wait_over=True)
-            time.sleep(0.25)
-            return
-        return original_gift_to_cafe(self)
-
-    @wraps(original_swipe_gift_and_screenshot)
-    def swipe_gift_and_screenshot(self):
-        """Capture the cafe interaction frame while dragging gifts across the screen."""
-        if not getattr(self, "is_android_device", False):
-            return original_swipe_gift_and_screenshot(self)
-        shot_delay = self.config.cafe_reward_interaction_shot_delay
-        thread = threading.Thread(target=cafe_reward.screenshot_thread, args=(self, shot_delay))
-        thread.start()
-        start_t = time.time()
-        self.u2_swipe(131, 660, 1280, 660, duration=0.3)
-        thread.join(timeout=max(1.0, shot_delay + 1.0))
-        swipe_t = round(time.time() - start_t, 3)
-        self.logger.info("Gift swipe duration : [ " + str(swipe_t) + " ]")
-        return swipe_t
-
-    original_find_student_position = cafe_reward.find_student_position
-
-    @wraps(original_find_student_position)
-    def find_student_position(self):
-        """Log cafe interaction matching duration and candidate count for diagnostics."""
-        match_start_t = time.time()
-        res = original_find_student_position(self)
-        self.logger.info(
-            "Cafe interaction total duration : [ "
-            + str(round(time.time() - match_start_t, 3))
-            + " ], candidates : [ "
-            + str(len(res))
-            + " ]"
-        )
-        return res
-
-    cafe_reward.match = match
-    cafe_reward.gift_to_cafe = gift_to_cafe
-    cafe_reward.swipe_gift_and_screenshot = swipe_gift_and_screenshot
-    cafe_reward.find_student_position = find_student_position
-    cafe_reward._baas_service_injected = True
-
-
 def apply_startup_injections() -> None:
     """Prepare logging and Main without importing device/task/image engines."""
     global _STARTUP_APPLIED
@@ -625,7 +466,7 @@ def apply_startup_injections() -> None:
 
 
 def apply_service_injections() -> None:
-    """Install task patches once, before any service task is constructed."""
+    """Install runtime adapters and duration-aware Nemu gestures once."""
     global _APPLIED
     with _INJECTION_LOCK:
         if _APPLIED:
@@ -633,18 +474,7 @@ def apply_service_injections() -> None:
         apply_startup_injections()
         _patch_device_modules()
         _patch_baas_thread()
-        _patch_cafe_reward()
-        from service.image_compat import install_popup_image_compat
-        from service.shop_compat import install_shop_compat
         from service.gesture_compat import install_gesture_compat
-        from service.asset_compat import install_asset_compat
-        from service.login_compat import install_login_compat
-        from service.sweep_compat import install_scrimmage_sweep_compat
 
-        install_popup_image_compat()
-        install_shop_compat()
         install_gesture_compat()
-        install_asset_compat()
-        install_login_compat()
-        install_scrimmage_sweep_compat()
         _APPLIED = True

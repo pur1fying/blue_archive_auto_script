@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "task_timeout_seconds": 1800,
+  "jobs": [
+    {
+      "config_id": "cn",
+      "tasks": ["group", "momo_talk", "common_shop", "cafe_reward", "lesson", "rewarded_task", "arena", "mail", "scrimmage", "collect_reward", "normal_task", "hard_task", "clear_special_task_power", "collect_daily_power", "joint_firing_drill"]
+    },
+    {
+      "config_id": "global",
+      "tasks": ["group", "momo_talk", "common_shop", "cafe_reward", "lesson", "rewarded_task", "arena", "mail", "scrimmage", "collect_reward", "normal_task", "hard_task", "clear_special_task_power", "collect_daily_power", "joint_firing_drill"]
+    },
+    {
+      "config_id": "jppc",
+      "tasks": ["group", "momo_talk", "common_shop", "cafe_reward", "lesson", "rewarded_task", "arena", "mail", "scrimmage", "collect_reward", "normal_task", "hard_task", "clear_special_task_power", "collect_daily_power", "joint_firing_drill"]
+    }
+  ]
+}

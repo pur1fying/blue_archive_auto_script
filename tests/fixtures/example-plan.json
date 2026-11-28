@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "task_timeout_seconds": 1800,
+  "jobs": [
+    {"config_id": "jppc", "tasks": ["lesson", "cafe_reward"]},
+    {"config_id": "steam", "tasks": ["lesson", "create"]},
+    {"config_id": "cn", "tasks": ["lesson", "common_shop"]}
+  ]
+}

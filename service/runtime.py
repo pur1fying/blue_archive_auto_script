@@ -189,6 +189,7 @@ class ConfigSession:
     exit_signal: _SignalHook
     scrcpy_client: Optional["ScrcpyClient"] = None
     thread: Optional[threading.Thread] = None
+    stop_event: threading.Event = field(default_factory=threading.Event)
     status: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -381,10 +382,10 @@ class ServiceRuntime:
                 session = self._get_or_create_session(config_id)
         return session
 
-    async def _initialize_baas(self, config_id: str, baas: "Baas_thread") -> None:
-        await run_blocking(self._android_display_guard.activate, baas.logger)
+    def _initialize_baas(self, config_id: str, baas: "Baas_thread") -> None:
+        """Initialize device resources on the thread that will execute the task."""
         try:
-            initialized = await run_blocking(baas.init_all_data)
+            initialized = baas.init_all_data()
             if initialized is False:
                 raise RuntimeError(
                     f"BAAS initialization failed for '{config_id}'; task was not started. "
@@ -395,10 +396,18 @@ class ServiceRuntime:
             # Discard that partial readiness marker so the next run retries init.
             baas.scheduler = None
             baas.flag_run = False
-            self._update_status(config_id, running=False, is_flag_run=False, exit_code=1,
-                                current_task=None, waiting_tasks=[])
-            await run_blocking(self._android_display_guard.release, baas.logger)
             raise
+
+    @staticmethod
+    def _close_baas_screenshot(baas: "Baas_thread", previous_provider) -> None:
+        """Release thread-bound screenshot handles before the worker exits."""
+        provider = getattr(getattr(baas, "screenshot", None), "screenshot_instance", None)
+        close = getattr(provider, "close", None) if provider is not previous_provider else None
+        if close is not None:
+            try:
+                close()
+            except Exception:
+                logging.getLogger(__name__).exception("Failed to close the task screenshot provider")
 
     async def start_scheduler(self, config_id: str, set_log=None) -> Dict[str, Any]:
         """Start the scheduler thread for a config.
@@ -415,16 +424,28 @@ class ServiceRuntime:
             if set_log: set_log()
             if session.thread and session.thread.is_alive():
                 return {"status": "already-running", "config_id": config_id}
-            await self._initialize_baas(config_id, session.baas)
+            stop_event = threading.Event()
+            session.stop_event = stop_event
+            session.plugin_owner = None
 
             def runner() -> None:
                 failed = False
+                previous_provider = getattr(getattr(session.baas, "screenshot", None), "screenshot_instance", None)
                 try:
+                    if stop_event.is_set():
+                        return
+                    self._android_display_guard.activate(session.baas.logger)
+                    self._initialize_baas(config_id, session.baas)
+                    if stop_event.is_set():
+                        return
                     failed = session.baas.send("start") is False
                 except BaseException:
                     failed = True
                     raise
                 finally:
+                    if stop_event.is_set():
+                        session.baas.flag_run = False
+                    self._close_baas_screenshot(session.baas, previous_provider)
                     self._android_display_guard.release(session.baas.logger)
                     session.thread = None
                     changes = {"exit_code": 1} if failed else {}
@@ -468,6 +489,7 @@ class ServiceRuntime:
             if plugin_owner is not None and plugin_owner.get("thread") is session.thread:
                 plugin_owner["stopped"] = True
             logger = session.baas.logger
+            session.stop_event.set()
             if not session.thread:
                 self._update_status(config_id, running=False, is_flag_run=False, current_task=None, waiting_tasks=[])
                 await run_blocking(self._android_display_guard.force_restore, logger)
@@ -540,30 +562,21 @@ class ServiceRuntime:
             if session.thread and session.thread.is_alive():
                 return {"status": "already-running", "config_id": config_id}
             baas = session.baas
-            needs_init = session.baas.scheduler is None
-
-            if needs_init:
-                await self._initialize_baas(config_id, baas)
-            elif _is_android_runtime():
-                await run_blocking(self._android_display_guard.activate, baas.logger)
-
-            if _plugin_cancel is not None and _plugin_cancel.is_set():
-                await run_blocking(self._android_display_guard.release, baas.logger)
-                raise asyncio.CancelledError
+            stop_event = _plugin_cancel if _plugin_cancel is not None else threading.Event()
+            session.stop_event = stop_event
 
             def _call() -> None:
                 failed = False
+                previous_provider = getattr(getattr(baas, "screenshot", None), "screenshot_instance", None)
                 try:
-                    self._update_status(
-                        config_id,
-                        running=True,
-                        is_flag_run=True,
-                        exit_code=None,
-                        current_task=_original_task_name,
-                        waiting_tasks=[],
-                        run_mode="single",
-                    )
-                    baas.flag_run = True
+                    if stop_event.is_set():
+                        return
+                    self._android_display_guard.activate(baas.logger)
+                    # Like the GUI: initialize and execute sequentially on this
+                    # worker. Every new worker gets fresh thread-bound resources.
+                    self._initialize_baas(config_id, baas)
+                    if stop_event.is_set():
+                        return
                     if _plugin_handler is None:
                         failed = baas.send("solve", task_name) is False
                     else:
@@ -577,6 +590,11 @@ class ServiceRuntime:
                     else:
                         raise
                 finally:
+                    if stop_event.is_set():
+                        baas.flag_run = False
+                        if _plugin_owner is not None:
+                            _plugin_owner["stopped"] = True
+                    self._close_baas_screenshot(baas, previous_provider)
                     self._android_display_guard.release(baas.logger)
                     if _plugin_owner is not None:
                         _plugin_owner["failed"] = failed
@@ -601,6 +619,10 @@ class ServiceRuntime:
             if _plugin_owner is not None:
                 _plugin_owner.update(session=session, thread=thread)
             session.plugin_owner = _plugin_owner
+            self._update_status(
+                config_id, running=True, is_flag_run=True, exit_code=None,
+                current_task=_original_task_name, waiting_tasks=[], run_mode="single",
+            )
             thread.start()
 
         return {"status": "ok", "task": task_name, "result": 0}
@@ -640,9 +662,8 @@ class ServiceRuntime:
         from .plugins.errors import PluginError
         cancelled = threading.Event()
         owner = {}
-        # Do not cancel an executor-backed device initialization halfway through:
-        # its lock remains held until initialization finishes, then the cancellation
-        # gate prevents the solver thread from starting.
+        # Initialization and execution share the owned worker. Cancellation keeps
+        # device ownership until that worker exits and prevents post-init actions.
         starting = asyncio.create_task(self.solve_task(config_id, task_name, set_log=set_log,
                                                       _plugin_cancel=cancelled, _plugin_owner=owner, _plugin_handler=handler))
         try:

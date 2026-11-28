@@ -3559,8 +3559,8 @@ STATIC_DEFAULT_CONFIG = '''
         ]
     },
     "current_game_activity": {
-        "CN": "ShesideOutside",
-        "Global": "ChairMakotosLuxSummerGetaway",
+        "CN": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics",
+        "Global": "PandemicHazardAMiraclePancake",
         "JP": "ForWhomTheArtIsForTheFateofDecorativePaintingandAesthetics"
     },
     "dailyGameActivity": {

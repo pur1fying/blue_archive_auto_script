@@ -301,17 +301,13 @@ def is_chinese_char(char):
 
 
 def get_lesson_relationship_counts(self):
-    position = {
-        'CN': [(357, 295), (700, 295), (1043, 295),
-               (357, 445), (701, 445), (1043, 445),
-               (357, 598), (701, 598), (1043, 598)],
-        'Global': [(357, 295), (700, 295), (1043, 295),
-               (357, 445), (701, 445), (1043, 445),
-               (357, 598), (701, 598), (1043, 598)],
-        'JP': [(357, 295), (700, 295), (1043, 295),
-               (357, 445), (701, 445), (1043, 445),
-               (357, 598), (701, 598), (1043, 598)]
-    }
+    # Sample inside the heart's upper-right lobe, away from its edge
+    # and rank digits while the all-locations popup settles.
+    position = [
+        (354, 294), (697, 294), (1040, 294),
+        (354, 444), (698, 444), (1040, 444),
+        (354, 597), (698, 597), (1040, 597)
+    ]
     dx = {
         'CN': 72,
         'Global': 72,
@@ -323,7 +319,6 @@ def get_lesson_relationship_counts(self):
         'JP': [223, 255, 164, 224, 190, 230]
     }
     rgb_range = rgb_range[self.server]
-    position = position[self.server]
     dx = dx[self.server]
     res = []
     for i in range(0, 9):
@@ -368,17 +363,18 @@ def get_lesson_each_region_status(self):
     return res
 
 def check_region_availability(self, region_cnt):
+    # Cover the portrait interior at the same height in every row,
+    # keeping the slanted edges clear of the heart and completion badge.
     k1 = 0
-    dx1 = 33
+    dx1 = 28
     k2 = -5.3
-    dx2 = [9, 4]
-    y_list = [308, 459, 612]
+    dx2 = 8
+    y_list = [306, 457, 610]
     region_start_p = [
         (154, y_list[0]), (498, y_list[0]), (842, y_list[0]),
         (154, y_list[1]), (498, y_list[1]), (842, y_list[1]),
         (156, y_list[2]), (500, y_list[2]), (844, y_list[2])
     ]
-    dx2 = dx2[int(region_cnt / 6)]
     start_p = region_start_p[region_cnt]
     y_min, x_min_list, y_min_list = Parallelogram(start_p[0], start_p[1], k1, dx1, k2, dx2).pixels()
 

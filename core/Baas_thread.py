@@ -768,22 +768,18 @@ class Baas_thread:
             "AP",
             "0123456789/"
         )
-        _max = -1
-        if '/' in ocr_res:
-            ocr_res = ocr_res.split('/')
-            _max = ocr_res[1]
-            ocr_res = ocr_res[0]
         try:
-            ocr_res = int(ocr_res)
-            _max = int(_max)
-            if ocr_res <= 999 and _max <= 999:
+            count_text, maximum_text = ocr_res.split('/')
+            count = int(count_text)
+            maximum = int(maximum_text)
+            if 0 <= count <= 999 and 0 < maximum <= 999:
                 data = {
-                    "count": ocr_res,
-                    "max": _max,
+                    "count": count,
+                    "max": maximum,
                     "time": time.time()
                 }
                 self.config_set.set("ap", data)
-                return ocr_res
+                return count
         except ValueError:
             pass
 
